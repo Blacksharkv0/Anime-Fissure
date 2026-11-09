@@ -1,47 +1,44 @@
 
 --!strict
--- ANIME FISSURE
--- GuardianBuilder v1.0
+-- ANIME FISSURE | GuardianBuilder v2.0
 -- Cortador de Fissuras
--- Modelo Roblox procedural e animavel por pivots.
---
--- Uso:
--- local GuardianBuilder = require(Shared.GuardianBuilder)
--- local guardian = GuardianBuilder.Build(CFrame.new(0, 5, 0))
--- guardian.Parent = workspace
---
--- O modelo e visual/prototipo.
--- Nao e um rig R15 oficial ainda.
+-- Modelo 3D procedural com poses cinematograficas.
+-- Todas as partes sao ancoradas: animacao local via PivotTo.
 
 local GuardianBuilder = {}
 
-local COLORS = {
-    Coat = Color3.fromRGB(12, 28, 76),
-    CoatLight = Color3.fromRGB(25, 67, 150),
-    Black = Color3.fromRGB(8, 12, 27),
-    Armor = Color3.fromRGB(18, 25, 43),
-    Silver = Color3.fromRGB(213, 230, 248),
-    Hair = Color3.fromRGB(229, 238, 255),
-    Skin = Color3.fromRGB(224, 196, 176),
-    Gold = Color3.fromRGB(221, 168, 69),
-    Blue = Color3.fromRGB(56, 123, 255),
-    Cyan = Color3.fromRGB(87, 225, 255),
-    Eye = Color3.fromRGB(72, 194, 255),
+local C = {
+    Navy = Color3.fromRGB(12, 25, 65),
+    Blue = Color3.fromRGB(32, 75, 156),
+    Black = Color3.fromRGB(9, 13, 28),
+    Armor = Color3.fromRGB(27, 34, 54),
+    Silver = Color3.fromRGB(215, 230, 248),
+    Hair = Color3.fromRGB(235, 242, 255),
+    Skin = Color3.fromRGB(223, 194, 175),
+    Gold = Color3.fromRGB(222, 172, 78),
+    Cyan = Color3.fromRGB(75, 225, 255),
 }
 
-local function createPart(
+local function piece(
     parent: Instance,
     name: string,
     size: Vector3,
-    relativeCF: CFrame,
+    cf: CFrame,
     color: Color3,
-    material: Enum.Material?
-): Part
+    material: Enum.Material?,
+    shape: string?
+): BasePart
+    local p: BasePart
 
-    local p = Instance.new("Part")
+    if shape == "Wedge" then
+        p = Instance.new("WedgePart")
+    else
+        p = Instance.new("Part")
+    end
+
     p.Name = name
     p.Size = size
-    p.CFrame = relativeCF
+    p.CFrame = cf
     p.Color = color
     p.Material = material or Enum.Material.SmoothPlastic
     p.Anchored = true
@@ -49,408 +46,403 @@ local function createPart(
     p.CanTouch = false
     p.CanQuery = false
     p.CastShadow = false
-    p.TopSurface = Enum.SurfaceType.Smooth
-    p.BottomSurface = Enum.SurfaceType.Smooth
     p.Parent = parent
 
     return p
 end
 
-local function makeWedge(
+local function createGroup(
     parent: Instance,
     name: string,
-    size: Vector3,
-    cf: CFrame,
-    color: Color3
-): WedgePart
+    pivot: CFrame
+): Model
+    local group = Instance.new("Model")
+    group.Name = name
+    group.Parent = parent
 
-    local p = Instance.new("WedgePart")
-    p.Name = name
-    p.Size = size
-    p.CFrame = cf
-    p.Color = color
-    p.Material = Enum.Material.SmoothPlastic
-    p.Anchored = true
-    p.CanCollide = false
-    p.CanTouch = false
-    p.CanQuery = false
-    p.CastShadow = false
-    p.Parent = parent
-
-    return p
-end
-
-local function addNeon(
-    parent: Instance,
-    name: string,
-    size: Vector3,
-    cf: CFrame,
-    color: Color3
-): Part
-    return createPart(
-        parent,
-        name,
-        size,
-        cf,
-        color,
-        Enum.Material.Neon
+    local root = piece(
+        group,
+        "Pivot",
+        Vector3.new(0.1, 0.1, 0.1),
+        pivot,
+        C.Black
     )
+    root.Transparency = 1
+    group.PrimaryPart = root
+
+    return group
+end
+
+local function addArm(
+    parent: Instance,
+    name: string,
+    shoulder: CFrame,
+    left: boolean
+): Model
+    local group = createGroup(parent, name, shoulder)
+
+    piece(
+        group, "Sleeve",
+        Vector3.new(1.35, 2.7, 1.5),
+        shoulder * CFrame.new(0, -1.35, 0),
+        C.Blue
+    )
+
+    piece(
+        group, "ShoulderArmor",
+        Vector3.new(1.6, 0.55, 1.7),
+        shoulder * CFrame.new(0, -0.2, 0),
+        C.Navy
+    )
+
+    piece(
+        group, "Glove",
+        Vector3.new(1.25, 0.85, 1.4),
+        shoulder * CFrame.new(0, -2.85, 0),
+        C.Black
+    )
+
+    piece(
+        group, "WristTrim",
+        Vector3.new(1.3, 0.12, 1.45),
+        shoulder * CFrame.new(0, -2.5, 0),
+        C.Gold,
+        Enum.Material.Metal
+    )
+
+    return group
 end
 
 function GuardianBuilder.Build(spawnCF: CFrame): Model
     local model = Instance.new("Model")
     model.Name = "FissureGuardian"
 
-    -- Todas as coordenadas sao locais.
-    -- Model:PivotTo posiciona o conjunto completo.
-    local root = createPart(
-        model,
-        "Root",
-        Vector3.new(0.5, 0.5, 0.5),
-        CFrame.new(0, 0, 0),
-        COLORS.Black
+    local root = piece(
+        model, "HumanoidRootPart",
+        Vector3.new(0.3, 0.3, 0.3),
+        CFrame.new(),
+        C.Black
     )
     root.Transparency = 1
     model.PrimaryPart = root
 
-    local torso = createPart(
-        model,
-        "Torso",
-        Vector3.new(3.4, 3.5, 1.8),
-        CFrame.new(0, 5.2, 0),
-        COLORS.Armor
-    )
+    -- Pernas e botas.
+    for _, side in ipairs({-1, 1}) do
+        local x = side * 0.85
 
-    -- Sobretudo, parte superior.
-    createPart(
-        model,
-        "CoatChest",
-        Vector3.new(3.7, 3.6, 2.05),
-        CFrame.new(0, 5.2, 0.08),
-        COLORS.Coat
-    )
-
-    -- Painel central preto.
-    createPart(
-        model,
-        "ChestPanel",
-        Vector3.new(1.7, 3.2, 0.12),
-        CFrame.new(0, 5.2, -1.02),
-        COLORS.Black
-    )
-
-    -- Gola alta.
-    createPart(
-        model,
-        "CollarLeft",
-        Vector3.new(0.6, 1.2, 1.3),
-        CFrame.new(-1.1, 7.05, -0.1) *
-            CFrame.Angles(0, 0, math.rad(-12)),
-        COLORS.Coat
-    )
-
-    createPart(
-        model,
-        "CollarRight",
-        Vector3.new(0.6, 1.2, 1.3),
-        CFrame.new(1.1, 7.05, -0.1) *
-            CFrame.Angles(0, 0, math.rad(12)),
-        COLORS.Coat
-    )
-
-    -- Detalhes metalicos da frente.
-    for _, x in ipairs({-1.42, 1.42}) do
-        createPart(
-            model,
-            "CoatTrim",
-            Vector3.new(0.12, 3.25, 0.14),
-            CFrame.new(x, 5.2, -1.03),
-            COLORS.Silver
+        piece(
+            model, "Leg",
+            Vector3.new(1.45, 3.0, 1.5),
+            CFrame.new(x, 1.95, 0),
+            C.Black
         )
 
-        for i = 1, 4 do
-            local button = createPart(
-                model,
-                "GoldButton",
-                Vector3.new(0.22, 0.22, 0.1),
+        piece(
+            model, "Boot",
+            Vector3.new(1.55, 0.8, 2.0),
+            CFrame.new(x, 0.45, -0.25),
+            C.Armor
+        )
+
+        -- Abas do sobretudo.
+        piece(
+            model, "CoatTail",
+            Vector3.new(1.65, 3.2, 0.45),
+            CFrame.new(x * 1.05, 2.5, 0.85)
+                * CFrame.Angles(math.rad(-9), 0, 0),
+            C.Navy
+        )
+
+        piece(
+            model, "CoatTrim",
+            Vector3.new(0.1, 2.8, 0.15),
+            CFrame.new(side * 1.65, 2.5, 0.58),
+            C.Silver
+        )
+    end
+
+    -- Corpo e sobretudo.
+    piece(
+        model, "UpperBody",
+        Vector3.new(3.2, 3.5, 1.8),
+        CFrame.new(0, 5.3, 0),
+        C.Navy
+    )
+
+    piece(
+        model, "ChestPanel",
+        Vector3.new(1.6, 3.0, 0.14),
+        CFrame.new(0, 5.3, -0.97),
+        C.Black
+    )
+
+    for _, side in ipairs({-1, 1}) do
+        piece(
+            model, "ChestTrim",
+            Vector3.new(0.12, 3.0, 0.12),
+            CFrame.new(side * 1.3, 5.3, -1.0),
+            C.Silver
+        )
+
+        piece(
+            model, "Collar",
+            Vector3.new(0.65, 1.0, 1.3),
+            CFrame.new(side * 1.05, 7.1, 0),
+            C.Navy
+        )
+
+        for i = 1, 3 do
+            piece(
+                model, "GoldButton",
+                Vector3.new(0.2, 0.2, 0.13),
                 CFrame.new(
-                    x * 0.72,
-                    6.3 - (i - 1) * 0.65,
-                    -1.12
+                    side * 0.7,
+                    6.25 - (i - 1) * 0.75,
+                    -1.08
                 ),
-                COLORS.Gold,
+                C.Gold,
                 Enum.Material.Metal
             )
-            button.Shape = Enum.PartType.Ball
         end
     end
 
-    -- Gema central.
-    local gem = addNeon(
-        model,
-        "DimensionalCore",
-        Vector3.new(0.45, 0.65, 0.2),
-        CFrame.new(0, 6.1, -1.16) *
-            CFrame.Angles(0, 0, math.rad(45)),
-        COLORS.Cyan
+    piece(
+        model, "DimensionalCore",
+        Vector3.new(0.48, 0.6, 0.16),
+        CFrame.new(0, 6.15, -1.12)
+            * CFrame.Angles(0, 0, math.rad(45)),
+        C.Cyan,
+        Enum.Material.Neon
     )
 
-    -- Cabeca e rosto.
-    createPart(
-        model,
-        "Neck",
-        Vector3.new(0.9, 0.5, 0.8),
-        CFrame.new(0, 7.2, 0),
-        COLORS.Skin
+    -- Cabeca.
+    piece(
+        model, "Neck",
+        Vector3.new(0.8, 0.5, 0.8),
+        CFrame.new(0, 7.35, 0),
+        C.Skin
     )
 
-    local head = createPart(
-        model,
-        "Head",
-        Vector3.new(2.35, 2.15, 2.1),
-        CFrame.new(0, 8.45, 0),
-        COLORS.Skin
+    piece(
+        model, "Head",
+        Vector3.new(2.2, 2.1, 2.0),
+        CFrame.new(0, 8.55, 0),
+        C.Skin
     )
 
-    -- Frente do personagem = Z negativo.
-    for _, x in ipairs({-0.55, 0.55}) do
-        createPart(
-            model,
-            "EyeWhite",
-            Vector3.new(0.57, 0.28, 0.06),
-            CFrame.new(x, 8.58, -1.08),
-            COLORS.Silver
+    -- Frente do personagem: Z negativo.
+    for _, side in ipairs({-1, 1}) do
+        local x = side * 0.52
+
+        piece(
+            model, "Eye",
+            Vector3.new(0.48, 0.22, 0.08),
+            CFrame.new(x, 8.6, -1.04),
+            C.Silver
         )
 
-        createPart(
-            model,
-            "BlueEye",
-            Vector3.new(0.2, 0.25, 0.07),
-            CFrame.new(x, 8.58, -1.13),
-            COLORS.Eye
+        piece(
+            model, "Iris",
+            Vector3.new(0.17, 0.22, 0.09),
+            CFrame.new(x, 8.6, -1.1),
+            C.Cyan
         )
 
-        createPart(
-            model,
-            "Eyebrow",
-            Vector3.new(0.72, 0.11, 0.09),
-            CFrame.new(x, 8.86, -1.1) *
-                CFrame.Angles(
+        piece(
+            model, "Eyebrow",
+            Vector3.new(0.6, 0.1, 0.1),
+            CFrame.new(x, 8.88, -1.07)
+                * CFrame.Angles(
                     0, 0,
-                    math.rad(x < 0 and -12 or 12)
+                    math.rad(side * 12)
                 ),
-            COLORS.Black
+            C.Black
         )
     end
 
-    -- Cabelo prateado blocado.
-    createPart(
-        model,
-        "HairBase",
-        Vector3.new(2.55, 0.75, 2.35),
-        CFrame.new(0, 9.62, 0.03),
-        COLORS.Hair
+    -- Cabelo prateado espetado.
+    piece(
+        model, "HairBase",
+        Vector3.new(2.45, 0.65, 2.2),
+        CFrame.new(0, 9.7, 0),
+        C.Hair
     )
 
-    local hairPieces = {
-        {-0.95, 10.15, -0.4, -20},
-        {-0.45, 10.45, -0.25, -8},
-        {0.10, 10.58, 0.0, 5},
-        {0.65, 10.4, 0.0, 18},
-        {1.02, 10.1, 0.3, 28},
-        {-0.8, 10.1, 0.75, -25},
-        {0.0, 10.45, 0.9, 0},
-        {0.8, 10.1, 0.75, 25},
+    local spikes = {
+        {-0.95, 10.2, -0.4, -25},
+        {-0.5, 10.55, -0.2, -12},
+        {0.05, 10.7, 0, 0},
+        {0.6, 10.55, -0.2, 15},
+        {1.0, 10.2, 0.3, 25},
+        {-0.7, 10.35, 0.8, -15},
+        {0.2, 10.5, 0.8, 8},
     }
 
-    for i, h in ipairs(hairPieces) do
-        makeWedge(
-            model,
-            "HairSpike" .. i,
-            Vector3.new(0.75, 1.65, 1.05),
-            CFrame.new(h[1], h[2], h[3]) *
-                CFrame.Angles(
+    for i, h in ipairs(spikes) do
+        piece(
+            model, "HairSpike" .. i,
+            Vector3.new(0.75, 1.4, 0.9),
+            CFrame.new(h[1], h[2], h[3])
+                * CFrame.Angles(
                     0, 0, math.rad(h[4])
                 ),
-            COLORS.Hair
+            C.Hair,
+            nil,
+            "Wedge"
         )
     end
 
-    -- Bracos blocados.
-    for _, side in ipairs({-1, 1}) do
-        local arm = createPart(
-            model,
-            side == -1 and "LeftArm" or "RightArm",
-            Vector3.new(1.55, 3.7, 1.85),
-            CFrame.new(side * 2.6, 5.15, 0),
-            COLORS.CoatLight
-        )
+    -- Bracos separados para poses.
+    addArm(
+        model, "LeftArm",
+        CFrame.new(-2.25, 6.65, 0),
+        true
+    )
 
-        createPart(
-            model,
-            "ShoulderArmor",
-            Vector3.new(1.75, 0.55, 2.0),
-            CFrame.new(side * 2.6, 6.75, 0),
-            COLORS.Coat
-        )
+    addArm(
+        model, "RightArm",
+        CFrame.new(2.25, 6.65, 0),
+        false
+    )
 
-        createPart(
-            model,
-            "ShoulderLine",
-            Vector3.new(1.55, 0.13, 0.16),
-            CFrame.new(side * 2.6, 6.35, -0.96),
-            COLORS.Cyan
-        )
-
-        createPart(
-            model,
-            "Glove",
-            Vector3.new(1.45, 0.9, 1.75),
-            CFrame.new(side * 2.6, 3.15, 0),
-            COLORS.Black
-        )
-    end
-
-    -- Pernas e botas.
-    for _, side in ipairs({-1, 1}) do
-        createPart(
-            model,
-            "Leg",
-            Vector3.new(1.55, 3.1, 1.8),
-            CFrame.new(side * 0.95, 1.75, 0),
-            COLORS.Black
-        )
-
-        createPart(
-            model,
-            "Boot",
-            Vector3.new(1.7, 0.8, 2.25),
-            CFrame.new(side * 0.95, 0.45, -0.25),
-            COLORS.Armor
-        )
-    end
-
-    -- Caudas do sobretudo.
-    for _, x in ipairs({-1.05, 1.05}) do
-        createPart(
-            model,
-            "CoatTail",
-            Vector3.new(1.8, 3.0, 0.55),
-            CFrame.new(x, 2.2, 0.85) *
-                CFrame.Angles(
-                    math.rad(-8), 0, 0
-                ),
-            COLORS.Coat
-        )
-
-        createPart(
-            model,
-            "TailTrim",
-            Vector3.new(0.1, 2.8, 0.12),
-            CFrame.new(x * 1.7, 2.2, 0.5),
-            COLORS.Silver
-        )
-    end
-
-    -- Bainha na cintura esquerda.
-    local scabbard = createPart(
+    -- Bainha presa visualmente a cintura.
+    local sheath = createGroup(
         model,
         "Scabbard",
-        Vector3.new(0.65, 0.65, 5.8),
-        CFrame.new(-2.1, 3.35, 0.7) *
-            CFrame.Angles(
+        CFrame.new(-2.0, 3.5, 0.4)
+            * CFrame.Angles(
                 0, math.rad(-15), math.rad(-12)
-            ),
-        COLORS.Black
-    )
-
-    createPart(
-        model,
-        "ScabbardGoldTip",
-        Vector3.new(0.75, 0.75, 0.3),
-        scabbard.CFrame *
-            CFrame.new(0, 0, -2.75),
-        COLORS.Gold,
-        Enum.Material.Metal
-    )
-
-    -- Espada separada para futura animacao.
-    local swordModel = Instance.new("Model")
-    swordModel.Name = "DimensionalKatana"
-    swordModel.Parent = model
-
-    local handle = createPart(
-        swordModel,
-        "Handle",
-        Vector3.new(0.42, 0.42, 2.2),
-        CFrame.new(0, 0, 0),
-        COLORS.Black
-    )
-
-    createPart(
-        swordModel,
-        "Guard",
-        Vector3.new(1.4, 0.2, 0.55),
-        CFrame.new(0, 0, -1.12),
-        COLORS.Gold,
-        Enum.Material.Metal
-    )
-
-    local blade = createPart(
-        swordModel,
-        "Blade",
-        Vector3.new(0.22, 0.55, 5.5),
-        CFrame.new(0, 0, -3.95),
-        COLORS.Silver,
-        Enum.Material.Metal
-    )
-
-    addNeon(
-        swordModel,
-        "EnergyEdge",
-        Vector3.new(0.08, 0.13, 5.2),
-        CFrame.new(0, 0.31, -3.95),
-        COLORS.Cyan
-    )
-
-    swordModel.PrimaryPart = handle
-
-    -- Posicao inicial da katana:
-    -- ao lado do corpo, pronta para o saque.
-    swordModel:PivotTo(
-        CFrame.new(2.5, 3.15, -0.7) *
-            CFrame.Angles(
-                0, math.rad(15), math.rad(12)
             )
     )
 
-    -- Referencias para animacoes futuras.
-    local refs = Instance.new("Folder")
-    refs.Name = "AnimationReferences"
-    refs.Parent = model
+    local sheathCF = sheath:GetPivot()
 
-    local function reference(
-        name: string,
-        target: Instance
+    piece(
+        sheath, "Body",
+        Vector3.new(0.55, 0.55, 5.5),
+        sheathCF * CFrame.new(0, 0, -2.2),
+        C.Black
     )
-        local value = Instance.new("ObjectValue")
-        value.Name = name
-        value.Value = target
-        value.Parent = refs
-    end
 
-    reference("Root", root)
-    reference("Torso", torso)
-    reference("Head", head)
-    reference("Sword", swordModel)
-    reference("SwordHandle", handle)
-    reference("SwordBlade", blade)
-    reference("Scabbard", scabbard)
-    reference("Core", gem)
+    piece(
+        sheath, "MetalTip",
+        Vector3.new(0.65, 0.65, 0.25),
+        sheathCF * CFrame.new(0, 0, -4.85),
+        C.Gold,
+        Enum.Material.Metal
+    )
 
+    -- Katana independente, controlada pelo braco.
+    local sword = createGroup(
+        model,
+        "DimensionalKatana",
+        CFrame.new(0, 0, 0)
+    )
+
+    local swordCF = sword:GetPivot()
+
+    piece(
+        sword, "Handle",
+        Vector3.new(0.4, 0.4, 1.8),
+        swordCF * CFrame.new(0, 0, -0.9),
+        C.Black
+    )
+
+    piece(
+        sword, "Guard",
+        Vector3.new(1.25, 0.18, 0.55),
+        swordCF * CFrame.new(0, 0, -1.85),
+        C.Gold,
+        Enum.Material.Metal
+    )
+
+    piece(
+        sword, "Blade",
+        Vector3.new(0.2, 0.5, 5.1),
+        swordCF * CFrame.new(0, 0, -4.55),
+        C.Silver,
+        Enum.Material.Metal
+    )
+
+    piece(
+        sword, "EnergyEdge",
+        Vector3.new(0.09, 0.12, 4.9),
+        swordCF * CFrame.new(0, 0.3, -4.55),
+        C.Cyan,
+        Enum.Material.Neon
+    )
+
+    -- Posiciona o conjunto no mundo.
     model:PivotTo(spawnCF)
 
+    GuardianBuilder.SetPose(model, "Idle", 0)
+
     return model
+end
+
+-- t vai de 0 a 1.
+-- Idle: espada baixa
+-- Ready: mao sobe para preparar o golpe
+-- Slash: corte atravessando a frente do corpo
+
+function GuardianBuilder.SetPose(
+    model: Model,
+    pose: string,
+    t: number
+)
+    local root = model:GetPivot()
+    local arm = model:FindFirstChild("RightArm")
+    local sword = model:FindFirstChild("DimensionalKatana")
+    local leftArm = model:FindFirstChild("LeftArm")
+
+    if not arm or not sword or not leftArm then
+        return
+    end
+
+    local alpha = math.clamp(t, 0, 1)
+
+    local pitch = 0
+    local roll = 0
+    local yaw = 0
+
+    if pose == "Ready" then
+        pitch = math.rad(-75) * alpha
+        roll = math.rad(12) * alpha
+    elseif pose == "Slash" then
+        pitch = math.rad(-75)
+        yaw = math.rad(-115) * alpha
+        roll = math.rad(12 + 75 * alpha)
+    elseif pose == "Finish" then
+        pitch = math.rad(-55)
+        yaw = math.rad(-115)
+        roll = math.rad(85)
+    end
+
+    local shoulderCF =
+        root
+        * CFrame.new(2.25, 6.65, 0)
+        * CFrame.Angles(pitch, yaw, roll)
+
+    (arm :: Model):PivotTo(shoulderCF)
+
+    -- Espada acompanha a posicao do braco.
+    local swordCF =
+        shoulderCF
+        * CFrame.new(0, -3.0, -0.1)
+        * CFrame.Angles(math.rad(85), 0, 0)
+
+    (sword :: Model):PivotTo(swordCF)
+
+    local leftCF =
+        root
+        * CFrame.new(-2.25, 6.65, 0)
+        * CFrame.Angles(
+            math.rad(-12 * alpha),
+            0,
+            math.rad(-5 * alpha)
+        )
+
+    (leftArm :: Model):PivotTo(leftCF)
 end
 
 return GuardianBuilder
