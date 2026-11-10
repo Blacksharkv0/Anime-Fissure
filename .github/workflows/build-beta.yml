@@ -1,0 +1,61 @@
+
+name: Anime Fissure - Build Beta
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "default.project.json"
+      - ".github/workflows/build-beta.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Gerar Anime Fissure Beta
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Rojo
+        run: |
+          cargo install rojo --version 7.5.1 --locked
+          rojo --version
+
+      - name: Validar arquivos
+        run: |
+          test -f default.project.json
+          test -f src/server/Main.server.luau
+          test -f src/server/BetaBridge.server.luau
+          test -f src/server/BetaMap.server.luau
+          test -f src/client/Main.client.luau
+          test -f src/client/BetaHUD.client.luau
+          test -f src/client/SummonCinematic.client.luau
+          test -f src/shared/GameConfig.luau
+          test -f src/shared/GuardianBuilder.luau
+
+      - name: Gerar arquivo Roblox
+        run: |
+          mkdir -p build
+          rojo build default.project.json \
+            --output build/AnimeFissure-Beta.rbxlx
+
+      - name: Verificar resultado
+        run: |
+          test -s build/AnimeFissure-Beta.rbxlx
+          ls -lh build/AnimeFissure-Beta.rbxlx
+
+      - name: Disponibilizar build
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnimeFissure-Beta
+          path: build/AnimeFissure-Beta.rbxlx
+          if-no-files-found: error
+          retention-days: 30
