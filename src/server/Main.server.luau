@@ -1,16 +1,16 @@
 
-
-   
 --!strict
 -- ANIME FISSURE
 -- Main.server.luau
--- Versao: 0.3.0
--- Integracao MatchService + WaveService
--- Simulacao temporaria de combate
--- Apenas o servidor controla a partida
+-- Versao: 0.4.0
+-- Lobby 3D + inicio manual da partida
+-- MatchService + WaveService
+-- Combate temporariamente simulado
+-- Autoridade exclusiva do servidor
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 
@@ -26,12 +26,11 @@ local WaveService = require(
     script.Parent:WaitForChild("WaveService")
 )
 
--- CONFIGURACOES DO PROTOTIPO
+-- CONFIGURACOES
 
 local MATCH_ID = "MainMatch"
 local GAME_MODE = "Classic"
 
-local INITIAL_DELAY = 3
 local BETWEEN_WAVES_DELAY = 1.5
 local PREPARATION_TIME = 10
 
@@ -46,13 +45,19 @@ local MAX_SIMULATED_ENEMIES = 25
 
 local matchStarted = false
 local matchFinished = false
+local matchStarting = false
+
 local simulationGeneration = 0
 
 local startMainMatch: () -> ()
 local startWave: () -> ()
 
+-- O LOBBY CONTROLA O INICIO
+
+Workspace:SetAttribute("ArenaRequested", false)
+
 local function log(message: string)
-    print("[Anime Fissure v0.3] " .. message)
+    print("[Anime Fissure v0.4] " .. message)
 end
 
 local function getMatch()
@@ -101,6 +106,7 @@ local function finishMatch()
 
     if match then
         log("Partida encerrada: " .. match.Status)
+
         log(
             "Wave final: "
             .. tostring(match.CurrentWave)
@@ -111,8 +117,8 @@ local function finishMatch()
 
     WaveService.Remove(MATCH_ID)
 
-    -- A partida permanece registrada no MatchService
-    -- para permitir consultar seu resultado.
+    -- O resultado permanece no MatchService.
+    -- Retorno ao lobby sera implementado depois.
 end
 
 local function getEnemyCount(wave: number): number
@@ -122,6 +128,8 @@ local function getEnemyCount(wave: number): number
     )
 end
 
+-- COMBATE SIMULADO
+
 local function simulateCombat(wave: number)
     stopSimulation()
 
@@ -129,14 +137,11 @@ local function simulateCombat(wave: number)
     local enemyCount = getEnemyCount(wave)
 
     log(
-        "Simulacao iniciada | Wave "
+        "Combate simulado | Wave "
         .. tostring(wave)
         .. " | Inimigos: "
         .. tostring(enemyCount)
     )
-
-    -- Nesta fase os inimigos sao apenas contadores.
-    -- Nao existem modelos ou movimentacao 3D.
 
     local registered = WaveService.SetRemainingEnemies(
         MATCH_ID,
@@ -151,8 +156,7 @@ local function simulateCombat(wave: number)
     end
 
     task.spawn(function()
-        -- Simula o tempo necessario para surgirem
-        -- todos os inimigos da rodada.
+        -- Aguarda o surgimento simulado dos inimigos.
 
         for _ = 1, enemyCount do
             if generation ~= simulationGeneration
@@ -202,7 +206,7 @@ local function simulateCombat(wave: number)
         log(
             "Wave "
             .. tostring(wave)
-            .. ": inimigos simulados eliminados"
+            .. ": simulacao concluida"
         )
 
         local prepared =
@@ -213,7 +217,7 @@ local function simulateCombat(wave: number)
 
         if prepared then
             log(
-                "Preparacao iniciada: "
+                "Preparacao: "
                 .. tostring(PREPARATION_TIME)
                 .. " segundos"
             )
@@ -224,6 +228,8 @@ local function simulateCombat(wave: number)
         end
     end)
 end
+
+-- INICIAR WAVE
 
 startWave = function()
     if not isPlaying() then
@@ -242,10 +248,8 @@ startWave = function()
         return
     end
 
-    -- Transicao obrigatoria:
-    -- Idle/Advancing -> Combat
-
-    local started = WaveService.BeginCombat(MATCH_ID)
+    local started =
+        WaveService.BeginCombat(MATCH_ID)
 
     if not started then
         warn(
@@ -265,6 +269,8 @@ startWave = function()
 
     simulateCombat(currentWave)
 end
+
+-- AVANCAR WAVE
 
 local function advanceWave()
     if not isPlaying() then
@@ -303,9 +309,6 @@ local function advanceWave()
         .. tostring(match.CurrentWave)
     )
 
-    -- O WaveService ja mudou para Advancing.
-    -- BeginCombat sera chamado somente depois.
-
     task.delay(BETWEEN_WAVES_DELAY, function()
         if isPlaying() then
             startWave()
@@ -313,22 +316,44 @@ local function advanceWave()
     end)
 end
 
+-- CRIAR PARTIDA SOMENTE APOS ENTRAR NA ARENA
+
 startMainMatch = function()
-    if matchStarted or matchFinished then
+    if matchStarted
+        or matchFinished
+        or matchStarting then
         return
     end
 
-    local participants = Players:GetPlayers()
+    -- A partida nunca inicia automaticamente
+    -- quando um jogador entra no servidor.
+
+    if Workspace:GetAttribute("ArenaRequested") ~= true then
+        log("Aguardando jogador entrar pelo lobby")
+        return
+    end
+
+    matchStarting = true
+
+    -- Somente jogadores autorizados pelo lobby.
+
+    local participants: {Player} = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player:GetAttribute("InArena") == true then
+            table.insert(participants, player)
+        end
+    end
 
     if #participants == 0 then
-        log("Aguardando jogadores")
+        log("Nenhum jogador autorizado na arena")
+        matchStarting = false
         return
     end
 
-    -- Limita participantes ao maximo configurado.
-    -- O prototipo possui apenas uma partida.
+    -- Limite configurado para a beta.
 
-    local selectedPlayers = {}
+    local selectedPlayers: {Player} = {}
 
     for _, player in ipairs(participants) do
         if #selectedPlayers >= GameConfig.MaxPlayers then
@@ -346,8 +371,9 @@ startMainMatch = function()
 
     if not match then
         warn(
-            "[Anime Fissure] Nao foi possivel criar partida"
+            "[Anime Fissure] Falha ao criar partida"
         )
+        matchStarting = false
         return
     end
 
@@ -359,9 +385,12 @@ startMainMatch = function()
 
     if not waveCreated then
         MatchService.RemoveMatch(MATCH_ID)
+
         warn(
             "[Anime Fissure] Falha ao criar WaveService"
         )
+
+        matchStarting = false
         return
     end
 
@@ -375,40 +404,51 @@ startMainMatch = function()
         warn(
             "[Anime Fissure] Falha ao iniciar partida"
         )
+
+        matchStarting = false
         return
     end
 
     matchStarted = true
+    matchStarting = false
 
-    log("PARTIDA INICIADA")
+    log("PARTIDA INICIADA PELO LOBBY")
     log("Modo: " .. GAME_MODE)
+
     log(
         "Jogadores: "
         .. tostring(#selectedPlayers)
     )
+
     log(
         "Total de waves: "
         .. tostring(match.MaxWaves)
     )
 
-    -- O primeiro combate inicia apos
-    -- a criacao dos dois servicos.
-
     startWave()
 end
+
+-- RECEBER AUTORIZACAO DO LOBBY
+
+Workspace:GetAttributeChangedSignal(
+    "ArenaRequested"
+):Connect(function()
+    if Workspace:GetAttribute("ArenaRequested") == true
+        and not matchStarted
+        and not matchFinished then
+
+        log("Solicitacao de entrada recebida")
+        startMainMatch()
+    end
+end)
 
 -- MONITORAMENTO DE JOGADORES
 
 Players.PlayerAdded:Connect(function(player)
     log("Jogador conectado: " .. player.Name)
 
-    if not matchStarted and not matchFinished then
-        task.delay(INITIAL_DELAY, function()
-            if not matchStarted then
-                startMainMatch()
-            end
-        end)
-    end
+    -- Nao iniciar partida aqui.
+    -- Jogador deve permanecer no lobby.
 end)
 
 Players.PlayerRemoving:Connect(function(player)
@@ -418,8 +458,6 @@ Players.PlayerRemoving:Connect(function(player)
         return
     end
 
-    -- PlayerRemoving pode ocorrer antes de o
-    -- jogador desaparecer de Players.
     task.defer(function()
         task.wait(0.1)
 
@@ -438,14 +476,12 @@ end)
 
 print("================================")
 print("ANIME FISSURE - SERVIDOR ONLINE")
-print("Versao: 0.3.0")
+print("Versao: 0.4.0")
 print("Modo: " .. GAME_MODE)
-print("Simulacao de combate: ATIVA")
-print("Sistema de Skip: WaveService")
+print("Lobby obrigatorio: ATIVO")
+print("Inicio automatico: DESATIVADO")
+print("Combate simulado: ATIVO")
+print("Skip e Auto Skip: WaveService")
 print("================================")
 
-task.delay(INITIAL_DELAY, function()
-    if not matchStarted and not matchFinished then
-        startMainMatch()
-    end
-end)
+log("Aguardando entrada pelo lobby")
