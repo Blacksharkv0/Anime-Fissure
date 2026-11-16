@@ -1,12 +1,13 @@
 --!strict
--- ANIME FISSURE | SummonHUD v0.1
+-- ANIME FISSURE | SummonHUD v0.2 - cinematic reveal integrado
 -- HUD de Summon real. Abre pelo Virgil (E / toque) no lobby.
--- O botao de cinematica antiga continua separado, apenas como demo.
+-- Compra confirmada pelo servidor -> cinematica real -> revelacao 3D.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
+local SummonReveal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SummonRevealClient"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -326,13 +327,15 @@ local function buy(count: number)
         local ok, response = pcall(function()
             return purchaseRemote:InvokeServer(bannerId, count, txId)
         end)
-        purchasing = false
-        if not gui.Enabled then return end
+        if not gui.Enabled then purchasing = false; return end
         if not ok or typeof(response) ~= "table" then
+            purchasing = false
             stateLabel.Text = "Não foi possível confirmar o resultado. Abra o Summon novamente."
+            oneButton.Active, tenButton.Active = true, true
             return
         end
         if not response.Ok then
+            purchasing = false
             stateLabel.Text = response.Error or "Invocação recusada"
             oneButton.Active, tenButton.Active = true, true
             return
@@ -344,18 +347,28 @@ local function buy(count: number)
             table.insert(lines, string.format("%02d  •  %s%s  [%s]", i, display, shinyText, reward.Rarity or "?"))
         end
         resultItems.Text = table.concat(lines, "\n")
-        resultsPanel.Visible = true
-        resultsPanel.BackgroundTransparency = 0.8
-        TweenService:Create(resultsPanel, TweenInfo.new(.25), {BackgroundTransparency=0}):Play()
         if response.State then
             response.State.Banner = {Id = bannerId}
             updateState(response.State)
         else
             oneButton.Active, tenButton.Active = true, true
         end
+        -- A recompensa ja foi salva no servidor. Aqui so a REVELAMOS.
+        -- Caso o render 3D falhe, a janela anterior continua como fallback.
+        local cinematicOk, shown = pcall(function()
+            return SummonReveal.Play(response.Items or {})
+        end)
+        purchasing = false
+        if not cinematicOk or not shown then
+            warn("[Summon HUD] Revelacao cinematica indisponivel:", shown)
+            if gui.Enabled then
+                resultsPanel.Visible = true
+                resultsPanel.BackgroundTransparency = 0
+            end
+        end
     end)
 end
 oneButton.Activated:Connect(function() buy(1) end)
 tenButton.Activated:Connect(function() buy(10) end)
 
-print("[Anime Fissure] SummonHUD v0.1 online")
+print("[Anime Fissure] SummonHUD v0.2 com revelacao cinematica online")
