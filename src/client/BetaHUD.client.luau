@@ -267,8 +267,8 @@ coinsDivider.Parent = statsPanel
 local combatPanel = makePanel(
     "CombatPanel",
     UDim2.fromOffset(360, 122),
-    UDim2.new(0.5, 0, 1, -16),
-    Vector2.new(0.5, 1)
+    UDim2.fromOffset(12, 130),
+    Vector2.new(0, 0)
 )
 
 combatPanel.BackgroundColor3 = PANEL
@@ -292,6 +292,9 @@ local function updateScale()
         math.min((v.X - 26) / 360, (v.Y - 120) / 122, 1),
         0.60, 1
     )
+    -- O rodape agora pertence ao deck de Towers; os controles de wave
+    -- ficam numa area compacta sob o painel superior esquerdo.
+    combatPanel.Position = UDim2.fromOffset(12, if v.X < 650 then 160 else 130)
 end
 
 local function bindCamera()
