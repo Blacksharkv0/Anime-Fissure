@@ -34,6 +34,12 @@ jobs:
           test -f default.project.json
           test -f src/server/Main.server.luau
           test -f src/server/BetaBridge.server.luau
+          test -f src/server/BetaLobby.server.luau
+          test -f src/client/BetaLobby.client.luau
+          test -f src/shared/LobbyStageConfig.luau
+          test -f src/server/LobbyAtrium.server.luau
+          test -f src/server/LobbyVisualPolish.server.luau
+          test -f src/server/NPCResidents.server.luau
           test -f src/server/BetaMap.server.luau
           test -f src/server/EnemyModelBuilder.luau
           test -f src/server/EnemyService.luau
