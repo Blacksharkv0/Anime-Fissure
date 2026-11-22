@@ -14,6 +14,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local remotes = ReplicatedStorage:WaitForChild("LobbyRemotes")
 local enterRemote = remotes:WaitForChild("EnterArena") :: RemoteEvent
 local feedbackRemote = remotes:WaitForChild("LobbyFeedback") :: RemoteEvent
+local openBoardRemote = remotes:WaitForChild("OpenMissionBoard") :: RemoteEvent
 local StageConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyStageConfig"))
 local catalog = StageConfig.GetCatalog()
 
@@ -224,8 +225,19 @@ stageListPadding.PaddingBottom = UDim.new(0, 7)
 stageListPadding.PaddingRight = UDim.new(0, 5)
 stageListPadding.Parent = stageScroll
 
-local details = box(body, "StageDetails", C.Inner,
-    UDim2.new(0.43, 8, 0, 0), UDim2.new(0.57, -8, 1, 0), 10)
+local details = Instance.new("ScrollingFrame")
+details.Name = "StageDetails"
+details.BackgroundColor3 = C.Inner
+details.BorderSizePixel = 0
+details.Position = UDim2.new(0.43, 8, 0, 0)
+details.Size = UDim2.new(0.57, -8, 1, 0)
+details.CanvasSize = UDim2.fromOffset(0, 320)
+details.ScrollBarThickness = 4
+details.ScrollBarImageColor3 = C.Cyan
+details.ScrollingDirection = Enum.ScrollingDirection.Y
+details.ClipsDescendants = true
+details.Parent = body
+round(details, 10)
 outline(details, C.Purple, 1.5, 0.28)
 
 local stageHeading = text(details, "StageHeading", "CARNE VILLAGE",
@@ -277,7 +289,6 @@ local guideClose = button(guideWindow, "GuideClose", "ENTENDI",
 local selectedId = "OVL_01"
 local selectedMode = "Classic"
 local waiting = false
-local loadingDone = false
 local stageButtons: {[string]: TextButton} = {}
 
 local function findStage(id: string): any
@@ -363,6 +374,7 @@ local function closeMissionWindow()
 end
 
 openMissions.Activated:Connect(openWindow)
+openBoardRemote.OnClientEvent:Connect(openWindow)
 closeWindow.Activated:Connect(closeMissionWindow)
 guideButton.Activated:Connect(function()
     scrim.Visible = false
@@ -493,6 +505,5 @@ tween.Completed:Wait()
 loadingDetail.Text = "LOBBY PRONTO"
 task.wait(0.15)
 loading.Visible = false
-loadingDone = true
 
 print("[Anime Fissure] Lobby v1.0 pronto: catalogo Overlord + modos Classic/Hard")
