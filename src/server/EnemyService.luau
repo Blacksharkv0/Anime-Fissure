@@ -119,9 +119,11 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
     local model = Builder.Build(stats)
     serial += 1
 
-    local altitude = if stats.Air == true then 3.2 else 0
-    local position = (atPosition or state.Path[1]) + Vector3.new(0, altitude, 0)
+    local offsetY = math.max(0, 2.83 * (stats.Size or 1) - 2)
+        + (if stats.Air == true then 3.2 else 0)
     local nextWaypoint = math.clamp(atWaypoint or 2, 2, #state.Path)
+    local at = atPosition or state.Path[1]
+    local position = Vector3.new(at.X, state.Path[nextWaypoint - 1].Y + offsetY, at.Z)
     model.Parent = state.Folder
     model:PivotTo(CFrame.new(position))
     local maxHealth = stats.MaxHealth or stats.Health
@@ -135,6 +137,7 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
         MaxHealth = maxHealth,
         Speed = stats.Speed,
         Air = stats.Air == true,
+        OffsetY = offsetY,
         BossEncounter = nil :: string?,
         SourceEncounter = sourceEncounter,
         InstantDefeatOnLeak = stats.InstantDefeatOnLeak == true,
@@ -287,7 +290,7 @@ RunService.Heartbeat:Connect(function(dt: number)
                 removeActor(state, actor, true)
                 continue
             end
-            if actor.Air then destination += Vector3.new(0, 3.2, 0) end
+            destination += Vector3.new(0, actor.OffsetY, 0)
             local difference = destination - actor.Position
             local distance = difference.Magnitude
             local move = speed * delta
