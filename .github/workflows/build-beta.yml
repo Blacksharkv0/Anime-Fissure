@@ -43,7 +43,7 @@ jobs:
           test -f src/server/BossService.luau
           test -f src/client/Main.client.luau
           test -f src/client/BetaHUD.client.luau
-          test -f src/client/StageIntelHUD.client.luau
+          test -f src/client/StageIntelPanel.luau
           test -f src/shared/StageInfoConfig.luau
           test -f src/shared/StoryRewardConfig.luau
           test -f src/client/SummonCinematic.client.luau
