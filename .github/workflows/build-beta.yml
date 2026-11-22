@@ -35,6 +35,12 @@ jobs:
           test -f src/server/Main.server.luau
           test -f src/server/BetaBridge.server.luau
           test -f src/server/BetaMap.server.luau
+          test -f src/server/EnemyModelBuilder.luau
+          test -f src/server/EnemyService.luau
+          test -f src/server/ArenaCombatVisuals.server.luau
+          test -f src/shared/EnemyConfig.luau
+          test -f src/shared/BossConfig.luau
+          test -f src/server/BossService.luau
           test -f src/client/Main.client.luau
           test -f src/client/BetaHUD.client.luau
           test -f src/client/SummonCinematic.client.luau
