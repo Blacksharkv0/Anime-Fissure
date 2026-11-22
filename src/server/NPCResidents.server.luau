@@ -1,14 +1,43 @@
 --!strict
--- ANIME FISSURE | NPCResidents v0.4 - Prompt fix + visibility
--- Virgil e Edward interagem diretamente com E / gamepad / toque.
+-- ANIME FISSURE | NPCResidents v0.5 - Dialogo seguro antes dos sistemas
+-- Virgil e Edward iniciam dialogo via E / gamepad / toque.
 -- Desativa os prompts dos altares APENAS quando os dos NPCs estiverem prontos.
--- Nao altera sorteio, Tickets, colecao, inventario ou regras de evolucao.
+-- Escolhas revalidadas no servidor; sorteio, inventario e economia intactos.
 
 local Workspace = game:GetService("Workspace")
 local RS = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Builder = require(RS:WaitForChild("Shared"):WaitForChild("FissureNPCBuilder"))
+
+-- Remotes separados dos sistemas reais para o cliente nao poder abrir
+-- interfaces sem ter iniciado uma interacao valida com o NPC.
+local dialogueFolder = RS:FindFirstChild("NPCDialogueRemotes")
+if dialogueFolder and not dialogueFolder:IsA("Folder") then
+    dialogueFolder:Destroy()
+    dialogueFolder = nil
+end
+if not dialogueFolder then
+    dialogueFolder = Instance.new("Folder")
+    dialogueFolder.Name = "NPCDialogueRemotes"
+    dialogueFolder.Parent = RS
+end
+
+local function ensureDialogueRemote(name: string): RemoteEvent
+    local existing = dialogueFolder:FindFirstChild(name)
+    if existing and existing:IsA("RemoteEvent") then return existing end
+    if existing then existing:Destroy() end
+    local new = Instance.new("RemoteEvent")
+    new.Name = name
+    new.Parent = dialogueFolder
+    return new
+end
+
+local dialogueOpen = ensureDialogueRemote("OpenDialogue")
+local dialogueChoice = ensureDialogueRemote("ChooseDialogue")
+
+local targets: {[string]: {Anchor: BasePart, Destination: RemoteEvent}} = {}
+local pending: {[number]: {Kind: string, ExpiresAt: number}} = {}
 
 local lobby = Workspace:WaitForChild("FissureLobby", 45)
 if not lobby or not lobby:IsA("Model") then
@@ -98,10 +127,18 @@ local function bindInteraction(npc: Model, kind: string, remote: RemoteEvent): P
         if not playerRoot or not playerRoot:IsA("BasePart") then return end
         -- Revalidacao no servidor para nao depender somente do Prompt.
         if (playerRoot.Position - anchorPart.Position).Magnitude > 16 then return end
-        remote:FireClient(player)
-        print("[NPC v0.4] Interacao:", kind, "por", player.Name)
+        pending[player.UserId] = {Kind = kind, ExpiresAt = os.clock() + 25}
+        dialogueOpen:FireClient(player, kind)
+        print("[NPC v0.5] Dialogo:", kind, "por", player.Name)
     end)
     prompt.Enabled = true
+    targets[kind] = {Anchor = anchorPart, Destination = remote}
+    npc.Destroying:Connect(function()
+        local target = targets[kind]
+        if target and target.Anchor == anchorPart then
+            targets[kind] = nil
+        end
+    end)
     npc:SetAttribute("InteractionReady", true)
     print("[NPC v0.4] Prompt E ativo:", kind, "em", anchorPart.Position)
     return prompt
@@ -162,8 +199,37 @@ local function install(kind: string, stationName: string, npcName: string)
     end
 end
 
+
+-- O botao do cliente nao ativa o sistema diretamente: verifica prazo,
+-- tipo do NPC, distancia e estado do jogador. O cliente nao recebe
+-- capacidade de criar Tickets, itens ou resultados de Summon.
+dialogueChoice.OnServerEvent:Connect(function(player: Player, requestedKind: any)
+    if typeof(requestedKind) ~= "string" then return end
+    local id = player.UserId
+    local ticket = pending[id]
+    pending[id] = nil -- escolha de uso unico, inclusive em caso de falha
+    if not ticket or ticket.Kind ~= requestedKind or os.clock() > ticket.ExpiresAt then
+        return
+    end
+
+    local target = targets[requestedKind]
+    if not target or not target.Anchor.Parent then return end
+    if player.Parent ~= Players or player:GetAttribute("InArena") == true then return end
+
+    local character = player.Character
+    local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+    if not root or not root:IsA("BasePart") then return end
+    if (root.Position - target.Anchor.Position).Magnitude > 16 then return end
+
+    target.Destination:FireClient(player)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    pending[player.UserId] = nil
+end)
+
 -- Independentes: falha no Virgil nao impede Edward e vice-versa.
 task.spawn(function() install("Virgil", "VirgilSummonStand", "VirgilNPC") end)
 task.spawn(function() install("Edward", "AlchemyWorkshop", "AlchemistNPC") end)
 
-print("[Anime Fissure] NPCResidents v0.4 carregado")
+print("[Anime Fissure] NPCResidents v0.5 carregado")
