@@ -43,6 +43,9 @@ jobs:
           test -f src/server/BossService.luau
           test -f src/client/Main.client.luau
           test -f src/client/BetaHUD.client.luau
+          test -f src/client/StageIntelHUD.client.luau
+          test -f src/shared/StageInfoConfig.luau
+          test -f src/shared/StoryRewardConfig.luau
           test -f src/client/SummonCinematic.client.luau
           test -f src/shared/GameConfig.luau
           test -f src/shared/GuardianBuilder.luau
