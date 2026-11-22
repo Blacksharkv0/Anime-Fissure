@@ -2,10 +2,10 @@
 --!strict
 -- ANIME FISSURE
 -- Main.server.luau
--- Versao: 0.4.0
+-- Versao: 0.5.0
 -- Lobby 3D + inicio manual da partida
--- MatchService + WaveService
--- Combate temporariamente simulado
+-- MatchService + WaveService + EnemyService
+-- Inimigos reais no caminho (Studio: clique para testar dano)
 -- Autoridade exclusiva do servidor
 
 local Players = game:GetService("Players")
@@ -26,6 +26,10 @@ local WaveService = require(
     script.Parent:WaitForChild("WaveService")
 )
 
+local EnemyService = require(
+    script.Parent:WaitForChild("EnemyService")
+)
+
 -- CONFIGURACOES
 
 local MATCH_ID = "MainMatch"
@@ -34,20 +38,11 @@ local GAME_MODE = "Classic"
 local BETWEEN_WAVES_DELAY = 1.5
 local PREPARATION_TIME = 10
 
-local ENEMY_SPAWN_INTERVAL = 0.35
-local ENEMY_DEFEAT_INTERVAL = 0.55
-
-local BASE_ENEMIES = 3
-local ENEMIES_PER_WAVE = 1
-local MAX_SIMULATED_ENEMIES = 25
-
 -- CONTROLE INTERNO
 
 local matchStarted = false
 local matchFinished = false
 local matchStarting = false
-
-local simulationGeneration = 0
 
 local startMainMatch: () -> ()
 local startWave: () -> ()
@@ -57,7 +52,7 @@ local startWave: () -> ()
 Workspace:SetAttribute("ArenaRequested", false)
 
 local function log(message: string)
-    print("[Anime Fissure v0.4] " .. message)
+    print("[Anime Fissure v0.5] " .. message)
 end
 
 local function getMatch()
@@ -90,17 +85,13 @@ local function countParticipants(): number
     return count
 end
 
-local function stopSimulation()
-    simulationGeneration += 1
-end
-
 local function finishMatch()
     if matchFinished then
         return
     end
 
     matchFinished = true
-    stopSimulation()
+    EnemyService.StopWave(MATCH_ID)
 
     local match = getMatch()
 
@@ -121,113 +112,8 @@ local function finishMatch()
     -- Retorno ao lobby sera implementado depois.
 end
 
-local function getEnemyCount(wave: number): number
-    return math.min(
-        MAX_SIMULATED_ENEMIES,
-        BASE_ENEMIES + wave * ENEMIES_PER_WAVE
-    )
-end
-
--- COMBATE SIMULADO
-
-local function simulateCombat(wave: number)
-    stopSimulation()
-
-    local generation = simulationGeneration
-    local enemyCount = getEnemyCount(wave)
-
-    log(
-        "Combate simulado | Wave "
-        .. tostring(wave)
-        .. " | Inimigos: "
-        .. tostring(enemyCount)
-    )
-
-    local registered = WaveService.SetRemainingEnemies(
-        MATCH_ID,
-        enemyCount
-    )
-
-    if not registered then
-        warn(
-            "[Anime Fissure] Falha ao registrar inimigos"
-        )
-        return
-    end
-
-    task.spawn(function()
-        -- Aguarda o surgimento simulado dos inimigos.
-
-        for _ = 1, enemyCount do
-            if generation ~= simulationGeneration
-                or not isPlaying() then
-                return
-            end
-
-            task.wait(ENEMY_SPAWN_INTERVAL)
-        end
-
-        local remaining = enemyCount
-
-        while remaining > 0 do
-            if generation ~= simulationGeneration
-                or not isPlaying() then
-                return
-            end
-
-            task.wait(ENEMY_DEFEAT_INTERVAL)
-
-            if generation ~= simulationGeneration
-                or not isPlaying() then
-                return
-            end
-
-            remaining -= 1
-
-            local updated =
-                WaveService.SetRemainingEnemies(
-                    MATCH_ID,
-                    remaining
-                )
-
-            if not updated then
-                warn(
-                    "[Anime Fissure] Contador rejeitado"
-                )
-                return
-            end
-        end
-
-        if generation ~= simulationGeneration
-            or not isPlaying() then
-            return
-        end
-
-        log(
-            "Wave "
-            .. tostring(wave)
-            .. ": simulacao concluida"
-        )
-
-        local prepared =
-            WaveService.BeginPreparation(
-                MATCH_ID,
-                PREPARATION_TIME
-            )
-
-        if prepared then
-            log(
-                "Preparacao: "
-                .. tostring(PREPARATION_TIME)
-                .. " segundos"
-            )
-        else
-            warn(
-                "[Anime Fissure] Falha na preparacao"
-            )
-        end
-    end)
-end
+-- A beta usa inimigos fisicos, e nao um contador que se auto-derrota.
+-- O EnemyService le os waypoints criados pelo BetaMap.
 
 -- INICIAR WAVE
 
@@ -248,6 +134,9 @@ startWave = function()
         return
     end
 
+    -- Remove quaisquer modelos da wave anterior antes de comecar a nova.
+    EnemyService.StopWave(MATCH_ID)
+
     local started =
         WaveService.BeginCombat(MATCH_ID)
 
@@ -267,7 +156,32 @@ startWave = function()
         .. tostring(match.MaxWaves)
     )
 
-    simulateCombat(currentWave)
+    local ready = EnemyService.StartWave(MATCH_ID, currentWave, match.Mode, match.Players, {
+        OnCount = function(remaining: number)
+            if isPlaying() then
+                WaveService.SetRemainingEnemies(MATCH_ID, remaining)
+            end
+        end,
+        OnLeak = function(instantDefeat: boolean, enemyId: string)
+            if not isPlaying() then return end
+            MatchService.EnemyLeaked(MATCH_ID, instantDefeat)
+            log("Inimigo atravessou a base: " .. enemyId)
+            if not isPlaying() then
+                finishMatch()
+            end
+        end,
+        OnCleared = function()
+            if not isPlaying() then return end
+            log("Wave " .. tostring(currentWave) .. ": inimigos derrotados ou vazaram")
+            if not WaveService.BeginPreparation(MATCH_ID, PREPARATION_TIME) then
+                warn("[Anime Fissure] Preparacao recusada")
+            end
+        end,
+    })
+    if not ready then
+        warn("[Anime Fissure] Falha ao criar inimigos. Encerrando a partida.")
+        finishMatch()
+    end
 end
 
 -- AVANCAR WAVE
@@ -476,11 +390,11 @@ end)
 
 print("================================")
 print("ANIME FISSURE - SERVIDOR ONLINE")
-print("Versao: 0.4.0")
+print("Versao: 0.5.0")
 print("Modo: " .. GAME_MODE)
 print("Lobby obrigatorio: ATIVO")
 print("Inicio automatico: DESATIVADO")
-print("Combate simulado: ATIVO")
+print("Inimigos reais: ATIVO | Dano de teste: apenas no Studio")
 print("Skip e Auto Skip: WaveService")
 print("================================")
 
