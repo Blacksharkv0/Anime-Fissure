@@ -16,7 +16,7 @@ local function piece(model: Model, name: string, size: Vector3, pose: CFrame,
     p.Anchored = true
     p.CanCollide = false
     p.CanTouch = false
-    p.CanQuery = false
+    p.CanQuery = name ~= "Root" -- clique no personagem OU na base para seleciona-lo
     p.CastShadow = true
     if shape then p.Shape = shape end
     p.Parent = model
