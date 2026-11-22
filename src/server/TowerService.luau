@@ -13,6 +13,7 @@ local Debris = game:GetService("Debris")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("TowerConfig"))
+local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local RewardConfig = require(Shared:WaitForChild("StoryRewardConfig"))
 local MatchService = require(script.Parent:WaitForChild("MatchService"))
 local EnemyService = require(script.Parent:WaitForChild("EnemyService"))
@@ -24,6 +25,7 @@ local MATCH_ID = "MainMatch"
 local states: {[string]: any} = {}
 local towerSerial = 0
 local requestTimes: {[number]: number} = {}
+local syncTimes: {[number]: number} = {}
 
 local remotes = ReplicatedStorage:FindFirstChild("TowerRemotes")
 if remotes and not remotes:IsA("Folder") then remotes:Destroy(); remotes = nil end
@@ -265,7 +267,14 @@ end
 
 request.OnServerEvent:Connect(function(player: Player, action: any, a: any, b: any)
     if typeof(action) ~= "string" then return end
-    if action == "Sync" then sendState(player); return end
+    if action == "Sync" then
+        local now = os.clock()
+        if now - (syncTimes[player.UserId] or -100) >= 0.6 then
+            syncTimes[player.UserId] = now
+            sendState(player)
+        end
+        return
+    end
     if not participant(player) then
         sendState(player, "Voce precisa estar em uma partida ativa.")
         return
@@ -284,12 +293,23 @@ end)
 
 function TowerService.OnEnemyDefeated(matchId: string, player: Player, enemyId: string)
     if matchId ~= MATCH_ID or not participant(player) then return end
-    local owner = getPlayerState(player)
-    if not owner then return end
+    local state = states[matchId]
+    if not state then return end
     local gained = RewardConfig.GetEnemyYen(enemyId)
-    if gained > 0 then
-        owner.Yen += gained
-        sendState(player, "+" .. gained .. " Yen por inimigo derrotado")
+    if gained <= 0 then return end
+    if GameConfig.Coop.SharedYenFromKills then
+        for _, owner in pairs(state.Owners) do
+            if owner.Player.Parent == Players then
+                owner.Yen += gained
+                sendState(owner.Player, "+" .. gained .. " Yen compartilhado por kill.")
+            end
+        end
+    else
+        local owner = getPlayerState(player)
+        if owner then
+            owner.Yen += gained
+            sendState(player, "+" .. gained .. " Yen por inimigo derrotado.")
+        end
     end
 end
 
@@ -384,6 +404,7 @@ end)
 
 Players.PlayerRemoving:Connect(function(player)
     requestTimes[player.UserId] = nil
+    syncTimes[player.UserId] = nil
 end)
 
 return TowerService
