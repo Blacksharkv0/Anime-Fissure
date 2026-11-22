@@ -64,11 +64,11 @@ function Builder.Build(id: string, def: any): Model
     root.Transparency = 1
     model.PrimaryPart = root
 
-    local pedestal = piece(model, "Pedestal", Vector3.new(5.1, 0.42, 5.1),
+    local pedestal = piece(model, "Pedestal", Vector3.new(0.42, 5.1, 5.1),
         CFrame.new(0, 0.19, 0), Color3.fromRGB(19, 29, 56),
         Enum.Material.Slate, Enum.PartType.Cylinder)
     pedestal.CFrame *= CFrame.Angles(0, 0, math.rad(90))
-    piece(model, "PlatformSigil", Vector3.new(2.0, 0.18, 2.0),
+    piece(model, "PlatformSigil", Vector3.new(0.18, 2.0, 2.0),
         CFrame.new(0, 0.48, 0), def.AttackColor,
         Enum.Material.Neon, Enum.PartType.Cylinder).CFrame *=
         CFrame.Angles(0, 0, math.rad(90))
