@@ -14,6 +14,10 @@ local WaveService = require(
     script.Parent:WaitForChild("WaveService")
 )
 
+local TowerService = require(
+    script.Parent:WaitForChild("TowerService")
+)
+
 local StageInfoConfig = require(
     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StageInfoConfig")
 )
@@ -144,7 +148,9 @@ task.spawn(function()
         end
 
         for _, player in ipairs(Players:GetPlayers()) do
-            stateRemote:FireClient(player, payload)
+            local personalized = table.clone(payload)
+            personalized.Yen = TowerService.GetYen(player) or payload.Yen
+            stateRemote:FireClient(player, personalized)
         end
 
         task.wait(0.5)
