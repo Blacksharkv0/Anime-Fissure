@@ -2,7 +2,7 @@
 -- ANIME FISSURE | EnemyService v0.5
 -- Spawns reais e movimento pelo EnemyPath da FissureArena.
 -- Servidor controla HP, spawns, dano na base e conclusao da wave.
--- Ataque por clique APENAS no Studio, enquanto nao ha torres deployaveis.
+-- Ataque por clique APENAS no Studio; as torres usam DamageEnemy no servidor.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -79,22 +79,63 @@ local function removeActor(state: any, actor: any, leaked: boolean)
     finishIfClear(state)
 end
 
-local function damageActor(state: any, actor: any, amount: number)
+local function damageActor(state: any, actor: any, amount: number, damageType: string?, attacker: Player?)
     if live[state.Id] ~= state or state.Actors[actor.Serial] ~= actor then return end
+    if typeof(amount) ~= "number" or amount ~= amount
+        or amount <= 0 or amount > 100000 or amount == math.huge then return false end
     local dealt = math.max(0, amount)
     if actor.BossEncounter then
-        local result = BossService.ApplyDamage(actor.BossEncounter, dealt, "Physical")
-        if result == nil then return end
+        local result = BossService.ApplyDamage(actor.BossEncounter, dealt, damageType or "Physical")
+        if result == nil then return false end
         local bossState = BossService.GetState(actor.BossEncounter)
-        if not bossState then return end
+        if not bossState then return false end
         actor.Health = bossState.Health
     else
         actor.Health = math.max(0, actor.Health - dealt)
     end
     Builder.UpdateHealth(actor.Model, actor.Health, actor.MaxHealth)
     if actor.Health <= 0 then
+        -- Premio associado a quem acertou o golpe final, sem RemoteEvent publico.
+        if attacker and typeof(state.Hooks.OnDefeated) == "function" then
+            local ok, err = pcall(state.Hooks.OnDefeated, attacker, actor.Id)
+            if not ok then warn("[EnemyService] OnDefeated:", err) end
+        end
         removeActor(state, actor, false)
     end
+    return true
+end
+
+-- API de combate exclusiva de ModuleScripts no servidor; IDs temporarios por wave.
+-- NUNCA aceitar dano vindo de um RemoteEvent do cliente.
+function EnemyService.GetTargets(matchId: string): {any}
+    local state = live[matchId]
+    local targets = {}
+    if not state then return targets end
+    for _, actor in pairs(state.Actors) do
+        if actor.Health > 0 and actor.Model and actor.Model.Parent then
+            table.insert(targets, {
+                Serial = actor.Serial,
+                Id = actor.Id,
+                Position = actor.Position,
+                Health = actor.Health,
+                Air = actor.Air,
+                Progress = actor.NextWaypoint,
+            })
+        end
+    end
+    return targets
+end
+
+function EnemyService.DamageEnemy(matchId: string, serialId: number,
+    amount: number, damageType: string, attacker: Player): boolean
+    local state = live[matchId]
+    if not state or typeof(serialId) ~= "number" or serialId % 1 ~= 0
+        or (damageType ~= "Physical" and damageType ~= "Magic" and damageType ~= "True")
+        or attacker.Parent ~= Players or attacker:GetAttribute("InArena") ~= true
+        or table.find(state.Players, attacker) == nil then return false end
+    local actor = state.Actors[serialId]
+    if not actor then return false end
+    return damageActor(state, actor, amount, damageType, attacker) == true
 end
 
 local spawnActor: (any, string, Vector3?, number?, string?) -> boolean
@@ -143,6 +184,7 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
         InstantDefeatOnLeak = stats.InstantDefeatOnLeak == true,
     }
     state.Actors[serial] = actor
+    model:SetAttribute("EnemySerial", serial)
     Builder.UpdateHealth(model, maxHealth, maxHealth)
 
     if bossMain then
@@ -195,7 +237,7 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
                 local now = os.clock()
                 if now - (lastTestHit[player.UserId] or -100) < 0.11 then return end
                 lastTestHit[player.UserId] = now
-                damageActor(state, actor, TRAINING_DAMAGE)
+                damageActor(state, actor, TRAINING_DAMAGE, "Physical", player)
             end)
         end
     end
