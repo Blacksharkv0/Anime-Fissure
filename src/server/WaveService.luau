@@ -211,11 +211,13 @@ end
 
 function WaveService.BeginPreparation(
     matchId: string,
-    duration: number?
+    duration: number?,
+    allowInitial: boolean?
 ): boolean
     local data = waves[matchId]
 
-    if not data or data.Status ~= "Combat" then
+    if not data or (data.Status ~= "Combat"
+        and not (allowInitial == true and data.Status == "Idle")) then
         return false
     end
 
