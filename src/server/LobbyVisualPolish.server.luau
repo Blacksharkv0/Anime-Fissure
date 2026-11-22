@@ -251,7 +251,7 @@ if portal and portal:IsA("BasePart") then
     local signAnchor = part("ArenaTitleAnchor", CENTER + Vector3.new(0, 25.2, -38),
         Vector3.new(0.5, 0.5, 0.5), C.Ink, Enum.Material.SmoothPlastic, false)
     signAnchor.Transparency = 1
-    billboard(signAnchor, "FISSURE ARENA", "JOGAR  /  CLASSIC", C.Cyan, 235)
+    billboard(signAnchor, "PORTAL DAS FISSURAS", "SELECIONE SUA MISSAO", C.Cyan, 275)
 end
 
 -- O Spawn antigo parecia uma placa azul gigante no solo.
