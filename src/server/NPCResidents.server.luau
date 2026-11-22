@@ -127,7 +127,7 @@ local function bindInteraction(npc: Model, kind: string, remote: RemoteEvent): P
         if not playerRoot or not playerRoot:IsA("BasePart") then return end
         -- Revalidacao no servidor para nao depender somente do Prompt.
         if (playerRoot.Position - anchorPart.Position).Magnitude > 16 then return end
-        pending[player.UserId] = {Kind = kind, ExpiresAt = os.clock() + 25}
+        pending[player.UserId] = {Kind = kind, ExpiresAt = os.clock() + 90}
         dialogueOpen:FireClient(player, kind)
         print("[NPC v0.5] Dialogo:", kind, "por", player.Name)
     end)
