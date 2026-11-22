@@ -1,20 +1,20 @@
 # Anime Fissure — Beta v0.7: Carne Village + novos inimigos
 
-**Status:** scripts publicados em \`main\`; teste real dentro do Roblox Studio ainda pendente.
+**Status:** scripts publicados em `main`; teste real dentro do Roblox Studio ainda pendente.
 
 ## Escopo e compatibilidade
 
-- \`src/server/EnemyModelBuilder.luau\`: troca visual de inimigos comuns e chefes. Mantém \`Builder.Build(stats)\`, \`Builder.UpdateHealth(model, health, maxHealth)\`, \`Body\` como \`PrimaryPart\` e \`EnemyHealthGui\`.
-- \`src/server/BetaMap.server.luau\`: recria \`Workspace.FissureArena\` com a ambientação rural **Carne Village** (mundo Overlord, fase \`OVL_01\`).
-- Preservados os **8 waypoints** com atributo \`Order\` e deslocamento \`+2Y\`, os **4** \`PlayerSpawns\` invisíveis, \`FissureBase.BaseCore\` e \`FissurePortal\`.
-- \`Main.server\`, \`EnemyService\`, \`BossService\`, \`NPCResidents\`, \`SummonService\` e o sistema de Tickets não foram modificados por esta atualização.
-- A versão anterior da arena genérica não existe mais no build novo; o jogo ainda usa o nome interno \`FissureArena\` para compatibilidade.
+- `src/server/EnemyModelBuilder.luau`: troca visual de inimigos comuns e chefes. Mantém `Builder.Build(stats)`, `Builder.UpdateHealth(model, health, maxHealth)`, `Body` como `PrimaryPart` e `EnemyHealthGui`.
+- `src/server/BetaMap.server.luau`: recria `Workspace.FissureArena` com a ambientação rural **Carne Village** (mundo Overlord, fase `OVL_01`).
+- Preservados os **8 waypoints** com atributo `Order` e deslocamento `+2Y`, os **4** `PlayerSpawns` invisíveis, `FissureBase.BaseCore` e `FissurePortal`.
+- `Main.server`, `EnemyService`, `BossService`, `NPCResidents`, `SummonService` e o sistema de Tickets não foram modificados por esta atualização.
+- A versão anterior da arena genérica não existe mais no build novo; o jogo ainda usa o nome interno `FissureArena` para compatibilidade.
 
 ## Como baixar a versão atual
 
 1. Acesse **GitHub → Blacksharkv0/Anime-Fissure → Actions**.
-2. Selecione **Anime Fissure - Build Beta** na branch \`main\`. **Não** baixe uma execução antiga da v0.6.
-3. Se estiver com check verde, baixe \`AnimeFissure-Beta\` e extraia \`AnimeFissure-Beta.rbxlx\`.
+2. Selecione **Anime Fissure - Build Beta** na branch `main`. **Não** baixe uma execução antiga da v0.6.
+3. Se estiver com check verde, baixe `AnimeFissure-Beta` e extraia `AnimeFissure-Beta.rbxlx`.
 4. Abra o arquivo no **Roblox Studio**, clique em **Play** e use **View → Output** para acompanhar erros.
 
 ## Checklist de validação visual
@@ -47,10 +47,10 @@
 - Construções internas exploráveis em todas as casas.
 - Combate definitivo de torres/unidades. 
 
-O build automático do GitHub valida presença dos scripts e gera um \`.rbxlx\`, mas **não substitui** um Play Test no Roblox Studio.
+O build automático do GitHub valida presença dos scripts e gera um `.rbxlx`, mas **não substitui** um Play Test no Roblox Studio.
 
 ## Dicas de depuração
 
-Se a arena estiver vazia, verifique mensagens que começam com \`[Anime Fissure]\` e o atributo \`Workspace.FissureArena.Ready\`.
-Se os inimigos não surgirem, verifique \`EnemyService\` e \`FissureArena.EnemyPath\` (8 partes com atributo numérico \`Order\`).
-Se algum modelo perder peças em movimento, inspecione \`LiveEnemies\`, \`Body\` e \`PrimaryPart\`.
+Se a arena estiver vazia, verifique mensagens que começam com `[Anime Fissure]` e o atributo `Workspace.FissureArena.Ready`.
+Se os inimigos não surgirem, verifique `EnemyService` e `FissureArena.EnemyPath` (8 partes com atributo numérico `Order`).
+Se algum modelo perder peças em movimento, inspecione `LiveEnemies`, `Body` e `PrimaryPart`.
