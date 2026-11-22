@@ -5,7 +5,7 @@
 -- Versao: 1.0.0 | fase e dificuldade definidas pelo lobby
 -- Lobby 3D + inicio manual da partida
 -- MatchService + WaveService + EnemyService
--- Inimigos reais no caminho (Studio: clique para testar dano)
+-- Inimigos reais no caminho + primeiras torres server-side
 -- Autoridade exclusiva do servidor
 
 local Players = game:GetService("Players")
@@ -28,6 +28,10 @@ local WaveService = require(
 
 local EnemyService = require(
     script.Parent:WaitForChild("EnemyService")
+)
+
+local TowerService = require(
+    script.Parent:WaitForChild("TowerService")
 )
 
 -- CONFIGURACOES
@@ -95,6 +99,7 @@ local function finishMatch()
 
     matchFinished = true
     EnemyService.StopWave(MATCH_ID)
+    TowerService.EndMatch(MATCH_ID)
 
     local match = getMatch()
 
@@ -169,6 +174,9 @@ startWave = function()
                 WaveService.SetRemainingEnemies(MATCH_ID, remaining)
             end
         end,
+        OnDefeated = function(player: Player, enemyId: string)
+            TowerService.OnEnemyDefeated(MATCH_ID, player, enemyId)
+        end,
         OnLeak = function(instantDefeat: boolean, enemyId: string)
             if not isPlaying() then return end
             MatchService.EnemyLeaked(MATCH_ID, instantDefeat)
@@ -180,6 +188,7 @@ startWave = function()
         OnCleared = function()
             if not isPlaying() then return end
             log("Wave " .. tostring(currentWave) .. ": inimigos derrotados ou vazaram")
+            TowerService.OnWaveCleared(MATCH_ID)
             if not WaveService.BeginPreparation(MATCH_ID, PREPARATION_TIME) then
                 warn("[Anime Fissure] Preparacao recusada")
             end
@@ -340,6 +349,13 @@ startMainMatch = function()
     matchStarted = true
     matchStarting = false
 
+    local towersReady = TowerService.BeginMatch(MATCH_ID, selectedPlayers)
+    if not towersReady then
+        warn("[Anime Fissure] Falha ao iniciar TowerService")
+        finishMatch()
+        return
+    end
+
     log("PARTIDA INICIADA PELO LOBBY")
     log("Modo: " .. tostring(match.Mode))
 
@@ -408,7 +424,7 @@ print("Versao: 1.0.0")
 print("Modo: " .. GAME_MODE)
 print("Lobby obrigatorio: ATIVO")
 print("Inicio automatico: DESATIVADO")
-print("Inimigos reais: ATIVO | Dano de teste: apenas no Studio")
+print("Inimigos reais: ATIVO | Towers: BETA 1.1")
 print("Skip e Auto Skip: WaveService")
 print("================================")
 
