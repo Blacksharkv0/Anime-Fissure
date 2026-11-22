@@ -1,6 +1,6 @@
 
 --!strict
--- ANIME FISSURE | BetaHUD v0.2.0
+-- ANIME FISSURE | BetaHUD v0.9 - HUD arcade unificado com Stage Info
 -- HUD de combate para PC e Mobile
 -- Invisivel no lobby e durante o loading
 -- Visivel somente dentro da arena
@@ -9,6 +9,9 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local StageIntelPanel = require(script.Parent:WaitForChild("StageIntelPanel"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -27,6 +30,7 @@ local GOLD = Color3.fromRGB(255, 215, 110)
 local RED = Color3.fromRGB(255, 95, 115)
 local DARK = Color3.fromRGB(8, 11, 19)
 local PANEL = Color3.fromRGB(16, 27, 53)
+local ACCENT = Color3.fromRGB(164, 103, 246)
 
 -- INTERFACE PRINCIPAL
 
@@ -42,7 +46,7 @@ local gui = Instance.new("ScreenGui")
 gui.Name = "AnimeFissureBetaHUD"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = false
-gui.DisplayOrder = 15
+gui.DisplayOrder = 18
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 -- Comeca sempre invisivel.
@@ -51,12 +55,17 @@ gui.Parent = playerGui
 
 -- CONTROLE DE VISIBILIDADE
 
+local stageUI: any = nil
+
 local function isInArena(): boolean
     return player:GetAttribute("InArena") == true
 end
 
 local function updateHudVisibility()
     gui.Enabled = isInArena()
+    if not gui.Enabled and stageUI then
+        stageUI.Close()
+    end
 
     if gui.Enabled then
         print("[Anime Fissure] HUD da arena ativado")
@@ -129,11 +138,20 @@ local function makePanel(
     frame.Position = position
     frame.AnchorPoint = anchor
     frame.BackgroundColor3 = DARK
-    frame.BackgroundTransparency = 0.12
+    frame.BackgroundTransparency = 0.05
+    frame.BorderSizePixel = 0
     frame.Parent = gui
 
     addCorner(frame, 12)
     addStroke(frame)
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Rotation = 90
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, PANEL),
+        ColorSequenceKeypoint.new(1, DARK),
+    })
+    gradient.Parent = frame
 
     return frame
 end
@@ -142,7 +160,7 @@ end
 
 local wavePanel = makePanel(
     "WavePanel",
-    UDim2.fromOffset(200, 88),
+    UDim2.fromOffset(246, 105),
     UDim2.new(0, 12, 0, 12),
     Vector2.new(0, 0)
 )
@@ -152,18 +170,28 @@ makeLabel(
     "Brand",
     "ANIME FISSURE",
     UDim2.new(1, -20, 0, 18),
-    UDim2.fromOffset(12, 8),
+    UDim2.fromOffset(13, 7),
     11,
     CYAN
+)
+
+local stageNameLabel = makeLabel(
+    wavePanel,
+    "StageName",
+    "CARREGANDO FASE...",
+    UDim2.new(1, -26, 0, 18),
+    UDim2.fromOffset(13, 26),
+    12,
+    GOLD
 )
 
 local waveLabel = makeLabel(
     wavePanel,
     "Wave",
     "WAVE -- / --",
-    UDim2.new(1, -20, 0, 28),
-    UDim2.fromOffset(12, 28),
-    21,
+    UDim2.new(1, -20, 0, 30),
+    UDim2.fromOffset(13, 45),
+    23,
     WHITE
 )
 
@@ -171,17 +199,26 @@ local statusLabel = makeLabel(
     wavePanel,
     "Status",
     "AGUARDANDO PARTIDA",
-    UDim2.new(1, -20, 0, 18),
-    UDim2.fromOffset(12, 62),
-    10,
+    UDim2.new(1, -26, 0, 18),
+    UDim2.fromOffset(13, 81),
+    11,
     MUTED
 )
+
+local phaseAccent = Instance.new("Frame")
+phaseAccent.Name = "PhaseAccent"
+phaseAccent.Size = UDim2.new(0, 4, 0, 44)
+phaseAccent.Position = UDim2.new(0, 0, 0, 44)
+phaseAccent.BackgroundColor3 = CYAN
+phaseAccent.BorderSizePixel = 0
+phaseAccent.Parent = wavePanel
+addCorner(phaseAccent, 3)
 
 -- PAINEL SUPERIOR DIREITO
 
 local statsPanel = makePanel(
     "StatsPanel",
-    UDim2.fromOffset(140, 88),
+    UDim2.fromOffset(168, 105),
     UDim2.new(1, -12, 0, 12),
     Vector2.new(1, 0)
 )
@@ -190,8 +227,8 @@ makeLabel(
     statsPanel,
     "YenTitle",
     "YEN",
-    UDim2.fromOffset(110, 17),
-    UDim2.fromOffset(12, 8),
+    UDim2.fromOffset(139, 17),
+    UDim2.fromOffset(13, 9),
     11,
     MUTED
 )
@@ -200,9 +237,9 @@ local yenLabel = makeLabel(
     statsPanel,
     "Yen",
     "¥ 700",
-    UDim2.fromOffset(120, 27),
-    UDim2.fromOffset(12, 25),
-    21,
+    UDim2.fromOffset(142, 31),
+    UDim2.fromOffset(13, 29),
+    25,
     GOLD
 )
 
@@ -210,51 +247,62 @@ local healthLabel = makeLabel(
     statsPanel,
     "BaseHealth",
     "BASE 3 / 3",
-    UDim2.fromOffset(120, 20),
-    UDim2.fromOffset(12, 61),
-    12,
+    UDim2.fromOffset(145, 20),
+    UDim2.fromOffset(13, 76),
+    13,
     WHITE
 )
+
+local coinsDivider = Instance.new("Frame")
+coinsDivider.Name = "ResourceDivider"
+coinsDivider.Size = UDim2.new(1, -26, 0, 1)
+coinsDivider.Position = UDim2.fromOffset(13, 67)
+coinsDivider.BackgroundColor3 = ACCENT
+coinsDivider.BackgroundTransparency = 0.36
+coinsDivider.BorderSizePixel = 0
+coinsDivider.Parent = statsPanel
 
 -- PAINEL INFERIOR
 
 local combatPanel = makePanel(
     "CombatPanel",
-    UDim2.fromOffset(340, 112),
-    UDim2.new(0.5, 0, 1, -12),
+    UDim2.fromOffset(360, 122),
+    UDim2.new(0.5, 0, 1, -16),
     Vector2.new(0.5, 1)
 )
 
 combatPanel.BackgroundColor3 = PANEL
 
-local scale = Instance.new("UIScale")
-scale.Scale = 1
-scale.Parent = combatPanel
+local combatScale = Instance.new("UIScale")
+combatScale.Parent = combatPanel
+
+local waveScale = Instance.new("UIScale")
+waveScale.Parent = wavePanel
+local statsScale = Instance.new("UIScale")
+statsScale.Parent = statsPanel
 
 local function updateScale()
-    local camera = workspace.CurrentCamera
-
-    if not camera then
-        return
-    end
-
-    local width = camera.ViewportSize.X
-    scale.Scale = math.clamp(
-        width / 390,
-        0.65,
-        1
+    local camera = Workspace.CurrentCamera
+    if not camera then return end
+    local v = camera.ViewportSize
+    local headerFactor = math.clamp((v.X - 36) / 437, 0.62, 1)
+    waveScale.Scale = headerFactor
+    statsScale.Scale = headerFactor
+    combatScale.Scale = math.clamp(
+        math.min((v.X - 26) / 360, (v.Y - 120) / 122, 1),
+        0.60, 1
     )
 end
 
-updateScale()
-
-local camera = workspace.CurrentCamera
-
-if camera then
-    camera:GetPropertyChangedSignal(
-        "ViewportSize"
-    ):Connect(updateScale)
+local function bindCamera()
+    local camera = Workspace.CurrentCamera
+    if camera then
+        camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale)
+    end
+    updateScale()
 end
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+bindCamera()
 
 -- CONTADOR DE INIMIGOS
 
@@ -263,7 +311,7 @@ makeLabel(
     "EnemyTitle",
     "INIMIGOS RESTANTES",
     UDim2.fromOffset(230, 20),
-    UDim2.fromOffset(12, 8),
+    UDim2.fromOffset(14, 12),
     12,
     MUTED
 )
@@ -273,7 +321,7 @@ local enemyLabel = makeLabel(
     "Enemies",
     "0",
     UDim2.fromOffset(65, 25),
-    UDim2.fromOffset(278, 5),
+    UDim2.fromOffset(285, 8),
     19,
     WHITE
 )
@@ -285,8 +333,8 @@ enemyLabel.TextXAlignment =
 
 local progressBackground = Instance.new("Frame")
 progressBackground.Name = "ProgressBackground"
-progressBackground.Size = UDim2.fromOffset(316, 6)
-progressBackground.Position = UDim2.fromOffset(12, 36)
+progressBackground.Size = UDim2.fromOffset(332, 8)
+progressBackground.Position = UDim2.fromOffset(14, 42)
 progressBackground.BackgroundColor3 =
     Color3.fromRGB(35, 52, 86)
 progressBackground.BorderSizePixel = 0
@@ -297,7 +345,7 @@ addCorner(progressBackground, 4)
 local progressFill = Instance.new("Frame")
 progressFill.Name = "ProgressFill"
 progressFill.Size = UDim2.fromScale(0, 1)
-progressFill.BackgroundColor3 = BLUE
+progressFill.BackgroundColor3 = CYAN
 progressFill.BorderSizePixel = 0
 progressFill.Parent = progressBackground
 
@@ -307,8 +355,8 @@ addCorner(progressFill, 4)
 
 local skipButton = Instance.new("TextButton")
 skipButton.Name = "SkipWave"
-skipButton.Size = UDim2.fromOffset(150, 44)
-skipButton.Position = UDim2.fromOffset(12, 56)
+skipButton.Size = UDim2.fromOffset(158, 48)
+skipButton.Position = UDim2.fromOffset(14, 64)
 skipButton.BackgroundColor3 = BLUE
 skipButton.BackgroundTransparency = 0.35
 skipButton.Text = "SKIP BLOQUEADO"
@@ -324,8 +372,8 @@ addCorner(skipButton, 9)
 
 local autoButton = Instance.new("TextButton")
 autoButton.Name = "AutoSkip"
-autoButton.Size = UDim2.fromOffset(150, 44)
-autoButton.Position = UDim2.fromOffset(178, 56)
+autoButton.Size = UDim2.fromOffset(158, 48)
+autoButton.Position = UDim2.fromOffset(188, 64)
 autoButton.BackgroundColor3 = DARK
 autoButton.Text = "AUTO: OFF"
 autoButton.TextColor3 = CYAN
@@ -335,6 +383,10 @@ autoButton.Parent = combatPanel
 
 addCorner(autoButton, 9)
 addStroke(autoButton)
+
+-- Stage Info esta no MESMO ScreenGui e escuta o MESMO snapshot.
+-- Nao existe mais StageIntelHUD separado.
+stageUI = StageIntelPanel.Attach(gui)
 
 -- ESTADO DO COMBATE
 
@@ -528,6 +580,13 @@ stateRemote.OnClientEvent:Connect(function(data: any)
         maxWaves
     )
 
+    local info = data.StageInfo
+    if typeof(info) == "table" and typeof(info.Name) == "string" then
+        stageNameLabel.Text = string.upper(info.Name)
+    else
+        stageNameLabel.Text = "FASE INDISPONIVEL"
+    end
+    stageUI.Update(info, wave)
     yenLabel.Text = "¥ " .. tostring(yen)
 
     healthLabel.Text = string.format(
@@ -576,22 +635,27 @@ stateRemote.OnClientEvent:Connect(function(data: any)
     -- STATUS DA PARTIDA
 
     if status == "Victory" then
+        phaseAccent.BackgroundColor3 = GOLD
         statusLabel.Text = "VITORIA!"
         statusLabel.TextColor3 = GOLD
 
     elseif status == "Defeat" then
+        phaseAccent.BackgroundColor3 = RED
         statusLabel.Text = "DERROTA"
         statusLabel.TextColor3 = RED
 
     elseif status ~= "Playing" then
+        phaseAccent.BackgroundColor3 = MUTED
         statusLabel.Text = "AGUARDANDO PARTIDA"
         statusLabel.TextColor3 = MUTED
 
     elseif waveStatus == "Combat" then
+        phaseAccent.BackgroundColor3 = CYAN
         statusLabel.Text = "COMBATE EM ANDAMENTO"
         statusLabel.TextColor3 = CYAN
 
     elseif waveStatus == "Preparation" then
+        phaseAccent.BackgroundColor3 = GOLD
         statusLabel.Text = string.format(
             "PREPARACAO: %ds",
             remaining
@@ -599,6 +663,7 @@ stateRemote.OnClientEvent:Connect(function(data: any)
         statusLabel.TextColor3 = GOLD
 
     else
+        phaseAccent.BackgroundColor3 = BLUE
         statusLabel.Text = "PROXIMA WAVE..."
         statusLabel.TextColor3 = MUTED
     end
@@ -628,5 +693,5 @@ updateHudVisibility()
 updateSkipButton(0, 0)
 
 print(
-    "[Anime Fissure] BetaHUD v0.2 ONLINE"
+    "[Anime Fissure] BetaHUD v0.9 ONLINE | Stage Info integrado"
 )
