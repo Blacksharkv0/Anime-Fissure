@@ -1,4 +1,4 @@
-# Anime Fissure — Modelagem Overlord v0.1 (23/11? não: 22/11/2026)
+# Anime Fissure — Modelagem Overlord v0.1 (22/11/2026)
 
 **Data da decisão:** 22/11/2026. **Status:** arquivos no GitHub; **não validado ainda em Play no Roblox Studio**. Esta versão prioriza **modelos** e não executa combate novo nem adiciona personagens ao banner atual.
 
