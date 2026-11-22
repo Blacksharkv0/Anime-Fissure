@@ -96,6 +96,10 @@ local function finishMatch()
     local match = getMatch()
 
     if match then
+        if match.Status == "Playing" then
+            -- Encerrada por falta de jogadores ou erro de inicializacao.
+            match.Status = "Aborted"
+        end
         log("Partida encerrada: " .. match.Status)
 
         log(
