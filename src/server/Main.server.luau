@@ -2,7 +2,7 @@
 --!strict
 -- ANIME FISSURE
 -- Main.server.luau
--- Versao: 0.5.0
+-- Versao: 1.0.0 | fase e dificuldade definidas pelo lobby
 -- Lobby 3D + inicio manual da partida
 -- MatchService + WaveService + EnemyService
 -- Inimigos reais no caminho (Studio: clique para testar dano)
@@ -33,7 +33,7 @@ local EnemyService = require(
 -- CONFIGURACOES
 
 local MATCH_ID = "MainMatch"
-local GAME_MODE = "Classic"
+local GAME_MODE = "Classic" -- fallback seguro; escolha valida vem do lobby
 
 local BETWEEN_WAVES_DELAY = 1.5
 local PREPARATION_TIME = 10
@@ -49,7 +49,10 @@ local startWave: () -> ()
 
 -- O LOBBY CONTROLA O INICIO
 
-Workspace:SetAttribute("ArenaRequested", false)
+Workspace:SetAttribute("ArenaControllerReady", false)
+if Workspace:GetAttribute("ArenaRequested") ~= true then
+    Workspace:SetAttribute("ArenaRequested", false)
+end
 
 local function log(message: string)
     print("[Anime Fissure v0.5] " .. message)
@@ -281,9 +284,16 @@ startMainMatch = function()
         table.insert(selectedPlayers, player)
     end
 
+    local selectedStage = Workspace:GetAttribute("ArenaStageId")
+    local selectedMode = Workspace:GetAttribute("ArenaMode")
+    local mode = if selectedStage == "OVL_01"
+        and (selectedMode == "Classic" or selectedMode == "Hard")
+        then selectedMode
+        else GAME_MODE
+
     local match = MatchService.CreateMatch(
         MATCH_ID,
-        GAME_MODE,
+        mode,
         selectedPlayers
     )
 
@@ -331,7 +341,7 @@ startMainMatch = function()
     matchStarting = false
 
     log("PARTIDA INICIADA PELO LOBBY")
-    log("Modo: " .. GAME_MODE)
+    log("Modo: " .. tostring(match.Mode))
 
     log(
         "Jogadores: "
@@ -394,7 +404,7 @@ end)
 
 print("================================")
 print("ANIME FISSURE - SERVIDOR ONLINE")
-print("Versao: 0.5.0")
+print("Versao: 1.0.0")
 print("Modo: " .. GAME_MODE)
 print("Lobby obrigatorio: ATIVO")
 print("Inicio automatico: DESATIVADO")
@@ -402,4 +412,5 @@ print("Inimigos reais: ATIVO | Dano de teste: apenas no Studio")
 print("Skip e Auto Skip: WaveService")
 print("================================")
 
+Workspace:SetAttribute("ArenaControllerReady", true)
 log("Aguardando entrada pelo lobby")
