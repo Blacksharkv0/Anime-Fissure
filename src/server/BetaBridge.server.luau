@@ -1,6 +1,6 @@
 
 --!strict
--- ANIME FISSURE | BetaBridge v0.1
+-- ANIME FISSURE | BetaBridge v0.8 | Stage Info enviado pelo servidor
 -- Comunicacao segura entre servidor e HUD
 
 local Players = game:GetService("Players")
@@ -14,7 +14,12 @@ local WaveService = require(
     script.Parent:WaitForChild("WaveService")
 )
 
+local StageInfoConfig = require(
+    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StageInfoConfig")
+)
+
 local MATCH_ID = "MainMatch"
+local STAGE_ID = "OVL_01"
 
 local remotes = ReplicatedStorage:FindFirstChild("BetaRemotes")
 
@@ -99,6 +104,7 @@ task.spawn(function()
     while true do
         local match = MatchService.GetMatch(MATCH_ID)
         local wave = WaveService.GetState(MATCH_ID)
+        local difficulty = if match and match.Mode == "Hard" then "Hard" else "Classic"
 
         local payload = {
             Status = "Waiting",
@@ -111,6 +117,7 @@ task.spawn(function()
             Votes = 0,
             RequiredVotes = 0,
             PreparationRemaining = 0,
+            StageInfo = StageInfoConfig.BuildPayload(STAGE_ID, difficulty),
         }
 
         if match then
@@ -144,4 +151,4 @@ task.spawn(function()
     end
 end)
 
-print("[Anime Fissure] BetaBridge ONLINE")
+print("[Anime Fissure] BetaBridge v0.8 ONLINE | StageInfo")
