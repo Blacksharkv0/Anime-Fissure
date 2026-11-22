@@ -84,6 +84,7 @@ local root = frame(gui, "StageInfoDock", UDim2.fromOffset(177, 44),
     UDim2.new(1, -12, 0, 114), C.Panel)
 root.ZIndex = 10
 root.BackgroundTransparency = 0.04
+root.ClipsDescendants = true
 
 local topGlow = Instance.new("UIGradient")
 topGlow.Color = ColorSequence.new({
@@ -146,6 +147,7 @@ padding.Parent = scroll
 local expanded = false
 local lastKey = ""
 local lastInfo: any = nil
+local latestWave = 0
 local previewStep = 0 -- 0: ainda nao; 1: obteve e reiniciou; 2: obteve e progrediu
 
 local function resize()
@@ -217,16 +219,21 @@ local function render(info: any, keepScroll: boolean?)
         return
     end
 
-    local basic = section("FASE", 126, 1)
+    local basic = section("FASE", 153, 1)
     label(basic, "StageName", safeText(info.Name, "Fase"), UDim2.fromOffset(12, 34),
         UDim2.new(1, -24, 0, 27), 20, C.White, true)
     label(basic, "Difficulty",
         "Overlord  •  " .. (info.Difficulty == "Hard" and "HARD" or "NORMAL")
             .. "  •  " .. tostring(safeInt(info.Waves) or 15) .. " waves",
         UDim2.fromOffset(12, 62), UDim2.new(1, -24, 0, 21), 12, C.Muted)
+    label(basic, "CurrentWave",
+        string.format("WAVE ATUAL  %02d / %02d", latestWave,
+            safeInt(info.Waves) or 15),
+        UDim2.fromOffset(12, 89),
+        UDim2.new(1, -24, 0, 22), 13, C.Cyan, true)
     local element = if info.ElementConfigured == true then safeText(info.Element, "Indefinido")
         else "Elemento: ainda nao definido"
-    label(basic, "Element", element, UDim2.fromOffset(12, 90),
+    label(basic, "Element", element, UDim2.fromOffset(12, 115),
         UDim2.new(1, -24, 0, 24), 13, C.Gold, true)
 
     local enemies = if typeof(info.Enemies) == "table" then info.Enemies else {}
@@ -370,6 +377,7 @@ local function update(info: any, wave: number?)
     end
     -- A informacao de wave usa o mesmo snapshot que atualiza o HUD principal.
     local waveValue = if typeof(wave) == "number" then math.floor(wave) else 0
+    latestWave = math.max(0, waveValue)
     signature ..= "|wave:" .. tostring(waveValue)
     if signature ~= lastKey then
         local resetPreview = (lastInfo == nil or lastInfo.StageId ~= info.StageId)
