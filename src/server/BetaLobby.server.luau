@@ -157,6 +157,31 @@ end
 
 local enterRemote = ensureRemote("EnterArena")
 local feedbackRemote = ensureRemote("LobbyFeedback")
+local openBoardRemote = ensureRemote("OpenMissionBoard")
+
+local portalPrompt = portal:FindFirstChild("MissionBoardPrompt")
+if not portalPrompt or not portalPrompt:IsA("ProximityPrompt") then
+    if portalPrompt then portalPrompt:Destroy() end
+    portalPrompt = Instance.new("ProximityPrompt")
+    portalPrompt.Name = "MissionBoardPrompt"
+    portalPrompt.Parent = portal
+end
+portalPrompt.ActionText = "ESCOLHER FASE"
+portalPrompt.ObjectText = "PORTAL DAS FISSURAS"
+portalPrompt.KeyboardKeyCode = Enum.KeyCode.E
+portalPrompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+portalPrompt.ClickablePrompt = true
+portalPrompt.RequiresLineOfSight = false
+portalPrompt.HoldDuration = 0
+portalPrompt.MaxActivationDistance = 15
+portalPrompt.Triggered:Connect(function(player: Player)
+    if player:GetAttribute("InArena") == true then return end
+    local character = player.Character
+    local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+    if not root or not root:IsA("BasePart") then return end
+    if (root.Position - portal.Position).Magnitude > 20 then return end
+    openBoardRemote:FireClient(player)
+end)
 local function feedback(player: Player, status: string, message: string)
     if player.Parent == Players then
         feedbackRemote:FireClient(player, status, message)
