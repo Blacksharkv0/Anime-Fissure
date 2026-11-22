@@ -41,6 +41,7 @@ local GAME_MODE = "Classic" -- fallback seguro; escolha valida vem do lobby
 
 local BETWEEN_WAVES_DELAY = 1.5
 local PREPARATION_TIME = 10
+local INITIAL_PREPARATION_TIME = 24 -- permite posicionar Torres antes da Wave 1
 
 -- CONTROLE INTERNO
 
@@ -314,10 +315,18 @@ startMainMatch = function()
         return
     end
 
+    local firstWavePending = true
     local waveCreated = WaveService.Create(
         MATCH_ID,
         selectedPlayers,
-        advanceWave
+        function()
+            if firstWavePending then
+                firstWavePending = false
+                startWave()
+            else
+                advanceWave()
+            end
+        end
     )
 
     if not waveCreated then
@@ -369,7 +378,13 @@ startMainMatch = function()
         .. tostring(match.MaxWaves)
     )
 
-    startWave()
+    -- Fase de preparacao inicial: jogador usa o deck e vota iniciar.
+    -- O mesmo sistema de Skip/AutoSkip avanca a Wave 1.
+    if not WaveService.BeginPreparation(MATCH_ID, INITIAL_PREPARATION_TIME, true) then
+        warn("[Anime Fissure] Preparacao inicial falhou; iniciando a Wave 1")
+        firstWavePending = false
+        startWave()
+    end
 end
 
 -- RECEBER AUTORIZACAO DO LOBBY
