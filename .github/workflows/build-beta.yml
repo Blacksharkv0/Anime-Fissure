@@ -49,6 +49,11 @@ jobs:
           test -f src/shared/TowerConfig.luau
           test -f src/shared/OverlordUnitRoster.luau
           test -f src/shared/OverlordAbilityDesign.luau
+          test -f src/shared/OverlordModelProgression.luau
+          test -f src/shared/OverlordTowerModelBuilder.luau
+          test -f src/server/OverlordModels.server.luau
+          test -f src/server/OverlordModelSmokeTest.server.luau
+          test -f src/client/OverlordModelGallery.client.luau
           test -f src/server/ArenaCombatVisuals.server.luau
           test -f src/shared/EnemyConfig.luau
           test -f src/shared/BossConfig.luau
