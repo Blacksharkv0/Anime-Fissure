@@ -17,6 +17,10 @@ RewardConfig.StartingYen = 700
 -- Cada participante elegivel recebe o valor.
 
 RewardConfig.EnemyYen = {
+    -- IDs reais do EnemyService (aliases das configuracoes iniciais):
+    Invader = 15,
+    Scout = 18,
+    Armored = 40,
     InvaderSoldier = 15,
     OrderScout = 18,
     ShieldGuardian = 40,
