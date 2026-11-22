@@ -164,7 +164,7 @@ end
 local function boots(r: any, color: Color3)
     for _, leg in ipairs({r.LL, r.RL}) do
         mount(r.Base, leg, "HighBoot", Vector3.new(0.91, 0.82, 0.99),
-            CFrame.new(0, -0.53, -0.055), color, Enum.Material.Leather)
+            CFrame.new(0, -0.53, -0.055), color, Enum.Material.SmoothPlastic)
     end
 end
 
@@ -363,7 +363,7 @@ local function characterAinz(r: any)
         CFrame.new(0, 0.14, -0.68), C.Coal, Enum.Material.Metal)
     for _, side in ipairs({-1, 1}) do
         mount(r.Base, r.Torso, "RibBone", Vector3.new(0.19, 1.37, 0.17),
-            CFrame.new(side * 0.36, 0.06, -0.85), C.Ivory, Enum.Material.Bone)
+            CFrame.new(side * 0.36, 0.06, -0.85), C.Ivory, Enum.Material.SmoothPlastic)
         mount(r.Base, if side < 0 then r.LA else r.RA,
             "RoyalPauldron", Vector3.new(1.52, 0.86, 1.31),
             CFrame.new(0, 0.81, 0), C.Silver, Enum.Material.Metal)
