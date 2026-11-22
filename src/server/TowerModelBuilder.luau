@@ -69,10 +69,10 @@ function Builder.Build(id: string, def: any): Model
         Enum.Material.Slate, Enum.PartType.Cylinder)
     pedestal.CFrame *= CFrame.Angles(0, 0, math.rad(90))
     pedestal.CanQuery = true -- hitbox de selecao do dono (ainda sem colisao)
-    piece(model, "PlatformSigil", Vector3.new(0.18, 2.0, 2.0),
+    local sigil = piece(model, "PlatformSigil", Vector3.new(0.18, 2.0, 2.0),
         CFrame.new(0, 0.48, 0), def.AttackColor,
-        Enum.Material.Neon, Enum.PartType.Cylinder).CFrame *=
-        CFrame.Angles(0, 0, math.rad(90))
+        Enum.Material.Neon, Enum.PartType.Cylinder)
+    sigil.CFrame *= CFrame.Angles(0, 0, math.rad(90))
 
     if id == "FissureBlade" then
         addBody(model, Color3.fromRGB(44, 79, 133), def.Color, false)
