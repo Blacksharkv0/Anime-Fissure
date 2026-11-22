@@ -148,8 +148,10 @@ local function rig(id: string, rarity: string)
     humanoid.BreakJointsOnDeath = false
     humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
     humanoid.RequiresNeck = true
+    humanoid.RigType = Enum.HumanoidRigType.R6
     humanoid.Parent = model
-    Instance.new("Animator").Parent = humanoid
+    local animator = Instance.new("Animator")
+    animator.Parent = humanoid
 
     local base = Instance.new("Folder")
     base.Name = "BaseAccessories"
