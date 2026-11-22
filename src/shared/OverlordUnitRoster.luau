@@ -1,6 +1,7 @@
 --!strict
 -- ANIME FISSURE | OVERLORD UNITS | Roster aprovado 22/11/2026
--- Somente catalogo de identidade + raridade decidido pelo criador.
+-- Raridades, passiva universal, 3 mudancas de ataque, plano de obtencao.
+-- BannerPlanned NAO equivale a elegibilidade ativa no Summon.
 -- NAO adiciona unidades ao Summon, TowerConfig, deck, inventario, drops
 -- ou lista de personagens jogaveis. Skills/stats/models ainda pendentes.
 
@@ -18,7 +19,10 @@ Roster.Units = {
         Rarity = "Secret",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "SpecialStageUndecided",
+        BannerCandidate = false,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
     {
         Id = "OVL_Albedo",
@@ -27,7 +31,10 @@ Roster.Units = {
         Rarity = "Mythic",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "BannerPlanned",
+        BannerCandidate = true,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
     {
         Id = "OVL_Shalltear",
@@ -36,7 +43,10 @@ Roster.Units = {
         Rarity = "Legendary",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "BannerPlanned",
+        BannerCandidate = true,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
     {
         Id = "OVL_Gazef",
@@ -45,7 +55,10 @@ Roster.Units = {
         Rarity = "Epic",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "BannerPlanned",
+        BannerCandidate = true,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
     {
         Id = "OVL_Brain",
@@ -54,7 +67,10 @@ Roster.Units = {
         Rarity = "Rare",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "BannerPlanned",
+        BannerCandidate = true,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
     {
         Id = "OVL_Climb",
@@ -63,7 +79,10 @@ Roster.Units = {
         Rarity = "Common",
         WorldId = "Overlord",
         Status = "Planned",
-        ObtainMethod = "Undecided",
+        ObtainMethod = "BannerPlanned",
+        BannerCandidate = true,
+        PassivePlanned = true,
+        AttackChangesPlanned = 3,
     },
 }
 
