@@ -505,8 +505,7 @@ local function updateStageVisual(id: string, holder: Instance, r: any, stage: nu
             end
         else
             ring(holder, t, 2.82, -2.74, C.Gold, 14)
-            mount(holder, t, "OverseerHalo", Vector3.new(2.83, 0.17, 2.83),
-                CFrame.new(0, 3.3, 0), C.GoldBright, Enum.Material.Neon, "Cylinder")
+            ring(holder, t, 1.43, 3.3, C.GoldBright, 12)
             mount(holder, t, "GuardianShield", Vector3.new(1.60, 2.23, 0.25),
                 CFrame.new(-1.95, -0.20, -1.11), C.Silver, Enum.Material.Metal)
         end
@@ -523,8 +522,7 @@ local function updateStageVisual(id: string, holder: Instance, r: any, stage: nu
             ring(holder, t, 2.55, -2.69, C.Purple, 12)
         else
             ring(holder, t, 3.18, -2.68, C.Ice, 16)
-            mount(holder, t, "SuperTierCrown", Vector3.new(3.20, 0.18, 3.20),
-                CFrame.new(0, 3.08, 0), C.Ice, Enum.Material.Neon, "Cylinder")
+            ring(holder, t, 1.62, 3.08, C.Ice, 14)
             for _, side in ipairs({-1, 1}) do
                 slash(holder, t, "FallenDownPillar", side * 2.52, 0.72, -0.22,
                     side * 3, C.Ice, 4.72)
