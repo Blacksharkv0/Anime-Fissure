@@ -91,6 +91,10 @@ local function damageActor(state: any, actor: any, amount: number, damageType: s
         if not bossState then return false end
         actor.Health = bossState.Health
     else
+        if damageType == "Physical" then
+            dealt = math.max(1, math.floor(dealt
+                * (1 - math.clamp(actor.PhysicalResistance or 0, 0, 0.95)) + 0.5))
+        end
         actor.Health = math.max(0, actor.Health - dealt)
     end
     Builder.UpdateHealth(actor.Model, actor.Health, actor.MaxHealth)
@@ -176,6 +180,7 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
         NextWaypoint = nextWaypoint,
         Health = maxHealth,
         MaxHealth = maxHealth,
+        PhysicalResistance = stats.PhysicalResistance or 0,
         Speed = stats.Speed,
         Air = stats.Air == true,
         OffsetY = offsetY,
