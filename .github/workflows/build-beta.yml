@@ -43,6 +43,10 @@ jobs:
           test -f src/server/BetaMap.server.luau
           test -f src/server/EnemyModelBuilder.luau
           test -f src/server/EnemyService.luau
+          test -f src/server/TowerService.luau
+          test -f src/server/TowerModelBuilder.luau
+          test -f src/client/TowerHUD.client.luau
+          test -f src/shared/TowerConfig.luau
           test -f src/server/ArenaCombatVisuals.server.luau
           test -f src/shared/EnemyConfig.luau
           test -f src/shared/BossConfig.luau
