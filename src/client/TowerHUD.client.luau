@@ -382,7 +382,9 @@ stateRemote.OnClientEvent:Connect(function(data: any)
     end
     updateSlots()
     updateManagement()
-    if ready and selectedUnit then
+    -- Nao cancelar a escolha enquanto o servidor atualiza Yen ou outra torre.
+    -- Cancelar apenas apos confirmar a colocacao desta tentativa.
+    if ready and selectedUnit and data.Message == "Torre posicionada." then
         cancelPlacement()
         updateSlots()
     end
