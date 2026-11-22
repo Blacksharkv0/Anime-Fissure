@@ -382,7 +382,8 @@ end
 local function tree(p: Vector3, index: number)
     local s = rng:NextNumber(0.78, 1.35)
     local trunk = piece(trees, "OakTrunk_" .. index, Vector3.new(1.8 * s, 8 * s, 1.8 * s),
-        CFrame.new(p + Vector3.new(0, 4 * s, 0)), C.Timber, Enum.Material.Wood, true)
+        CFrame.new(p + Vector3.new(0, 4 * s, 0))
+            * CFrame.Angles(0, 0, math.rad(90)), C.Timber, Enum.Material.Wood, true)
     trunk.Shape = Enum.PartType.Cylinder
     for i = 1, 5 do
         local ang = (i - 1) * math.pi * 2 / 5
