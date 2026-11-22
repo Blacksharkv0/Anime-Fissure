@@ -1,16 +1,22 @@
 
 --!strict
--- ANIME FISSURE | BetaLobby v0.1
+-- ANIME FISSURE | BetaLobby v1.0 | selecao de mundo e fase
 -- Lobby 3D + entrada autorizada na arena
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local StageConfig = require(
+    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyStageConfig")
+)
+
 local BLUE = Color3.fromRGB(56, 123, 255)
 local DARK = Color3.fromRGB(17, 24, 42)
 local CYAN = Color3.fromRGB(100, 220, 255)
 
+local existingLobby = Workspace:FindFirstChild("FissureLobby")
+if existingLobby then existingLobby:Destroy() end
 local lobby = Instance.new("Model")
 lobby.Name = "FissureLobby"
 lobby.Parent = Workspace
@@ -131,13 +137,31 @@ task.spawn(function()
     end
 end)
 
-local remotes = Instance.new("Folder")
-remotes.Name = "LobbyRemotes"
-remotes.Parent = ReplicatedStorage
+local remotes = ReplicatedStorage:FindFirstChild("LobbyRemotes")
+if remotes and not remotes:IsA("Folder") then remotes:Destroy(); remotes = nil end
+if not remotes then
+    remotes = Instance.new("Folder")
+    remotes.Name = "LobbyRemotes"
+    remotes.Parent = ReplicatedStorage
+end
 
-local enterRemote = Instance.new("RemoteEvent")
-enterRemote.Name = "EnterArena"
-enterRemote.Parent = remotes
+local function ensureRemote(name: string): RemoteEvent
+    local old = remotes:FindFirstChild(name)
+    if old and old:IsA("RemoteEvent") then return old end
+    if old then old:Destroy() end
+    local created = Instance.new("RemoteEvent")
+    created.Name = name
+    created.Parent = remotes
+    return created
+end
+
+local enterRemote = ensureRemote("EnterArena")
+local feedbackRemote = ensureRemote("LobbyFeedback")
+local function feedback(player: Player, status: string, message: string)
+    if player.Parent == Players then
+        feedbackRemote:FireClient(player, status, message)
+    end
+end
 
 local function teleportCharacter(
     player: Player,
@@ -183,53 +207,79 @@ for _, player in ipairs(Players:GetPlayers()) do
     setupPlayer(player)
 end
 
+-- A beta atual possui uma partida por servidor; nao e matchmaking cooperativo.
 local entryLocked = false
+local lastRequests: {[number]: number} = {}
 
-enterRemote.OnServerEvent:Connect(function(player)
-    if player:GetAttribute("InArena") then
+enterRemote.OnServerEvent:Connect(function(player: Player, stageId: any, difficulty: any)
+    if player.Parent ~= Players then return end
+    local now = os.clock()
+    if now - (lastRequests[player.UserId] or -100) < 0.45 then return end
+    lastRequests[player.UserId] = now
+
+    if player:GetAttribute("InArena") == true then
+        feedback(player, "Denied", "Voce ja esta na arena.")
         return
     end
 
-    -- Prototipo: uma partida por servidor.
+    local allowed, reason = StageConfig.CanEnter(stageId, difficulty)
+    if not allowed then
+        feedback(player, "Denied", reason)
+        return
+    end
+
     if entryLocked then
-        warn("[Anime Fissure] Partida ja iniciada")
+        feedback(player, "Denied", "Uma partida ja foi iniciada neste servidor beta.")
         return
     end
 
+    -- A escolha do cliente precisa ser validada; somente OVL_01 e Classic/Hard.
     entryLocked = true
-
-    local arena = Workspace:WaitForChild(
-        "FissureArena", 10
-    )
-
-    if not arena then
+    local arena = Workspace:FindFirstChild("FissureArena")
+    local mapReady = arena and arena:IsA("Model") and arena:GetAttribute("Ready") == true
+    if not mapReady then
         entryLocked = false
-        warn("[Anime Fissure] Arena nao encontrada")
+        feedback(player, "Denied", "O mapa ainda esta carregando. Tente novamente.")
+        return
+    end
+
+    if Workspace:GetAttribute("ArenaControllerReady") ~= true then
+        entryLocked = false
+        feedback(player, "Denied", "O controlador da partida ainda esta carregando.")
         return
     end
 
     local character = player.Character
-    if not character then
+    local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+    local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+    if not character or not humanoid or humanoid.Health <= 0
+        or not root or not root:IsA("BasePart") then
         entryLocked = false
+        feedback(player, "Denied", "Personagem indisponivel. Tente novamente.")
         return
     end
 
+    -- Consumo atomico da vaga de partida. Todos os dados usados por Main
+    -- sao definidos do lado do servidor ANTES de ArenaRequested.
+    Workspace:SetAttribute("ArenaStageId", stageId)
+    Workspace:SetAttribute("ArenaMode", difficulty)
     player:SetAttribute("InArena", true)
-
     player.RespawnLocation = nil
 
-    teleportCharacter(
-        player,
-        Vector3.new(0, 5, 52)
-    )
+    local spawnFolder = (arena :: Model):FindFirstChild("PlayerSpawns")
+    local pad = if spawnFolder then spawnFolder:FindFirstChild("PlayerSpawn_1") else nil
+    local spawnPos = if pad and pad:IsA("BasePart")
+        then pad.Position + Vector3.new(0, 4, 0)
+        else Vector3.new(0, 5, 52)
 
-    -- Sinal para Main.server.luau
+    teleportCharacter(player, spawnPos)
     Workspace:SetAttribute("ArenaRequested", true)
-
-    print(
-        "[Anime Fissure] Jogador entrou:",
-        player.Name
-    )
+    feedback(player, "Accepted", "Carne Village - " .. difficulty .. " iniciada.")
+    print("[Anime Fissure] Entrada validada:", player.Name, stageId, difficulty)
 end)
 
-print("[Anime Fissure] Lobby ONLINE")
+Players.PlayerRemoving:Connect(function(player)
+    lastRequests[player.UserId] = nil
+end)
+
+print("[Anime Fissure] Lobby v1.0 ONLINE | mundo / fase / modo validado")
