@@ -62,7 +62,8 @@ local function piece(parent: Instance, name: string, size: Vector3,
     p.Anchored = false
     p.CanCollide = false
     p.CanTouch = false
-    p.CanQuery = false
+    -- Corpo do R6 selecionavel no combate; acessorios sao puramente visuais.
+    p.CanQuery = parent:IsA("Model") and name ~= "HumanoidRootPart"
     p.Massless = true
     p.CastShadow = false -- muitos acessorios: reduzir custo das sombras no mobile
     p.TopSurface = Enum.SurfaceType.Smooth
