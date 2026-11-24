@@ -46,6 +46,7 @@ jobs:
           test -f src/server/TowerService.luau
           test -f src/server/TowerModelBuilder.luau
           test -f src/server/OverlordCombatPrototype.luau
+          test -f src/server/OverlordCombatSmokeTest.server.luau
           test -f src/client/TowerHUD.client.luau
           test -f src/client/OverlordCombatVFX.client.luau
           test -f src/shared/TowerConfig.luau
