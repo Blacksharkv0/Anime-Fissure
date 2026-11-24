@@ -66,7 +66,7 @@ local function addOverlordLabel(model: Model, def: any)
     assert(root, "Modelo de Overlord sem HumanoidRootPart")
     local plate = Instance.new("Part")
     plate.Name = "TowerSelection"
-    plate.Size = Vector3.new(5.1, 0.38, 5.1)
+    plate.Size = Vector3.new(0.38, 5.1, 5.1)
     plate.CFrame = CFrame.new(0, 0.20, 0)
     plate.Shape = Enum.PartType.Cylinder
     plate.CFrame *= CFrame.Angles(0, 0, math.rad(90))
