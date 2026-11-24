@@ -64,7 +64,7 @@ local function piece(parent: Instance, name: string, size: Vector3,
     p.CanTouch = false
     p.CanQuery = false
     p.Massless = true
-    p.CastShadow = true
+    p.CastShadow = false -- muitos acessorios: reduzir custo das sombras no mobile
     p.TopSurface = Enum.SurfaceType.Smooth
     p.BottomSurface = Enum.SurfaceType.Smooth
     p.Parent = parent
