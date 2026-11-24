@@ -3,6 +3,11 @@
 -- Representacoes 3D originais feitas com parts, nao meshes importadas.
 -- Modelo ancorado com Root no chao; armas e corpo movem como conjunto.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Overlord = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordTowerModelBuilder"))
+local TowerConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TowerConfig"))
+local RunService = game:GetService("RunService")
+
 local Builder = {}
 
 local function piece(model: Model, name: string, size: Vector3, pose: CFrame,
@@ -44,7 +49,7 @@ local function addBody(model: Model, coat: Color3, accent: Color3, mask: boolean
             Enum.Material.Fabric)
         piece(model, "Boot", Vector3.new(0.72, 0.55, 0.94),
             CFrame.new(side * 0.45, 0.42, -0.09),
-            Color3.fromRGB(36, 36, 50), Enum.Material.Leather)
+            Color3.fromRGB(36, 36, 50), Enum.Material.SmoothPlastic)
     end
     piece(model, "HairCap", Vector3.new(1.33, 0.58, 1.33),
         CFrame.new(0, 5.56, 0), Color3.fromRGB(31, 38, 58),
@@ -56,7 +61,61 @@ local function addBody(model: Model, coat: Color3, accent: Color3, mask: boolean
     end
 end
 
+local function addOverlordLabel(model: Model, def: any)
+    local root = model.PrimaryPart
+    assert(root, "Modelo de Overlord sem HumanoidRootPart")
+    local plate = Instance.new("Part")
+    plate.Name = "TowerSelection"
+    plate.Size = Vector3.new(5.1, 0.38, 5.1)
+    plate.CFrame = CFrame.new(0, 0.20, 0)
+    plate.Shape = Enum.PartType.Cylinder
+    plate.CFrame *= CFrame.Angles(0, 0, math.rad(90))
+    plate.Anchored = true
+    plate.CanCollide = false
+    plate.CanTouch = false
+    plate.CanQuery = true
+    plate.Material = Enum.Material.Neon
+    plate.Color = def.AttackColor
+    plate.Transparency = 0.45
+    plate.Parent = model
+
+    local label = Instance.new("BillboardGui")
+    label.Name = "TowerLabel"
+    label.Size = UDim2.fromOffset(176, 51)
+    label.StudsOffsetWorldSpace = Vector3.new(0, 4.1, 0)
+    label.AlwaysOnTop = true
+    label.MaxDistance = 105
+    label.Adornee = root
+    label.Parent = root
+
+    local title = Instance.new("TextLabel")
+    title.Name = "UnitTitle"
+    title.Size = UDim2.fromScale(1, 1)
+    title.BackgroundColor3 = Color3.fromRGB(10, 17, 37)
+    title.BackgroundTransparency = 0.22
+    title.BorderSizePixel = 0
+    title.Text = def.Name .. "\nLV 0"
+    title.Font = Enum.Font.GothamBold
+    title.TextColor3 = Color3.fromRGB(240, 246, 255)
+    title.TextScaled = true
+    title.Parent = label
+    local rounded = Instance.new("UICorner")
+    rounded.CornerRadius = UDim.new(0, 8)
+    rounded.Parent = title
+end
+
 function Builder.Build(id: string, def: any): Model
+    if TowerConfig.IsOverlord(id) and RunService:IsStudio() then
+        local model = Overlord.Build(id)
+        assert(model, "Modelo Overlord inexistente: " .. id)
+        model.Name = def.Name
+        model:SetAttribute("PreviewOnly", false)
+        model:SetAttribute("CombatReady", true)
+        model:SetAttribute("Level", 0)
+        Overlord.SetVisualStage(model, 0)
+        addOverlordLabel(model, def)
+        return model
+    end
     local model = Instance.new("Model")
     model.Name = def.Name
     local root = piece(model, "Root", Vector3.new(1, 0.5, 1),
@@ -153,6 +212,10 @@ end
 
 function Builder.UpdateLevel(model: Model, level: number)
     model:SetAttribute("Level", level)
+    local id = model:GetAttribute("UnitId")
+    if TowerConfig.IsOverlord(id) then
+        Overlord.SetVisualStage(model, TowerConfig.GetVisualStage(id, level))
+    end
     local root = model.PrimaryPart
     local label = if root then root:FindFirstChild("TowerLabel") else nil
     local text = if label then label:FindFirstChild("UnitTitle") else nil
