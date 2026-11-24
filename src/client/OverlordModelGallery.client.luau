@@ -9,6 +9,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
 local Workspace = game:GetService("Workspace")
 
 if not RunService:IsStudio() then return end
@@ -190,6 +192,10 @@ viewport.Parent = window
 corner(viewport, 9)
 stroke(viewport, P.Secondary, 1.2, 0.10)
 
+local previewFX = button(window, "PlayUnitFX", "▶  TESTAR VFX INICIAL",
+    UDim2.fromOffset(218, 393), UDim2.fromOffset(198, 35), P.Purple, 12)
+previewFX.ZIndex = 15
+
 local world = Instance.new("WorldModel")
 world.Name = "PreviewWorld"
 world.Parent = viewport
@@ -254,6 +260,83 @@ local function updateSelection()
         b.BackgroundColor3 = if index - 1 == visualStage then P.Blue else P.Card
     end
 end
+
+-- Preview local no ViewportFrame (nao causa dano no jogo).
+-- Ataques reais da arena usam o OverlordCombatVFX.client.luau.
+local function fxStroke(name: string, a: Vector3, b: Vector3,
+    color: Color3, width: number)
+    local d = b - a
+    if d.Magnitude < 0.01 then return end
+    local p = Instance.new("Part")
+    p.Name = name
+    p.Anchored = true
+    p.CanCollide = false
+    p.CanTouch = false
+    p.CanQuery = false
+    p.CastShadow = false
+    p.Material = Enum.Material.Neon
+    p.Color = color
+    p.Size = Vector3.new(width, width, d.Magnitude)
+    p.CFrame = CFrame.lookAt((a + b) / 2, b)
+    p.Parent = world
+    TweenService:Create(p, TweenInfo.new(0.48), {
+        Transparency = 1,
+        Size = Vector3.new(0.02, 0.02, d.Magnitude),
+    }):Play()
+    Debris:AddItem(p, 0.6)
+end
+
+local function playPreviewFX()
+    local colors = {
+        OVL_Climb = Color3.fromRGB(122, 210, 255),
+        OVL_Brain = Color3.fromRGB(224, 239, 255),
+        OVL_Gazef = Color3.fromRGB(255, 200, 110),
+        OVL_Shalltear = Color3.fromRGB(245, 64, 110),
+        OVL_Albedo = Color3.fromRGB(244, 215, 142),
+        OVL_Ainz = Color3.fromRGB(197, 129, 252),
+    }
+    local color = colors[current]
+    if not color then return end
+    local from = Vector3.new(0.18, 4.25, -0.55)
+    local to = Vector3.new(1.6, 3.05, -2.05)
+    if current == "OVL_Climb" then
+        fxStroke("Climb_Arc", from, to, color, 0.22)
+        fxStroke("Climb_Vertical", to - Vector3.new(0, 0.85, 0),
+            to + Vector3.new(0, 0.85, 0), color, 0.17)
+    elseif current == "OVL_Brain" then
+        for i = 1, 2 + visualStage do
+            local offset = (i - (3 + visualStage) / 2) * 0.33
+            fxStroke("Brain_GodFlash", from + Vector3.new(offset, 0, 0),
+                to - Vector3.new(offset, 0, 0), color, 0.08)
+        end
+    elseif current == "OVL_Gazef" then
+        for i = 1, 2 + visualStage do
+            fxStroke("Gazef_Slash", from,
+                to + Vector3.new((i - 2) * 0.50, (i - 2) * 0.25, 0),
+                color, 0.19)
+        end
+    elseif current == "OVL_Shalltear" then
+        fxStroke("Shalltear_SpuitLance", from, to, color, 0.27)
+        for i = 1, 4 do
+            local theta = i * math.pi * 0.5
+            fxStroke("Blood_Petal", to,
+                to + Vector3.new(math.sin(theta) * 0.6,
+                    math.cos(theta) * 0.6, -0.15), color, 0.12)
+        end
+    elseif current == "OVL_Albedo" then
+        fxStroke("Albedo_Wings", from, to, color, 0.25)
+        fxStroke("Albedo_Guard", to + Vector3.new(-0.85, 0.65, 0),
+            to + Vector3.new(0.85, -0.65, 0), color, 0.22)
+    elseif current == "OVL_Ainz" then
+        for i = 1, 3 + visualStage do
+            local offset = (i - 2.5) * 0.35
+            fxStroke("Ainz_RealityRift",
+                to + Vector3.new(-0.95, 0.85 + offset, 0),
+                to + Vector3.new(0.95, -0.85 + offset, 0), color, 0.18)
+        end
+    end
+end
+previewFX.Activated:Connect(playPreviewFX)
 
 local function preview()
     updateSelection()
@@ -371,6 +454,8 @@ local function resize()
         end
         viewport.Position = UDim2.fromOffset(12, 181)
         viewport.Size = UDim2.fromOffset(348, 276)
+        previewFX.Position = UDim2.fromOffset(22, 415)
+        previewFX.Size = UDim2.fromOffset(180, 31)
         infos.Position = UDim2.fromOffset(12, 466)
         infos.Size = UDim2.fromOffset(348, 125)
         heroName.Position = UDim2.fromOffset(10, 3)
@@ -416,6 +501,8 @@ local function resize()
         end
         viewport.Position = UDim2.fromOffset(206, 78)
         viewport.Size = UDim2.fromOffset(347, 362)
+        previewFX.Position = UDim2.fromOffset(218, 393)
+        previewFX.Size = UDim2.fromOffset(198, 35)
         infos.Position = UDim2.fromOffset(567, 78)
         infos.Size = UDim2.fromOffset(218, 362)
         heroName.Position = UDim2.fromOffset(12, 7)
@@ -485,4 +572,4 @@ task.spawn(function()
     end
 end)
 
-print("[Anime Fissure] Model Lab Overlord v0.1 | 6 modelos, 4 looks cada")
+print("[Anime Fissure] Model Lab Overlord v0.2 | modelos giraveis e botao Testar VFX")
