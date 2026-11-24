@@ -175,11 +175,15 @@ startWave = function()
                 WaveService.SetRemainingEnemies(MATCH_ID, remaining)
             end
         end,
-        OnDefeated = function(player: Player, enemyId: string)
-            TowerService.OnEnemyDefeated(MATCH_ID, player, enemyId)
+        OnDefeated = function(player: Player, enemyId: string, position: Vector3)
+            TowerService.OnEnemyDefeated(MATCH_ID, player, enemyId, position)
         end,
         OnLeak = function(instantDefeat: boolean, enemyId: string)
             if not isPlaying() then return end
+            if TowerService.TryBlockLeak(MATCH_ID, instantDefeat) then
+                log("Albedo protegeu a base do vazamento: " .. enemyId)
+                return
+            end
             MatchService.EnemyLeaked(MATCH_ID, instantDefeat)
             log("Inimigo atravessou a base: " .. enemyId)
             if not isPlaying() then
