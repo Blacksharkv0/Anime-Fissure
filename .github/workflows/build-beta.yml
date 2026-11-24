@@ -45,7 +45,9 @@ jobs:
           test -f src/server/EnemyService.luau
           test -f src/server/TowerService.luau
           test -f src/server/TowerModelBuilder.luau
+          test -f src/server/OverlordCombatPrototype.luau
           test -f src/client/TowerHUD.client.luau
+          test -f src/client/OverlordCombatVFX.client.luau
           test -f src/shared/TowerConfig.luau
           test -f src/shared/OverlordUnitRoster.luau
           test -f src/shared/OverlordAbilityDesign.luau
@@ -66,6 +68,23 @@ jobs:
           test -f src/client/SummonCinematic.client.luau
           test -f src/shared/GameConfig.luau
           test -f src/shared/GuardianBuilder.luau
+
+      - name: Garantir Overlord em modo teste e Ainz fora do banner
+        run: |
+          grep -q 'StudioLabYen = 18000' src/shared/TowerConfig.luau
+          grep -q 'RunService:IsStudio()' src/server/OverlordCombatPrototype.luau
+          grep -q 'def.StudioOnly == true and not RunService:IsStudio()' src/server/TowerService.luau
+          grep -q 'AttackFX' src/server/TowerService.luau
+          grep -q 'BannerCandidate = false' src/shared/OverlordUnitRoster.luau
+          grep -q 'BannerCandidate = true' src/shared/OverlordUnitRoster.luau
+          if grep -q 'OVL_Ainz' src/shared/SummonConfig.luau; then
+            echo "ERRO: Ainz nao pode estar no banner"
+            exit 1
+          fi
+          if grep -q 'OVL_Climb' src/shared/SummonConfig.luau; then
+            echo "ERRO: banner real deve aguardar configuracao de chances"
+            exit 1
+          fi
 
       - name: Gerar arquivo Roblox
         run: |
