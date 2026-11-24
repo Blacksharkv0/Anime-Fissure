@@ -54,6 +54,11 @@ jobs:
           test -f src/shared/OverlordAbilityDesign.luau
           test -f src/shared/OverlordModelProgression.luau
           test -f src/shared/OverlordTowerModelBuilder.luau
+          test -f src/shared/EconomyVisualConfig.luau
+          test -f src/shared/EconomyItemModelBuilder.luau
+          test -f src/server/EconomyModels.server.luau
+          test -f src/server/EconomyModelSmokeTest.server.luau
+          test -f src/client/EconomyModelGallery.client.luau
           test -f src/server/OverlordModels.server.luau
           test -f src/server/OverlordModelSmokeTest.server.luau
           test -f src/client/OverlordModelGallery.client.luau
@@ -86,6 +91,15 @@ jobs:
             echo "ERRO: banner real deve aguardar configuracao de chances"
             exit 1
           fi
+
+      - name: Validar tokens visuais sem mexer no Summon
+        run: |
+          grep -q 'Currency = "SummonTickets"' src/shared/SummonConfig.luau
+          grep -q 'FissureGems' src/shared/EconomyVisualConfig.luau
+          grep -q 'TraitRerollCore' src/shared/EconomyVisualConfig.luau
+          grep -q 'RelicTraitSeal' src/shared/EconomyVisualConfig.luau
+          grep -q 'return false' src/shared/EconomyVisualConfig.luau
+          grep -q 'RunService:IsStudio()' src/server/EconomyModels.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
