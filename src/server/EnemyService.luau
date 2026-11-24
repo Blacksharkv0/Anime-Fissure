@@ -101,7 +101,7 @@ local function damageActor(state: any, actor: any, amount: number, damageType: s
     if actor.Health <= 0 then
         -- Premio associado a quem acertou o golpe final, sem RemoteEvent publico.
         if attacker and typeof(state.Hooks.OnDefeated) == "function" then
-            local ok, err = pcall(state.Hooks.OnDefeated, attacker, actor.Id)
+            local ok, err = pcall(state.Hooks.OnDefeated, attacker, actor.Id, actor.Position)
             if not ok then warn("[EnemyService] OnDefeated:", err) end
         end
         removeActor(state, actor, false)
@@ -122,12 +122,31 @@ function EnemyService.GetTargets(matchId: string): {any}
                 Id = actor.Id,
                 Position = actor.Position,
                 Health = actor.Health,
+                MaxHealth = actor.MaxHealth,
                 Air = actor.Air,
+                Boss = actor.BossEncounter ~= nil,
                 Progress = actor.NextWaypoint,
             })
         end
     end
     return targets
+end
+
+-- Slow aplicado SOMENTE por script do servidor; boss imune neste prototipo.
+-- Resistencia progressiva de boss deve entrar no motor definitivo de controle.
+function EnemyService.ApplySlow(matchId: string, serialId: number,
+    fraction: number, duration: number): boolean
+    local state = live[matchId]
+    if not state or typeof(serialId) ~= "number"
+        or typeof(fraction) ~= "number" or typeof(duration) ~= "number"
+        or fraction < 0 or fraction > 0.5 or duration <= 0 or duration > 5 then
+        return false
+    end
+    local actor = state.Actors[serialId]
+    if not actor or actor.BossEncounter then return false end
+    actor.SlowFraction = math.max(actor.SlowFraction or 0, fraction)
+    actor.SlowExpires = math.max(actor.SlowExpires or 0, os.clock() + duration)
+    return true
 end
 
 function EnemyService.DamageEnemy(matchId: string, serialId: number,
@@ -182,6 +201,8 @@ spawnActor = function(state: any, id: string, atPosition: Vector3?, atWaypoint: 
         MaxHealth = maxHealth,
         PhysicalResistance = stats.PhysicalResistance or 0,
         Speed = stats.Speed,
+        SlowFraction = 0,
+        SlowExpires = 0,
         Air = stats.Air == true,
         OffsetY = offsetY,
         BossEncounter = nil :: string?,
@@ -324,6 +345,11 @@ RunService.Heartbeat:Connect(function(dt: number)
             if live[state.Id] ~= state then break end
             if state.Actors[actor.Serial] ~= actor then continue end
             local speed = actor.Speed
+            if os.clock() < (actor.SlowExpires or 0) then
+                speed *= (1 - (actor.SlowFraction or 0))
+            else
+                actor.SlowFraction = 0
+            end
             if actor.BossEncounter then
                 local bossState = BossService.GetState(actor.BossEncounter)
                 if bossState then
