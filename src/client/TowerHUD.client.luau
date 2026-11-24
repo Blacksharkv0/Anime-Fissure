@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -112,7 +113,7 @@ border(bar, C.Blue, 1.5)
 local barScale = Instance.new("UIScale")
 barScale.Parent = bar
 
-text(bar, "DeckTitle", "DECK DE COMBATE  •  BETA",
+local deckTitle = text(bar, "DeckTitle", "DECK DE COMBATE  •  BETA",
     UDim2.fromOffset(12, 3), UDim2.fromOffset(350, 23), 13, C.Cyan).TextXAlignment =
     Enum.TextXAlignment.Left
 local yen = text(bar, "Yen", "¥ 700",
@@ -122,7 +123,7 @@ local hint = text(bar, "PlaceHint", "Selecione uma Tower e toque no terreno livr
     UDim2.fromOffset(12, 98), UDim2.fromOffset(520, 20), 11, C.Muted)
 
 local management = frame(gui, "TowerManagement",
-    UDim2.new(0.5, 0, 1, -145), UDim2.fromOffset(520, 102), C.Panel)
+    UDim2.new(0.5, 0, 1, -195), UDim2.fromOffset(520, 127), C.Panel)
 management.AnchorPoint = Vector2.new(0.5, 1)
 management.Visible = false
 round(management, 12)
@@ -134,12 +135,14 @@ local selectedTitle = text(management, "SelectedUnit", "TORRE",
     UDim2.fromOffset(10, 7), UDim2.new(1, -20, 0, 24), 15, C.White)
 local selectedStats = text(management, "SelectedStats", "",
     UDim2.fromOffset(10, 34), UDim2.new(1, -20, 0, 20), 11, C.Muted)
+local passiveLabel = text(management, "Passive", "",
+    UDim2.fromOffset(10, 56), UDim2.new(1, -20, 0, 19), 10, C.Gold)
 local upgradeButton = button(management, "Upgrade", "UPGRADE",
-    UDim2.fromOffset(10, 62), UDim2.fromOffset(238, 32), C.Blue)
+    UDim2.fromOffset(10, 86), UDim2.fromOffset(238, 32), C.Blue)
 local sellButton = button(management, "Sell", "VENDER",
-    UDim2.fromOffset(259, 62), UDim2.fromOffset(153, 32), C.Purple)
+    UDim2.fromOffset(259, 86), UDim2.fromOffset(153, 32), C.Purple)
 local closeManage = button(management, "CloseSelection", "X",
-    UDim2.fromOffset(423, 62), UDim2.fromOffset(86, 32), C.Dark)
+    UDim2.fromOffset(423, 86), UDim2.fromOffset(86, 32), C.Dark)
 
 local slotButtons: {[number]: TextButton} = {}
 for i = 1, 6 do
@@ -150,11 +153,33 @@ for i = 1, 6 do
     slotButtons[i] = cell
 end
 
+local lab = frame(gui, "StudioLabControls",
+    UDim2.new(0.5, 0, 1, -141), UDim2.fromOffset(556, 41), C.Panel)
+lab.AnchorPoint = Vector2.new(0.5, 1)
+lab.Visible = RunService:IsStudio()
+round(lab, 10)
+border(lab, C.Purple, 1.1)
+local labScale = Instance.new("UIScale")
+labScale.Parent = lab
+
+local toggleDeck = button(lab, "ToggleLabDeck", "DECK: OVERLORD",
+    UDim2.fromOffset(11, 6), UDim2.fromOffset(260, 29), C.Purple)
+local labFunds = button(lab, "StudioYen", "+20.000 YEN (STUDIO)",
+    UDim2.fromOffset(282, 6), UDim2.fromOffset(263, 29), C.Blue)
+
+local shortNames = {
+    OVL_Climb = "CLIMB", OVL_Brain = "BRAIN", OVL_Gazef = "GAZEF",
+    OVL_Shalltear = "SHALLTEAR", OVL_Albedo = "ALBEDO", OVL_Ainz = "AINZ",
+    FissureBlade = "ESPADACHIM", FissureMage = "ARCANISTA",
+    Capsule = "CAPSULE",
+}
+
 local selectedUnit: string? = nil
 local selectedTower: number? = nil
 local deck: {any} = {}
 local towers: {any} = {}
 local ready = false
+local studioDeckMode = "Legacy"
 local currentYen = 700
 local preview: Part? = nil
 local previewPosition: Vector3? = nil
@@ -186,12 +211,14 @@ local function updateSlots()
             b.AutoButtonColor = false
         else
             local enabled = item.Available == true and ready
-            b.Text = tostring(i) .. "  " .. (if item.UnitId == "Capsule" then "◈"
-                elseif item.UnitId == "FissureBlade" then "⚔" else "✦")
-                .. "\n" .. (if item.UnitId == "FissureBlade" then "ESPADACHIM"
-                    elseif item.UnitId == "FissureMage" then "ARCANISTA" else "CAPSULE")
+            b.Text = tostring(i) .. "  " .. (if item.Role == "Farm" then "◈"
+                elseif item.Role == "Support" then "◆" else "⚔")
+                .. "\n" .. (shortNames[item.UnitId] or item.Name)
                 .. "\n¥ " .. tostring(item.PlacementCost)
-            if not enabled then b.Text = tostring(i) .. "\nCAPSULE\nBLOQUEADA" end
+            if not enabled then
+                b.Text = tostring(i) .. "\n" .. (shortNames[item.UnitId] or item.Name)
+                    .. "\nBLOQUEADA"
+            end
             b.Active = enabled
             b.AutoButtonColor = enabled
             b.BackgroundColor3 = if not enabled then C.Dark
@@ -217,10 +244,20 @@ local function updateManagement()
     end
     management.Visible = gui.Enabled
     selectedTitle.Text = t.Name .. "  •  LV " .. tostring(t.Level)
+        .. (if t.VisualStage and t.VisualStage > 0
+            then "  |  ATAQUE " .. tostring(t.VisualStage) else "")
     selectedStats.Text = if t.UnitId == "Capsule"
         then "Renda: ¥" .. tostring(t.Income or 0) .. " / wave"
         else string.format("Dano: %d   SPA: %.2fs   Range: %.1f",
             t.Damage or 0, t.SPA or 0, t.Range or 0)
+    passiveLabel.Text = if typeof(t.PassiveName) == "string"
+        then "PASSIVA: " .. t.PassiveName
+            .. (if t.Blood ~= nil and t.UnitId == "OVL_Shalltear"
+                then " (" .. tostring(t.Blood) .. "/5)"
+                elseif t.GuardCharges ~= nil
+                then " (" .. tostring(t.GuardCharges) .. " cargas)"
+                else "")
+        else "Sem passiva especial cadastrada nesta beta"
     upgradeButton.Text = if t.UpgradeCost
         then "UPGRADE  •  ¥ " .. tostring(t.UpgradeCost) else "LEVEL MAX"
     upgradeButton.Active = t.UpgradeCost ~= nil and currentYen >= t.UpgradeCost
@@ -357,6 +394,18 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
     end
 end)
 
+toggleDeck.Activated:Connect(function()
+    if RunService:IsStudio() and ready then
+        selectedTower = nil
+        management.Visible = false
+        cancelPlacement()
+        request:FireServer("LabDeck")
+    end
+end)
+labFunds.Activated:Connect(function()
+    if RunService:IsStudio() and ready then request:FireServer("LabFunds") end
+end)
+
 upgradeButton.Activated:Connect(function()
     if selectedTower then request:FireServer("Upgrade", selectedTower) end
 end)
@@ -371,6 +420,11 @@ end)
 stateRemote.OnClientEvent:Connect(function(data: any)
     if typeof(data) ~= "table" then return end
     ready = data.Ready == true
+    studioDeckMode = if data.DeckMode == "Overlord" then "Overlord" else "Legacy"
+    toggleDeck.Text = "DECK: " .. string.upper(studioDeckMode)
+    deckTitle.Text = if studioDeckMode == "Overlord"
+        then "OVERLORD   •   LABORATORIO"
+        else "DECK DE COMBATE   •   BETA"
     deck = if typeof(data.Deck) == "table" then data.Deck else {}
     towers = if typeof(data.Towers) == "table" then data.Towers else {}
     currentYen = if typeof(data.Yen) == "number" then data.Yen else 700
@@ -409,7 +463,10 @@ local function resize()
     local factor = math.clamp(math.min((v.X - 12) / 556, (v.Y - 32) / 235, 1), 0.48, 1)
     barScale.Scale = factor
     managementScale.Scale = factor
-    management.Position = UDim2.new(0.5, 0, 1, -(13 + 122 * factor + 12))
+    labScale.Scale = factor
+    lab.Position = UDim2.new(0.5, 0, 1, -(13 + 122 * factor + 8))
+    management.Position = UDim2.new(0.5, 0, 1,
+        -(13 + 122 * factor + (if lab.Visible then 49 * factor else 0) + 10))
 end
 local function bindCamera()
     local cam = Workspace.CurrentCamera
@@ -421,4 +478,4 @@ bindCamera()
 
 updateSlots()
 updateVisibility()
-print("[Anime Fissure] TowerHUD beta 1.1 | 2 atacantes + Capsule")
+print("[Anime Fissure] TowerHUD v1.2 | deck Overlord Studio + legacy + LabFunds")
