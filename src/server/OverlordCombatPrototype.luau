@@ -64,7 +64,13 @@ function Combat.Attack(t: any, target: any, targets: {any},
         if stage >= 1 and t.AttackCount % 5 == 0 then
             damage *= 1.8
         end
-        if stage >= 2 then extraTargets = 1; secondaryFraction = 0.46 end
+        if stage >= 3 then
+            extraTargets = 2
+            secondaryFraction = 0.55 -- combo aprimorado Limit Breaker
+        elseif stage >= 2 then
+            extraTargets = 1
+            secondaryFraction = 0.46 -- postura em combo
+        end
     elseif t.Id == "OVL_Brain" then
         critChance = 0.15 + 0.04 * stage
         critMultiplier = 1.7
@@ -92,7 +98,13 @@ function Combat.Attack(t: any, target: any, targets: {any},
         end
         if stage >= 3 then extraTargets = 1; secondaryFraction = 0.44 end
     elseif t.Id == "OVL_Albedo" then
-        if stage >= 1 then extraTargets = 1; secondaryFraction = 0.42 end
+        if stage >= 2 then
+            extraTargets = 2 -- pulso de escudo atingindo mais alvos
+            secondaryFraction = 0.50
+        elseif stage >= 1 then
+            extraTargets = 1
+            secondaryFraction = 0.42
+        end
     elseif t.Id == "OVL_Ainz" then
         if stage >= 1 and t.AttackCount % 4 == 0 then
             damage *= 2.1
