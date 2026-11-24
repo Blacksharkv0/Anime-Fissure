@@ -257,7 +257,7 @@ local function place(player: Player, unitId: any, pos: any)
         Blood = 0,
         AuraNext = os.clock() + 2,
         GuardCharges = if def.Id == "OVL_Albedo" then 3 else nil,
-        LastGuard = 0,
+        LastGuard = -100,
         TargetAir = def.TargetAir == true,
     }
     model:SetAttribute("TowerSerial", id)
