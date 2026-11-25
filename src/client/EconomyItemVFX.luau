@@ -104,6 +104,7 @@ function FX.Attach(model: Model,id: string)
         enabled=value
         for _,p in ipairs(glows) do p.Transparency=if value then 0.30 else 1 end
         for _,p in ipairs(strokes) do p.Transparency=if value then 0.30 else 1 end
+        for _,p in ipairs(sparkles) do p.Transparency=1 end
         light.Enabled=value
     end
     function controller:Burst()
