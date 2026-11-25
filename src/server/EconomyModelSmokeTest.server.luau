@@ -46,8 +46,20 @@ for _, entry in ipairs(all) do
         assert(not descendant:IsA("Decal") and not descendant:IsA("MeshPart"),
             "Economy item nao deve referenciar assets externos: " .. entry.Id)
     end
-    assert(pieces >= 10 and pieces <= 60,
+    assert(pieces >= 18 and pieces <= 180,
         "Quantidade de pecas estranha em " .. entry.Id .. ": " .. pieces)
+    assert(model:GetAttribute("HasAuthoredSurfaceDetail") == true,
+        "V0.2 exige detalhes de superficie autorais: " .. entry.Id)
+    local required = {
+        FissureGems = {"FissureBolt1", "BlueCrystalUpper", "VioletCrystalUpper"},
+        Gold = {"CoinFaceFront", "CoinFaceBack", "CentralEmblem1"},
+        TraitRerollCore = {"ArmorHex1", "EnergyRewriter", "ManipulatorArm1"},
+        RelicTraitSeal = {"OctagonalRuneArmor1", "AncientGlyphAxis1", "SunsetInnerHeartUpper"},
+    }
+    for _, name in ipairs(required[entry.Id]) do
+        assert(model:FindFirstChild(name),
+            "Detalhe v0.2 ausente em " .. entry.Id .. ": " .. name)
+    end
     silhouettes[entry.Id] = pieces
     total += pieces
 
