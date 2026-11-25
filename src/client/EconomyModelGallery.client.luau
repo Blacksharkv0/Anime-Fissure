@@ -15,6 +15,7 @@ if not RunService:IsStudio() then return end
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local Visuals = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("EconomyVisualConfig"))
+local ItemVFX = require(script.Parent:WaitForChild("EconomyItemVFX"))
 local items = Visuals.GetAll()
 
 local C = {
@@ -211,6 +212,8 @@ local right = button(footer, "RotateRight", "DIREITA  ↷",
     UDim2.fromOffset(164, 10), UDim2.fromOffset(138, 45), C.Card, 12)
 local auto = button(footer, "AutoRotate", "AUTO: ON",
     UDim2.fromOffset(314, 10), UDim2.fromOffset(156, 45), C.Line, 13)
+local vfxToggle = button(header, "ToggleVFX", "VFX ON",
+    UDim2.new(1, -157, 0, 10), UDim2.fromOffset(90, 42), C.Line, 12)
 local zoomOut = button(footer, "ZoomOut", "−",
     UDim2.fromOffset(493, 10), UDim2.fromOffset(127, 45), C.Card, 21)
 local zoomIn = button(footer, "ZoomIn", "+",
@@ -220,6 +223,8 @@ local selected = "FissureGems"
 local choices: {[string]: TextButton} = {}
 local models: Folder? = nil
 local liveModel: Model? = nil
+local visualController: any = nil
+local vfxEnabled = true
 local yaw = math.rad(18)
 local distance = 6.4
 local spinning = true
@@ -253,6 +258,7 @@ local function preview()
     usage.Text = info.Usage
     identity.Text = info.VisualIdentity
     status.Text = "SOMENTE VISUAL   •   SEM SALDO"
+    if visualController then visualController:Destroy(); visualController = nil end
     world:ClearAllChildren()
     liveModel = nil
     if not models then
@@ -267,6 +273,9 @@ local function preview()
     liveModel = source:Clone()
     liveModel.Parent = world
     liveModel:PivotTo(CFrame.Angles(0, yaw, 0))
+    visualController = ItemVFX.Attach(liveModel, selected)
+    visualController:SetEnabled(vfxEnabled)
+    visualController:Burst()
     aim()
 end
 
@@ -292,6 +301,15 @@ local function rotate(delta: number)
 end
 left.Activated:Connect(function() rotate(-math.rad(26)) end)
 right.Activated:Connect(function() rotate(math.rad(26)) end)
+vfxToggle.Activated:Connect(function()
+    vfxEnabled = not vfxEnabled
+    vfxToggle.Text = if vfxEnabled then "VFX ON" else "VFX OFF"
+    vfxToggle.BackgroundColor3 = if vfxEnabled then C.Line else C.Card
+    if visualController then
+        visualController:SetEnabled(vfxEnabled)
+        if vfxEnabled then visualController:Burst() end
+    end
+end)
 auto.Activated:Connect(function()
     spinning = not spinning
     auto.Text = if spinning then "AUTO: ON" else "AUTO: OFF"
@@ -337,10 +355,12 @@ UserInputService.InputChanged:Connect(function(input: InputObject)
 end)
 
 RunService.RenderStepped:Connect(function(dt: number)
-    if shade.Visible and screen.Enabled and spinning and not dragging then
+    if not shade.Visible or not screen.Enabled then return end
+    if spinning and not dragging then
         yaw += math.min(dt, 0.07) * 0.52
         redrawAngle()
     end
+    if visualController then visualController:Update(dt) end
 end)
 
 local function resize()
@@ -462,6 +482,9 @@ local function setOpen(open: boolean)
         preview()
     else
         dragging = false
+        if visualController then visualController:Destroy(); visualController = nil end
+        world:ClearAllChildren()
+        liveModel = nil
     end
 end
 launch.Activated:Connect(function() setOpen(not shade.Visible) end)
@@ -481,4 +504,4 @@ task.spawn(function()
     end
 end)
 
-print("[Anime Fissure] ECONOMY LAB v0.1 • quatro modelos autorais 3D")
+print("[Anime Fissure] ECONOMY LAB v0.2 • modelos detalhados e VFX animado")
