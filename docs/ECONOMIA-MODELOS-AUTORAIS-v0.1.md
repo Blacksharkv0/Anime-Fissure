@@ -1,47 +1,40 @@
-# Anime Fissure — Gems, Gold e Rerolls autorais | Model Lab v0.1
+# Anime Fissure — Economy Model Lab v0.2 (25/11/2026)
 
-**Data:** 24/11/2026. **Status:** arquivos publicados no GitHub; build e Play no Roblox Studio ainda sem confirmação.
+## Referência visual aprovada
+Usamos a prancha de quatro ícones aprovada pelo criador: **Fissure Gems**, **Gold**, **Trait Reroll** e **Relic Trait**. A meta é reproduzir as silhuetas, cores e linguagem de energia da arte conceitual em Roblox 3D.
 
-## Identidade dos quatro recursos
+### O que está efetivamente programado
+| Item | Modelo v0.2 | VFX de preview |
+|---|---|---|
+| Gemas da Fissura | Duas massas facetadas azul/violeta, fragmentos isolados, fecho metálico e rachadura em zigue-zague | Faíscas de rift, partículas orbitais e pulso azul |
+| Gold | Disco 3D grosso com duas faces, aro trabalhado, gravação de símbolo angular e ornamento similar a louros | Cintilação dourada e faíscas suaves |
+| Núcleo de Reescrita | Corpo mecânico hexagonal, trilho interno, disco central, braços e dentes externos | Linhas de energia giratórias e brilho ciano |
+| Selo de Ressonância | Aros octogonais, glifos geométricos feitos em peças, quatro pontas e cristal violeta/laranja | Trilhas arcanas e partículas violetas/alaranjadas |
 
-| ID técnico | Nome proposto | Uso futuro | Identidade visual original |
-|---|---|---|---|
-| FissureGems | Gemas da Fissura | Summon e loja futura | Cristal partido em duas metades flutuantes, fissura azul, três fragmentos e aro hexagonal |
-| Gold | Gold | Progressão fora da partida | Moeda dourada familiar com marca angular própria |
-| TraitRerollCore | Núcleo de Reescrita | Reroll de Trait de unidade | Engrenagem hexagonal azul, núcleo turquesa e três eixos móveis |
-| RelicTraitSeal | Selo de Ressonância | Reroll de Trait de relíquia | Mandala octogonal violeta, runas geométricas originais e espinhos de metal |
+O material visual foi feito com **Part, WedgePart, Cylinder, Glass, Metal e Neon**, incluindo gravuras geométricas que **simulam textura de superfície**. Não é um arquivo MeshPart UV-mapeado ou textura PBR importada. A imagem conceitual é mais detalhada que esses protótipos de geometria Roblox, mas agora os modelos têm muito mais camadas e animação local.
 
-Os nomes são propostas criativas. Os IDs já estão cadastrados em **src/shared/EconomyVisualConfig.luau**.
+### Arquivos
+- `src/shared/EconomyVisualConfig.luau`: nomes, IDs e cores, ainda `VisualOnly`.
+- `src/shared/EconomyItemModelBuilder.luau`: modelos 3D detalhados v0.2 com API `Build(id)` e `BuildAll(parent)`.
+- `src/client/EconomyItemVFX.luau`: controlador de brilho, linhas de energia, pulsos e faíscas locais.
+- `src/client/EconomyModelGallery.client.luau`: interface `GEMAS & ITENS`, rotação, zoom e botão `VFX ON/OFF`.
+- `src/server/EconomyModels.server.luau`: templates gerados **só no Studio**.
+- `src/server/EconomyModelSmokeTest.server.luau`: teste de existência de peças e detalhes, sem colisões nem arquivos externos.
+- `.github/workflows/build-beta.yml`: valida presença dos arquivos e gera `.rbxlx` via Rojo.
 
-## Arquivos feitos
+### Como testar no Roblox Studio
+1. Acesse https://github.com/Blacksharkv0/Anime-Fissure/actions e confira a **última execução verde** da workflow **Anime Fissure - Build Beta** na branch `main`.
+2. Baixe `AnimeFissure-Beta`, abra o `.rbxlx` no Roblox Studio e inicie **Play**.
+3. No lobby, clique **◇ GEMAS & ITENS** (abaixo de **MODELOS OVERLORD**).
+4. Selecione os quatro recursos, **gire com arraste**, alterne **AUTO ON/OFF**, use **+/-** para zoom e **VFX ON/OFF** para comparar com e sem efeitos.
+5. Abra **View → Output** e procure `ECONOMY MODEL SMOKE OK`, além de quaisquer erros vermelhos relacionados a EconomyItemModelBuilder, EconomyItemVFX ou EconomyModelGallery.
+6. Teste **Device Emulator** em landscape e portrait; confira se os VFX continuam legíveis e se não há lentidão.
+7. Capture prints com **VFX ON** e **VFX OFF** para compararmos com a prancha de referência.
 
-- **src/shared/EconomyVisualConfig.luau:** catálogo de nomes, cores e utilidades; Status=VisualOnly, IsLive sempre false.
-- **src/shared/EconomyItemModelBuilder.luau:** quatro mini modelos 3D em peças nativas Roblox, sem IDs externos, imagens importadas ou cópia de outros jogos. Builder.Build(id) permite reutilização posterior nos menus.
-- **src/server/EconomyModels.server.luau:** biblioteca de modelos gerada somente no Roblox Studio em ReplicatedStorage.EconomyPreviewModels.
-- **src/client/EconomyModelGallery.client.luau:** galeria no lobby do Studio, botão **◇ GEMAS & ITENS** abaixo de **MODELOS OVERLORD**, seleção de quatro itens, zoom, rotação, arraste e giro automático.
-- **src/server/EconomyModelSmokeTest.server.luau:** verifica quatro modelos, separação visual, ausência de colisões, peças ancoradas e que não existem importações de MeshPart/Decal.
-- **.github/workflows/build-beta.yml:** valida a presença desses arquivos, mantendo SummonTickets no banner real.
-
-## Como testar
-
-1. Visite https://github.com/Blacksharkv0/Anime-Fissure/actions e confira a última execução de **Anime Fissure - Build Beta**, branch main. Baixe somente se estiver **verde**.
-2. Abra AnimeFissure-Beta.rbxlx no Roblox Studio e execute **Play**.
-3. No lobby, clique **◇ GEMAS & ITENS**, canto superior direito.
-4. Selecione Gemas da Fissura, Gold, Núcleo de Reescrita e Selo de Ressonância; gire os modelos e teste **AUTO, ESQUERDA, DIREITA, − e +**.
-5. No **View → Output**, procure **ECONOMY MODEL SMOKE OK**. Se aparecer erro, envie print do Output e da galeria.
-6. Teste com o Device Emulator, se possível, em paisagem e retrato.
-
-## O que NÃO foi alterado
-
-- Summon continua usando **SummonTickets**; nada foi trocado automaticamente por Gems.
-- Loja de Gems e compra de moedas **ainda não existem**.
-- Nenhum valor de Gold, inventário, transação, saldo, moeda ou pity foi criado por esses modelos.
-- Reroll de Trait de unidade e reroll de Trait de relíquia são apenas **dois modelos de consumíveis distintos**, sem gastar ou gerar resultados.
-- Não foram definidos custos, chance, origem de materiais ou regras de loja.
-- Não são MeshParts profissionais nem ícones 2D; são **modelos low-poly de Parts**.
-
-## Próxima etapa
-
-Após a aprovação dos quatro modelos, decidir Gems versus Tickets, fontes de moedas, preços, gastos e taxas de reroll. Os modelos poderão virar ícones 3D nas interfaces de Summon, loja e inventário sem redesenhar a identidade.
-
-**Verificação atual:** publicação e revisão estática do GitHub. A aparência real e a execução no Studio precisam de playtest.
+### Limites e economia protegida
+- **Nenhuma** Gem, Gold ou token de reroll foi concedido, vendido ou consumido.
+- Summon continua com **SummonTickets**, sem trocar o banner, chances ou preços.
+- Os modelos ainda são **prévia apenas no Studio**, não itens colecionáveis de jogadores.
+- As animações e brilhos são **efeitos locais do ViewportFrame**, sem processamento de dano e sem efeitos em outros clientes.
+- A v0.2 foi publicada no GitHub e revisada estaticamente. **Não foi executado Play no Roblox Studio nem confirmada a build verde por esta interação**.
+- Uma versão final ainda poderá precisar de **meshes/UVs e texturas PBR próprias** para atingir o nível de detalhe da ilustração 2D aprovada.
