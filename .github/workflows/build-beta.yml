@@ -59,6 +59,7 @@ jobs:
           test -f src/server/EconomyModels.server.luau
           test -f src/server/EconomyModelSmokeTest.server.luau
           test -f src/client/EconomyModelGallery.client.luau
+          test -f src/client/EconomyItemVFX.luau
           test -f src/server/OverlordModels.server.luau
           test -f src/server/OverlordModelSmokeTest.server.luau
           test -f src/client/OverlordModelGallery.client.luau
@@ -100,6 +101,17 @@ jobs:
           grep -q 'RelicTraitSeal' src/shared/EconomyVisualConfig.luau
           grep -q 'return false' src/shared/EconomyVisualConfig.luau
           grep -q 'RunService:IsStudio()' src/server/EconomyModels.server.luau
+
+      - name: Conferir modelos 3D detalhados e VFX de economia
+        run: |
+          grep -q 'Builder.Version = "0.2.0"' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'BlueCrystalUpper' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'CoinFaceFront' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'ArmorHex' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'OctagonalRuneArmor' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'function FX.Attach' src/client/EconomyItemVFX.luau
+          grep -q 'ItemVFX.Attach' src/client/EconomyModelGallery.client.luau
+          grep -q 'VFX ON' src/client/EconomyModelGallery.client.luau
 
       - name: Gerar arquivo Roblox
         run: |
