@@ -136,7 +136,8 @@ function FX.Attach(model: Model,id: string)
         end
         for i,p in ipairs(strokes) do
             local angle=i/#strokes*math.pi*2+t*(id=="Gold" and 0.2 or 1.3)
-            local a,b: Vector3,Vector3
+            local a: Vector3
+            local b: Vector3
             if id=="FissureGems" then
                 local x=0.18*math.sin(t*9+i)
                 a=Vector3.new(x,1.20-(i-1)*0.58,-0.88)
