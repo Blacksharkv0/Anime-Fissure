@@ -85,6 +85,8 @@ jobs:
           test -f src/client/StageIntelPanel.luau
           test -f src/shared/StageInfoConfig.luau
           test -f src/shared/StoryRewardConfig.luau
+          test -f src/shared/OverlordEvolutionLootConfig.luau
+          test -f src/server/OverlordEvolutionLootSmokeTest.server.luau
           test -f src/client/SummonCinematic.client.luau
           test -f src/shared/GameConfig.luau
           test -f src/shared/GuardianBuilder.luau
@@ -175,6 +177,18 @@ jobs:
             echo "ERRO: Ainz nao deve ser adicionado ao banner"
             exit 1
           fi
+
+      - name: Conferir itens de evolucao previstos do Overlord
+        run: |
+          grep -q 'Loot.Status = "Planned_NoActiveDrops"' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'MagicPowerRing' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'ShalltearEvolutionItem' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'AlbedoEvolutionItem' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'RestrictionRing' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'return false' src/shared/OverlordEvolutionLootConfig.luau
+          grep -q 'PlannedEvolutionItems' src/shared/StageInfoConfig.luau
+          grep -q 'EVOLUCAO • PLANEJADOS' src/client/StageIntelPanel.luau
+          grep -q 'OVERLORD EVOLUTION LOOT TEST OK' src/server/OverlordEvolutionLootSmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
