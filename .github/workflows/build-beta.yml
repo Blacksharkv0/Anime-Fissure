@@ -52,11 +52,14 @@ jobs:
           test -f src/server/OverlordCombatSmokeTest.server.luau
           test -f src/client/TowerHUD.client.luau
           test -f src/client/OverlordCombatVFX.client.luau
+          test -f src/client/OverlordCombatAnimator.client.luau
           test -f src/shared/TowerConfig.luau
           test -f src/shared/OverlordUnitRoster.luau
           test -f src/shared/OverlordAbilityDesign.luau
           test -f src/shared/OverlordModelProgression.luau
           test -f src/shared/OverlordTowerModelBuilder.luau
+          test -f src/shared/OverlordModelFinish.luau
+          test -f src/shared/OverlordMotionController.luau
           test -f src/shared/OverlordCharacterArtPass.luau
           test -f src/shared/EconomyVisualConfig.luau
           test -f src/shared/EconomyItemModelBuilder.luau
@@ -66,6 +69,7 @@ jobs:
           test -f src/client/EconomyItemVFX.luau
           test -f src/server/OverlordModels.server.luau
           test -f src/server/OverlordModelSmokeTest.server.luau
+          test -f src/server/OverlordAnimationSmokeTest.server.luau
           test -f src/client/OverlordModelGallery.client.luau
           test -f src/server/ArenaCombatVisuals.server.luau
           test -f src/shared/EnemyConfig.luau
@@ -127,6 +131,16 @@ jobs:
           grep -q 'CanQuery=false' src/shared/OverlordCharacterArtPass.luau
           grep -q 'OVERLORD MODEL TESTE ESTATICO OK' src/server/OverlordModelSmokeTest.server.luau
           grep -q 'CARNE VILLAGE ART TEST OK' src/server/CarneVillageArtSmokeTest.server.luau
+
+      - name: Verificar animacoes e armas Overlord v0.9
+        run: |
+          grep -q 'Motor6D.Transform' src/shared/OverlordMotionController.luau
+          grep -q 'RunService.PreSimulation:Connect' src/client/OverlordCombatAnimator.client.luau
+          grep -q 'ModelFinish.Apply(model)' src/shared/OverlordTowerModelBuilder.luau
+          grep -q 'WeaponFocus' src/shared/OverlordModelFinish.luau
+          grep -q 'Serial = t.Serial' src/server/TowerService.luau
+          grep -q 'previewMotion:Attack' src/client/OverlordModelGallery.client.luau
+          grep -q 'OVERLORD ANIMATION SMOKE OK' src/server/OverlordAnimationSmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
