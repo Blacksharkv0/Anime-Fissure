@@ -355,6 +355,31 @@ local function render(info: any, keepScroll: boolean?)
         end)
     end
 
+    -- Planned Overlord evolution items are a SEPARATE section from rare
+    -- drops with configured chances. Never display pity, obtained ticks or
+    -- simulated collection for items without an active reward backend.
+    local planned = if typeof(info.PlannedEvolutionItems) == "table"
+        then info.PlannedEvolutionItems else {}
+    if #planned > 0 then
+        local count = math.min(#planned, 7)
+        local evolutionCard = section("ITENS DE EVOLUCAO • PLANEJADOS",
+            49 + count * 55, 5)
+        for index = 1, count do
+            local item = planned[index]
+            if typeof(item) == "table" then
+                local y = 35 + (index - 1) * 55
+                label(evolutionCard, "EvolutionName_" .. index,
+                    "✧ " .. safeText(item.Name, "Item de evolucao"),
+                    UDim2.fromOffset(12, y), UDim2.new(1, -24, 0, 23),
+                    13, C.Gold, true)
+                label(evolutionCard, "EvolutionStatus_" .. index,
+                    "HARD • chance a definir • drop NAO ativo",
+                    UDim2.fromOffset(12, y + 23),
+                    UDim2.new(1, -24, 0, 23), 11, C.Muted)
+            end
+        end
+    end
+
     scroll.CanvasPosition = if keepScroll then previousScroll else Vector2.new(0, 0)
 end
 
