@@ -1,16 +1,17 @@
 --!strict
 -- ANIME FISSURE | OverlordModelProgression v0.1
--- Tres mudancas de APARENCIA e padrao de ataque por personagem,
--- distribuidas por upgrades FUTUROS (marcos numericos ainda pendentes).
+-- Ataque base + 3 mudancas no Studio pelos upgrades 3, 6 e 9.
+-- Visual de cada etapa, com animacao procedural por OverlordMotionController.
 -- Model stage 0 = base; 1,2,3 = tres mudancas visuais.
--- NAO aplica dano, skills, summoning nem desbloqueio.
+-- Dano permanece exclusivamente em OverlordCombatPrototype/TowerService.
+-- Nao altera banner, inventario, compras nem skills ativas definitivas.
 
 local Roster = require(script.Parent:WaitForChild("OverlordUnitRoster"))
 local Abilities = require(script.Parent:WaitForChild("OverlordAbilityDesign"))
 local Progression = {}
 
-Progression.Version = "0.1.0"
-Progression.Status = "VisualPreview"
+Progression.Version = "0.9.0"
+Progression.Status = "StudioCombatAnimationPrototype"
 Progression.MaxVisualStage = 3
 
 Progression.Stages = {
