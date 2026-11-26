@@ -50,11 +50,13 @@ jobs:
           test -f src/server/TowerModelBuilder.luau
           test -f src/server/OverlordCombatPrototype.luau
           test -f src/server/OverlordCombatSmokeTest.server.luau
+          test -f src/server/OverlordBalanceSmokeTest.server.luau
           test -f src/server/OverlordPairSynergySmokeTest.server.luau
           test -f src/client/TowerHUD.client.luau
           test -f src/client/OverlordCombatVFX.client.luau
           test -f src/client/OverlordCombatAnimator.client.luau
           test -f src/shared/TowerConfig.luau
+          test -f src/shared/OverlordBalanceConfig.luau
           test -f src/shared/OverlordUnitRoster.luau
           test -f src/shared/OverlordAbilityDesign.luau
           test -f src/shared/OverlordModelProgression.luau
@@ -158,6 +160,19 @@ jobs:
           grep -q 'PAIR SYNERGY + INFO SMOKE OK' src/server/OverlordPairSynergySmokeTest.server.luau
           if grep -q 'OVL_Ainz' src/shared/SummonConfig.luau; then
             echo "ERRO: Ainz nao pode entrar no banner"
+            exit 1
+          fi
+
+      - name: Validar hierarquia de balanceamento Overlord v1
+        run: |
+          grep -q 'Balance.Version = "0.1.0"' src/shared/OverlordBalanceConfig.luau
+          grep -q 'Level1Damage=1000' src/shared/OverlordBalanceConfig.luau
+          grep -q 'Level1Damage=700' src/shared/OverlordBalanceConfig.luau
+          grep -q 'return OverlordBalance.GetStats(id, level)' src/shared/TowerConfig.luau
+          grep -q 'OVERLORD BALANCE SMOKE OK' src/server/OverlordBalanceSmokeTest.server.luau
+          grep -q 'StudioOverlordOnly = true' src/shared/TowerConfig.luau
+          if grep -q 'OVL_Ainz' src/shared/SummonConfig.luau; then
+            echo "ERRO: Ainz nao deve ser adicionado ao banner"
             exit 1
           fi
 
