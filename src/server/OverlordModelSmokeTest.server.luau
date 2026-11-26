@@ -28,6 +28,23 @@ for _, entry in ipairs(Roster.GetAll()) do
     assert(source.PrimaryPart ~= nil, "Rig sem PrimaryPart: " .. entry.Id)
     assert(source:FindFirstChild("Humanoid") ~= nil, "Rig sem Humanoid: " .. entry.Id)
     assert(source:FindFirstChild("Neck", true) ~= nil, "Rig R6 sem Neck: " .. entry.Id)
+    assert(source:GetAttribute("ArtPassVersion") == "0.8.0",
+        "Refinamento visual ausente: " .. entry.Id)
+    local cosmetics=source:FindFirstChild("AnimeArtPass")
+    assert(cosmetics and cosmetics:IsA("Folder"),
+        "Pecas de roupa/cabelo/arma ausentes: " .. entry.Id)
+    local cosmeticCount=0
+    for _, item in ipairs(cosmetics:GetDescendants()) do
+        if item:IsA("BasePart") then
+            cosmeticCount+=1
+            assert(not item.Anchored and not item.CanCollide
+                and not item.CanTouch and not item.CanQuery,
+                "Cosmetico 3D impacta movimentacao/combate: " .. entry.Id)
+            assert(item:FindFirstChild("CosmeticWeld"),
+                "Cosmetico precisa ser soldado ao R6: " .. item.Name)
+        end
+    end
+    assert(cosmeticCount>=10,"Modelo pouco detalhado: " .. entry.Id)
     assert(entry.PassivePlanned == true, "Unidade sem passiva: " .. entry.Id)
     assert(entry.AttackChangesPlanned == 3, "Unidade sem tres mudancas: " .. entry.Id)
     assert(Abilities.Get(entry.Id) and Abilities.Get(entry.Id).Passive,
