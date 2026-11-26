@@ -302,6 +302,7 @@ local function updateManagement()
     if t.UnitId == "Capsule" then
         damageLabel.Text = "RENDA / WAVE"
         damageValue.Text = "¥ " .. tostring(t.Income or 0)
+        damageValue.TextColor3 = C.Gold
         rangeValue.Text = "—"
         spaValue.Text = "—"
     else
