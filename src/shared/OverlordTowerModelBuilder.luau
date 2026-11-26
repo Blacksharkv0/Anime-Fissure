@@ -9,8 +9,9 @@
 
 local Roster = require(script.Parent:WaitForChild("OverlordUnitRoster"))
 local Progression = require(script.Parent:WaitForChild("OverlordModelProgression"))
+local CharacterArt = require(script.Parent:WaitForChild("OverlordCharacterArtPass"))
 local Builder = {}
-Builder.Version = "0.1.0"
+Builder.Version = "0.8.0"
 
 local C = {
     White = Color3.fromRGB(239, 238, 239),
@@ -550,6 +551,7 @@ function Builder.Build(id: string): Model?
 
     local model, parts = rig(id, unit.Rarity)
     buildCharacter(parts)
+    assert(CharacterArt.Apply(model), "Art pass nao foi aplicado: " .. id)
     model:SetAttribute("DisplayName", unit.FullName)
     model:SetAttribute("Rarity", unit.Rarity)
     model:SetAttribute("PassivePlanned", unit.PassivePlanned == true)
