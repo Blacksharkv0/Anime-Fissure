@@ -1,5 +1,5 @@
 --!strict
--- ANIME FISSURE | Overlord Combat VFX v0.1
+-- ANIME FISSURE | Overlord Combat VFX v0.9
 -- Efeitos visuais locais: servidor aplica TODO o dano; cliente so desenha.
 -- Cada personagem recebe identidade inicial distinta e VFX por attack stage.
 -- Sem assets externos e com limite simples de pecas para mobile.
@@ -162,6 +162,63 @@ local function playUnit(id: string, from: Vector3, to: Vector3,
                 0.62, 0.36)
         end
     end
+    -- Three upgrade-specific visual transformations (Lv 3 / 6 / 9).
+    -- Stage flourishes are spatial only; they never change damage or stun.
+    if stage >= 1 then
+        if id == "OVL_Brain" then
+            line("GodFlashFlash", to + Vector3.new(-0.83, 0.2, 0),
+                to + Vector3.new(0.83, -0.2, 0), c, 0.10, 0.18)
+        elseif id == "OVL_Gazef" then
+            ring("FourfoldSignature", to, 1.0, c, 8, 0.27, true)
+        elseif id == "OVL_Shalltear" then
+            spark("SpuitLanceVampiricPulse", to, c, 0.44, 0.28)
+        elseif id == "OVL_Albedo" then
+            ring("GuardianFirstWing", from, 0.86, c, 8, 0.24, true)
+        elseif id == "OVL_Ainz" then
+            ring("RealitySlashSeal", from, 1.28, c, 9, 0.31, true)
+        end
+    end
+    if stage >= 2 then
+        if id == "OVL_Climb" then
+            ring("ClimbFortressAura", from, 1.17, c, 8, 0.28)
+        elseif id == "OVL_Brain" then
+            for i = 1, 4 do
+                local x = (i - 2.5) * 0.38
+                line("NailClipperCross", to + Vector3.new(x, 0.8, 0),
+                    to + Vector3.new(-x, -0.8, 0), c, 0.10, 0.21)
+            end
+        elseif id == "OVL_Gazef" then
+            line("RazorEdgePierce", from, to, Color3.fromRGB(169, 236, 255),
+                0.16, 0.25)
+        elseif id == "OVL_Shalltear" then
+            ring("BloodFrenzyFlash", from, 1.24, c, 10, 0.27)
+        elseif id == "OVL_Albedo" then
+            ring("HermesGuardianWall", from, 1.56, c, 10, 0.36, true)
+        elseif id == "OVL_Ainz" then
+            spark("GraspHeartFlash", to,
+                Color3.fromRGB(255, 72, 137), 0.90, 0.40)
+        end
+    end
+    if stage >= 3 then
+        if id == "OVL_Ainz" then
+            ring("SuperTierSeal", to, 2.25, Color3.fromRGB(204, 231, 255),
+                12, 0.46)
+            spark("SuperTierBurst", to, c, 1.1, 0.43)
+        elseif id == "OVL_Shalltear" then
+            ring("EinherjarEcho", to, 1.6,
+                Color3.fromRGB(249, 237, 247), 9, 0.35, true)
+        elseif id == "OVL_Albedo" then
+            ring("OverseerCommand", from, 1.94,
+                Color3.fromRGB(255, 235, 164), 12, 0.45)
+        elseif id == "OVL_Brain" then
+            ring("TrueNailClipperSeal", to, 1.29, c, 8, 0.26, true)
+        elseif id == "OVL_Gazef" then
+            ring("SixfoldRadiance", to, 1.70, c, 12, 0.35)
+        elseif id == "OVL_Climb" then
+            spark("LimitBreakerPulse", from, Color3.fromRGB(255, 215, 133),
+                1.1, 0.29)
+        end
+    end
     if critical then
         spark("Critical", to, Color3.fromRGB(255, 218, 113), 0.33, 0.22)
     end
@@ -184,8 +241,31 @@ fx.OnClientEvent:Connect(function(data: any)
     end
     if player:GetAttribute("InArena") ~= true then return end
     if (data.From - data.To).Magnitude > 150 then return end
-    playUnit(data.UnitId, data.From, data.To,
-        normalizeStage(data.Stage), data.Critical == true)
+    -- Contact FX follows the R6 windup; model pose starts immediately in
+    -- OverlordCombatAnimator and the server still owns the real hit.
+    task.delay(0.095, function()
+        if player:GetAttribute("InArena") ~= true then return end
+        local start = data.From
+        if typeof(data.Serial) == "number" then
+            local arena = Workspace:FindFirstChild("FissureArena")
+            local live = if arena then arena:FindFirstChild("LiveTowers") else nil
+            if live then
+                for _, tower in ipairs(live:GetChildren()) do
+                    if tower:IsA("Model")
+                        and tower:GetAttribute("TowerSerial") == data.Serial
+                        and tower:GetAttribute("UnitId") == data.UnitId then
+                        local point = tower:FindFirstChild("WeaponFocus", true)
+                        if point and point:IsA("Attachment") then
+                            start = point.WorldPosition
+                        end
+                        break
+                    end
+                end
+            end
+        end
+        playUnit(data.UnitId, start, data.To,
+            normalizeStage(data.Stage), data.Critical == true)
+    end)
 end)
 
-print("[Anime Fissure] Overlord VFX v0.1 - seis assinaturas de ataques")
+print("[Anime Fissure] Overlord VFX v0.9 - seis efeitos sincronizados com animaçao R6")
