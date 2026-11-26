@@ -181,12 +181,15 @@ local function weapon(m: Model,id: string)
     return group
 end
 
+local supported={
+    OVL_Climb=true,OVL_Brain=true,OVL_Gazef=true,
+    OVL_Shalltear=true,OVL_Albedo=true,OVL_Ainz=true,
+}
+
 function Finish.Apply(model: Model): boolean
     local id=model:GetAttribute("UnitId")
-    if typeof(id)~="string" or not ({
-        OVL_Climb=true,OVL_Brain=true,OVL_Gazef=true,
-        OVL_Shalltear=true,OVL_Albedo=true,OVL_Ainz=true,
-    })[id] then return false end
+    if typeof(id)~="string" then return false end
+    if not supported[id] then return false end
     if model:FindFirstChild("ExpressionParts") and
         model:FindFirstChild("WeaponFinish") then return true end
     face(model,id)
