@@ -79,10 +79,17 @@ arena.ChildAdded:Connect(function(child)
 end)
 
 local lastFarTick=0
+local lastRescan=0
 RunService.PreSimulation:Connect(function(_dt: number)
     if not folderRef then return end
     local camera=Workspace.CurrentCamera
     local now=os.clock()
+    -- Roblox may replicate a Model before its UnitId/Serial attributes;
+    -- discover those rigs on the next periodic scan without polling per frame.
+    if now-lastRescan>1 then
+        for _,child in ipairs(folderRef:GetChildren()) do register(child) end
+        lastRescan=now
+    end
     for serial,entry in pairs(actors) do
         local model=entry.Model
         if not model.Parent or not model.PrimaryPart then
