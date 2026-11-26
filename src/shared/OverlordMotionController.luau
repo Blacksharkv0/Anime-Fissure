@@ -160,6 +160,10 @@ function Motion.Attach(model: Model)
                         part.Transparency=if expression=="Attack" then 0 else 1
                     elseif part.Name=="MouthFocus" then
                         part.Transparency=if expression=="Focus" then 0 else 1
+                    elseif part.Name=="FocusMark" then
+                        part.Transparency=if expression=="Focus" then 0 else 1
+                    elseif part.Name=="AttackEyeGlint" then
+                        part.Transparency=if expression=="Attack" then 0 else 1
                     end
                 end
             end
