@@ -1,6 +1,6 @@
 --!strict
--- ANIME FISSURE | TowerHUD v1.1
--- Deck beta de 6 slots (2 prototipos, Capsule se obtida, 3 futuros).
+-- ANIME FISSURE | TowerHUD v1.3
+-- Deck beta de 6 slots e card de info detalhado ao selecionar Tower.
 -- Clique/toque no slot e depois na grama para colocar, em PC e mobile.
 -- Upgrade/venda so por serial de torre propria (server verifica tudo).
 -- HUD da arena e StageInfo continuam intactos.
@@ -122,8 +122,12 @@ yen.TextXAlignment = Enum.TextXAlignment.Right
 local hint = text(bar, "PlaceHint", "Selecione uma Tower e toque no terreno livre",
     UDim2.fromOffset(12, 98), UDim2.fromOffset(520, 20), 11, C.Muted)
 
+-- Tower info card: name / rarity / damage-range-SPA /
+-- upgrade pips / attack style / passive and conditional synergy.
+-- Layout scales to landscape and mobile portrait; the action buttons
+-- are protected both client-side and by the authoritative server.
 local management = frame(gui, "TowerManagement",
-    UDim2.new(0.5, 0, 1, -195), UDim2.fromOffset(520, 127), C.Panel)
+    UDim2.new(0.5, 0, 1, -195), UDim2.fromOffset(520, 251), C.Panel)
 management.AnchorPoint = Vector2.new(0.5, 1)
 management.Visible = false
 round(management, 12)
@@ -131,18 +135,64 @@ border(management, C.Purple, 1.4)
 local managementScale = Instance.new("UIScale")
 managementScale.Parent = management
 
-local selectedTitle = text(management, "SelectedUnit", "TORRE",
-    UDim2.fromOffset(10, 7), UDim2.new(1, -20, 0, 24), 15, C.White)
-local selectedStats = text(management, "SelectedStats", "",
-    UDim2.fromOffset(10, 34), UDim2.new(1, -20, 0, 20), 11, C.Muted)
+local selectedTitle = text(management, "SelectedUnit", "UNIDADE",
+    UDim2.fromOffset(14, 9), UDim2.fromOffset(345, 29), 16, C.White)
+selectedTitle.TextXAlignment = Enum.TextXAlignment.Left
+local rarityBackground = frame(management, "RarityBackground",
+    UDim2.fromOffset(370, 9), UDim2.fromOffset(135, 29), C.Inner)
+round(rarityBackground, 8)
+local rarityLabel = text(rarityBackground, "Rarity", "BETA",
+    UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), 13, C.White)
+local rarityColors: {[string]: Color3} = {
+    Common = Color3.fromRGB(115, 169, 159),
+    Rare = Color3.fromRGB(74, 149, 248),
+    Epic = Color3.fromRGB(155, 100, 249),
+    Legendary = Color3.fromRGB(245, 180, 76),
+    Mythic = Color3.fromRGB(239, 105, 152),
+    Secret = Color3.fromRGB(190, 94, 246),
+    Beta = C.Blue,
+}
+local statsBacking = frame(management, "StatsBacking",
+    UDim2.fromOffset(12, 45), UDim2.fromOffset(496, 51), C.Inner)
+round(statsBacking, 8)
+local function stat(x: number, name: string, labelText: string)
+    local label = text(statsBacking, name .. "Label", labelText,
+        UDim2.fromOffset(x, 3), UDim2.fromOffset(160, 18), 10, C.Muted)
+    local value = text(statsBacking, name .. "Value", "—",
+        UDim2.fromOffset(x, 20), UDim2.fromOffset(160, 27), 18, C.White)
+    return label, value
+end
+local damageLabel, damageValue = stat(2, "Damage", "DANO")
+local _, rangeValue = stat(167, "Range", "RANGE")
+local _, spaValue = stat(331, "SPA", "SPA")
+local upgradesLabel = text(management, "UpgradeProgress", "UPGRADES 0/9",
+    UDim2.fromOffset(14, 99), UDim2.fromOffset(491, 22), 12, C.Gold)
+upgradesLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local dots: {Frame} = {}
+for i = 1, 12 do
+    local dot = frame(management, "UpgradeDot_" .. tostring(i),
+        UDim2.fromOffset(76 + (i - 1) * 30, 123),
+        UDim2.fromOffset(18, 18), C.Dark)
+    round(dot, 12)
+    border(dot, if i % 3 == 0 then C.Gold else C.Muted, 1.0)
+    dots[i] = dot
+end
+local attackLabel = text(management, "AttackName", "ATTACK: -- (SINGLE)",
+    UDim2.fromOffset(14, 145), UDim2.fromOffset(490, 25), 13, C.Cyan)
+attackLabel.TextXAlignment = Enum.TextXAlignment.Left
 local passiveLabel = text(management, "Passive", "",
-    UDim2.fromOffset(10, 56), UDim2.new(1, -20, 0, 19), 10, C.Gold)
+    UDim2.fromOffset(14, 171), UDim2.fromOffset(490, 19), 11, C.Gold)
+passiveLabel.TextXAlignment = Enum.TextXAlignment.Left
+local synergyLabel = text(management, "PairSynergy", "",
+    UDim2.fromOffset(14, 190), UDim2.fromOffset(490, 19), 11, C.Green)
+synergyLabel.TextXAlignment = Enum.TextXAlignment.Left
 local upgradeButton = button(management, "Upgrade", "UPGRADE",
-    UDim2.fromOffset(10, 86), UDim2.fromOffset(238, 32), C.Blue)
+    UDim2.fromOffset(10, 214), UDim2.fromOffset(238, 29), C.Blue)
 local sellButton = button(management, "Sell", "VENDER",
-    UDim2.fromOffset(259, 86), UDim2.fromOffset(153, 32), C.Purple)
+    UDim2.fromOffset(259, 214), UDim2.fromOffset(153, 29), C.Purple)
 local closeManage = button(management, "CloseSelection", "X",
-    UDim2.fromOffset(423, 86), UDim2.fromOffset(86, 32), C.Dark)
+    UDim2.fromOffset(423, 214), UDim2.fromOffset(86, 29), C.Dark)
 
 local slotButtons: {[number]: TextButton} = {}
 for i = 1, 6 do
@@ -243,27 +293,77 @@ local function updateManagement()
         return
     end
     management.Visible = gui.Enabled
-    selectedTitle.Text = t.Name .. "  •  LV " .. tostring(t.Level)
-        .. (if t.VisualStage and t.VisualStage > 0
-            then "  |  ATAQUE " .. tostring(t.VisualStage) else "")
-    selectedStats.Text = if t.UnitId == "Capsule"
-        then "Renda: ¥" .. tostring(t.Income or 0) .. " / wave"
-        else string.format("Dano: %d   SPA: %.2fs   Range: %.1f",
-            t.Damage or 0, t.SPA or 0, t.Range or 0)
+    local canManage = t.OwnerId == player.UserId
+    local level = if typeof(t.Level) == "number" then t.Level else 0
+    local maxLevel = if typeof(t.MaxUpgrades) == "number" then t.MaxUpgrades else 0
+    selectedTitle.Text = t.Name .. "  •  LV " .. tostring(level)
+    rarityLabel.Text = string.upper(t.Rarity or "BETA")
+    rarityBackground.BackgroundColor3 = rarityColors[t.Rarity] or C.Blue
+    if t.UnitId == "Capsule" then
+        damageLabel.Text = "RENDA / WAVE"
+        damageValue.Text = "¥ " .. tostring(t.Income or 0)
+        rangeValue.Text = "—"
+        spaValue.Text = "—"
+    else
+        damageLabel.Text = "DANO"
+        local damage = t.EffectiveDamage or t.Damage or 0
+        damageValue.Text = tostring(damage)
+        damageValue.TextColor3 = if (t.SynergyBonus or 0) > 0
+            then C.Green else C.White
+        rangeValue.Text = string.format("%.1f", t.Range or 0)
+        spaValue.Text = string.format("%.2fs", t.SPA or 0)
+    end
+    local stage = if typeof(t.VisualStage) == "number" then t.VisualStage else 0
+    upgradesLabel.Text = string.format("UPGRADES   %d / %d   •   ATAQUE %d",
+        level, maxLevel, stage)
+    for i, dot in ipairs(dots) do
+        local milestone = (i % 3 == 0)
+        dot.Visible = i <= maxLevel
+        dot.BackgroundColor3 = if i <= level
+            then (if milestone then C.Gold else C.Cyan) else C.Dark
+        local outline = dot:FindFirstChildOfClass("UIStroke")
+        if outline then
+            outline.Color = if milestone then C.Gold else C.Muted
+        end
+    end
+    attackLabel.Text = "ATTACK: " .. (t.AttackName or "Ataque básico")
+        .. " (" .. (t.AttackType or "SINGLE") .. ")"
     passiveLabel.Text = if typeof(t.PassiveName) == "string"
         then "PASSIVA: " .. t.PassiveName
-            .. (if t.Blood ~= nil and t.UnitId == "OVL_Shalltear"
-                then " (" .. tostring(t.Blood) .. "/5)"
-                elseif t.GuardCharges ~= nil
-                then " (" .. tostring(t.GuardCharges) .. " cargas)"
+            .. (if t.UnitId == "OVL_Shalltear"
+                then " • " .. tostring(t.Blood or 0) .. "/5 sangue"
+                elseif t.UnitId == "OVL_Albedo" and t.GuardCharges ~= nil
+                then " • " .. tostring(t.GuardCharges) .. " cargas"
                 else "")
-        else "Sem passiva especial cadastrada nesta beta"
-    upgradeButton.Text = if t.UpgradeCost
-        then "UPGRADE  •  ¥ " .. tostring(t.UpgradeCost) else "LEVEL MAX"
-    upgradeButton.Active = t.UpgradeCost ~= nil and currentYen >= t.UpgradeCost
+        else (if t.UnitId == "Capsule" then "SUPORTE: gera Yen por wave"
+            else "PASSIVA: ainda não definida")
+    if t.UnitId == "OVL_Albedo" then
+        synergyLabel.Visible = true
+        synergyLabel.Text = if t.SynergyActive
+            then "DEVOÇÃO AO SUPREMO ATIVA  •  +30% DANO (AINZ)"
+            else "SINERGIA: posicione Ainz para receber +30% dano"
+        synergyLabel.TextColor3 = if t.SynergyActive then C.Green else C.Muted
+    elseif t.UnitId == "OVL_Ainz" then
+        synergyLabel.Visible = true
+        synergyLabel.Text = if t.SynergyActive
+            then "PARCERIA ATIVA  •  ALBEDO RECEBE +30% DANO"
+            else "SINERGIA: posicione Albedo para ativar o bônus dela"
+        synergyLabel.TextColor3 = if t.SynergyActive then C.Green else C.Muted
+    else
+        synergyLabel.Visible = false
+    end
+    upgradeButton.Text = if not canManage then "SOMENTE O DONO"
+        elseif t.UpgradeCost then "UPGRADE  •  ¥ " .. tostring(t.UpgradeCost)
+        else "LEVEL MAX"
+    upgradeButton.Active = canManage and t.UpgradeCost ~= nil
+        and currentYen >= t.UpgradeCost
     upgradeButton.AutoButtonColor = upgradeButton.Active
     upgradeButton.BackgroundColor3 = if upgradeButton.Active then C.Blue else C.Dark
-    sellButton.Text = "VENDER  •  ¥ " .. tostring(t.SellValue or 0)
+    sellButton.Text = if canManage then "VENDER  •  ¥ " .. tostring(t.SellValue or 0)
+        else "TORRE ALIADA"
+    sellButton.Active = canManage
+    sellButton.AutoButtonColor = canManage
+    sellButton.BackgroundColor3 = if canManage then C.Purple else C.Dark
 end
 
 for i, b in pairs(slotButtons) do
@@ -387,7 +487,7 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
     if serial then
         selectedTower = serial
         updateManagement()
-        if not selectedTower then setHint("Essa torre nao e sua.", C.Gold) end
+        if not selectedTower then setHint("Selecione uma Tower valida.", C.Gold) end
     else
         selectedTower = nil
         management.Visible = false
@@ -407,10 +507,16 @@ labFunds.Activated:Connect(function()
 end)
 
 upgradeButton.Activated:Connect(function()
-    if selectedTower then request:FireServer("Upgrade", selectedTower) end
+    local t = findSelectedTower()
+    if t and t.OwnerId == player.UserId and upgradeButton.Active then
+        request:FireServer("Upgrade", t.Serial)
+    end
 end)
 sellButton.Activated:Connect(function()
-    if selectedTower then request:FireServer("Sell", selectedTower) end
+    local t = findSelectedTower()
+    if t and t.OwnerId == player.UserId and sellButton.Active then
+        request:FireServer("Sell", t.Serial)
+    end
 end)
 closeManage.Activated:Connect(function()
     selectedTower = nil
@@ -460,13 +566,18 @@ local function resize()
     local cam = Workspace.CurrentCamera
     if not cam then return end
     local v = cam.ViewportSize
-    local factor = math.clamp(math.min((v.X - 12) / 556, (v.Y - 32) / 235, 1), 0.48, 1)
+    -- Reserve room for an open 251px detail card plus 122px deck,
+    -- 41px Studio controls and spacing on short mobile landscape screens.
+    local totalHeight = if lab.Visible then 443 else 394
+    local factor = math.clamp(math.min((v.X - 12) / 556,
+        (v.Y - 16) / totalHeight, 1), 0.48, 1)
     barScale.Scale = factor
     managementScale.Scale = factor
     labScale.Scale = factor
     lab.Position = UDim2.new(0.5, 0, 1, -(13 + 122 * factor + 8))
     management.Position = UDim2.new(0.5, 0, 1,
-        -(13 + 122 * factor + (if lab.Visible then 49 * factor else 0) + 10))
+        -(13 + 122 * factor + (if lab.Visible then 49 * factor else 0)
+            + 10 * factor))
 end
 local function bindCamera()
     local cam = Workspace.CurrentCamera
@@ -478,4 +589,4 @@ bindCamera()
 
 updateSlots()
 updateVisibility()
-print("[Anime Fissure] TowerHUD v1.2 | deck Overlord Studio + legacy + LabFunds")
+print("[Anime Fissure] TowerHUD v1.3 | detailed tower card, upgrades, attack types, Ainz/Albedo synergy")
