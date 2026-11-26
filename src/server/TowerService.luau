@@ -21,6 +21,8 @@ local SummonStore = require(script.Parent:WaitForChild("SummonProfileStore"))
 local ModelBuilder = require(script.Parent:WaitForChild("TowerModelBuilder"))
 local OverlordCombat = require(script.Parent:WaitForChild("OverlordCombatPrototype"))
 local AbilityDesign = require(Shared:WaitForChild("OverlordAbilityDesign"))
+local Pair = require(Shared:WaitForChild("OverlordPairSynergy"))
+local AttackInfo = require(Shared:WaitForChild("TowerAttackInfo"))
 
 local TowerService = {}
 local MATCH_ID = "MainMatch"
@@ -65,20 +67,47 @@ local function getPlayerState(player: Player)
     return state.Owners[player.UserId]
 end
 
-local function publicTower(t: any)
+-- Teamwide Overseer aura is an independent category; one copy max.
+local function teamAuraMultiplier(owners: {[number]: any}): number
+    for _, owner in pairs(owners) do
+        for _, tower in pairs(owner.Towers) do
+            if tower.Id == "OVL_Albedo" and tower.Level >= 9 then
+                return 1.12
+            end
+        end
+    end
+    return 1
+end
+
+local function publicTower(t: any, pairActive: boolean, aura: number)
     local stats = Config.GetStats(t.Id, t.Level)
+    local def = Config.Get(t.Id)
     local nextLevel = t.Level + 1
+    local stage = Config.GetVisualStage(t.Id, t.Level)
+    local attack = AttackInfo.Get(t.Id, stage)
+    -- The displayed damage is one NORMAL hit including always-on buffs.
+    -- Crits, situational passives and enemy resistances are excluded.
+    local currentDamage = if Config.IsOverlord(t.Id)
+        then math.floor(stats.Damage * (1 + 0.16 * stage) * aura
+            * Pair.GetMultiplier(t.Id, pairActive) + 0.5)
+        else stats.Damage
     return {
         Serial = t.Serial, UnitId = t.Id, Name = t.Model.Name, Level = t.Level,
         Position = t.Position,
-        Damage = stats.Damage, SPA = stats.SPA, Range = stats.Range,
-        Income = stats.Income, MaxUpgrades = Config.Get(t.Id).MaxUpgrades,
+        Rarity = def.Rarity,
+        Damage = stats.Damage, EffectiveDamage = currentDamage,
+        SPA = stats.SPA, Range = stats.Range,
+        AttackName = attack.Name, AttackType = attack.Type,
+        Income = stats.Income, MaxUpgrades = def.MaxUpgrades,
         UpgradeCost = Config.GetCost(t.Id, nextLevel),
         SellValue = math.floor(t.Invested * 0.50 + 0.5),
         OwnerId = t.OwnerId,
-        VisualStage = Config.GetVisualStage(t.Id, t.Level),
+        VisualStage = stage,
         PassiveName = if AbilityDesign.Get(t.Id)
             then AbilityDesign.Get(t.Id).Passive.Name else nil,
+        SynergyName = if Pair.AppliesToInfo(t.Id) then Pair.Name else nil,
+        SynergyActive = Pair.AppliesToInfo(t.Id) and pairActive,
+        SynergyBonus = if t.Id == "OVL_Albedo" and pairActive then Pair.Bonus else 0,
         Blood = t.Blood,
         GuardCharges = t.GuardCharges,
     }
@@ -87,9 +116,17 @@ end
 local function sendState(player: Player, message: string?)
     if player.Parent ~= Players then return end
     local owner = getPlayerState(player)
+    local state = states[MATCH_ID]
     local towers = {}
-    if owner then
-        for _, t in pairs(owner.Towers) do table.insert(towers, publicTower(t)) end
+    if owner and state then
+        local pairActive = Pair.HasPair(state.Owners)
+        local aura = teamAuraMultiplier(state.Owners)
+        -- Info for ALL placed allied towers is public; upgrade/sell remain owner-only.
+        for _, alliedOwner in pairs(state.Owners) do
+            for _, tower in pairs(alliedOwner.Towers) do
+                table.insert(towers, publicTower(tower, pairActive, aura))
+            end
+        end
         table.sort(towers, function(a, b) return a.Serial < b.Serial end)
     end
     stateRemote:FireClient(player, {
@@ -334,8 +371,23 @@ request.OnServerEvent:Connect(function(player: Player, action: any, a: any, b: a
     elseif action == "Upgrade" then err = changeTower(player, a, false)
     elseif action == "Sell" then err = changeTower(player, a, true)
     else return end
-    sendState(player, err or (if action == "Place" then "Torre posicionada."
-        elseif action == "Upgrade" then "Upgrade realizado." else "Torre vendida."))
+    local resultMessage = err or (if action == "Place" then "Torre posicionada."
+        elseif action == "Upgrade" then "Upgrade realizado." else "Torre vendida.")
+    if err then
+        sendState(player, resultMessage)
+    else
+        -- Keep cross-player info and Albedo/Ainz synergy state in sync when
+        -- one team member places, upgrades or sells a tower.
+        local state = states[MATCH_ID]
+        if state then
+            for _, teamOwner in pairs(state.Owners) do
+                if teamOwner.Player.Parent == Players then
+                    sendState(teamOwner.Player,
+                        if teamOwner.Player == player then resultMessage else nil)
+                end
+            end
+        end
+    end
 end)
 
 function TowerService.OnEnemyDefeated(matchId: string, player: Player,
@@ -449,6 +501,8 @@ RunService.Heartbeat:Connect(function(dt)
     local targets = EnemyService.GetTargets(MATCH_ID)
     if #targets == 0 then return end
     local now = os.clock()
+    local pairActive = Pair.HasPair(state.Owners)
+    local aura = teamAuraMultiplier(state.Owners)
     for _, owner in pairs(state.Owners) do
         if owner.Player.Parent ~= Players then continue end
         for _, t in pairs(owner.Towers) do
@@ -475,15 +529,9 @@ RunService.Heartbeat:Connect(function(dt)
                 if best then
                     local def = Config.Get(t.Id)
                     if OverlordCombat.IsPrototype(t.Id) then
-                        local teamBuff = 1
-                        -- Aura Albedo stage 3: +12% dano, sem somar duplicatas.
-                        for _, allyOwner in pairs(state.Owners) do
-                            for _, ally in pairs(allyOwner.Towers) do
-                                if ally.Id == "OVL_Albedo" and ally.Level >= 9 then
-                                    teamBuff = 1.12
-                                end
-                            end
-                        end
+                        -- Two independent categories: Overseer +12% to team
+                        -- and nonstacking Ainz/Albedo pair +30% to Albedo only.
+                        local teamBuff = aura * Pair.GetMultiplier(t.Id, pairActive)
                         local fired, critical = OverlordCombat.Attack(t, best,
                             targets, stats, now, owner.Player, EnemyService,
                             MATCH_ID, teamBuff)
