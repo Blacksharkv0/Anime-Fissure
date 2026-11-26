@@ -492,6 +492,7 @@ RunService.Heartbeat:Connect(function(dt)
                                 OverlordCombat.AttackInterval(t, stats.SPA, now)
                             fxRemote:FireAllClients({
                                 Kind = "Attack", UnitId = t.Id,
+                                Serial = t.Serial,
                                 From = t.Position + Vector3.new(0, 4.1, 0),
                                 To = best.Position,
                                 Stage = Config.GetVisualStage(t.Id, t.Level),
