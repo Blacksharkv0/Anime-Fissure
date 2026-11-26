@@ -41,6 +41,9 @@ jobs:
           test -f src/server/LobbyVisualPolish.server.luau
           test -f src/server/NPCResidents.server.luau
           test -f src/server/BetaMap.server.luau
+          test -f src/server/CarneVillageArtPass.luau
+          test -f src/server/CarneVillageArtPass.server.luau
+          test -f src/server/CarneVillageArtSmokeTest.server.luau
           test -f src/server/EnemyModelBuilder.luau
           test -f src/server/EnemyService.luau
           test -f src/server/TowerService.luau
@@ -54,6 +57,7 @@ jobs:
           test -f src/shared/OverlordAbilityDesign.luau
           test -f src/shared/OverlordModelProgression.luau
           test -f src/shared/OverlordTowerModelBuilder.luau
+          test -f src/shared/OverlordCharacterArtPass.luau
           test -f src/shared/EconomyVisualConfig.luau
           test -f src/shared/EconomyItemModelBuilder.luau
           test -f src/server/EconomyModels.server.luau
@@ -112,6 +116,17 @@ jobs:
           grep -q 'function FX.Attach' src/client/EconomyItemVFX.luau
           grep -q 'ItemVFX.Attach' src/client/EconomyModelGallery.client.luau
           grep -q 'VFX ON' src/client/EconomyModelGallery.client.luau
+
+      - name: Conferir fidelidade artistica sem quebrar jogabilidade
+        run: |
+          grep -q 'Art.Version="0.8.0"' src/server/CarneVillageArtPass.luau
+          grep -q 'CarneVillageArtPass' src/server/CarneVillageArtPass.server.luau
+          grep -q 'Art.Version="0.8.0"' src/shared/OverlordCharacterArtPass.luau
+          grep -q 'CharacterArt.Apply(model)' src/shared/OverlordTowerModelBuilder.luau
+          grep -q 'CanCollide=false' src/server/CarneVillageArtPass.luau
+          grep -q 'CanQuery=false' src/shared/OverlordCharacterArtPass.luau
+          grep -q 'OVERLORD MODEL TESTE ESTATICO OK' src/server/OverlordModelSmokeTest.server.luau
+          grep -q 'CARNE VILLAGE ART TEST OK' src/server/CarneVillageArtSmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
