@@ -7,6 +7,7 @@ local RewardConfig = require(script.Parent:WaitForChild("StoryRewardConfig"))
 local StoryConfig = require(script.Parent:WaitForChild("StoryConfig"))
 local EnemyConfig = require(script.Parent:WaitForChild("EnemyConfig"))
 local BossConfig = require(script.Parent:WaitForChild("BossConfig"))
+local EvolutionLoot = require(script.Parent:WaitForChild("OverlordEvolutionLootConfig"))
 
 local StageInfoConfig = {}
 
@@ -72,6 +73,7 @@ function StageInfoConfig.BuildPayload(stageId: string, difficulty: string): {[st
         },
         XPConfigured = false, -- Nao existe valor de XP em StoryRewardConfig.
         RewardsActive = false, -- Ainda nao existe um servico de entrega de recompensas.
+        PlannedEvolutionItems = EvolutionLoot.GetPlannedPreview(stageId, difficulty),
         SpecialDrops = {
             {
                 Id = rewards.RareItemId,
