@@ -21,6 +21,7 @@ local Roster = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Ov
 local Builder = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordTowerModelBuilder"))
 local Progression = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordModelProgression"))
 local Abilities = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordAbilityDesign"))
+local Motion = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordMotionController"))
 local entries = Roster.GetAll()
 local templates: Folder? = nil
 
@@ -192,7 +193,7 @@ viewport.Parent = window
 corner(viewport, 9)
 stroke(viewport, P.Secondary, 1.2, 0.10)
 
-local previewFX = button(window, "PlayUnitFX", "▶  TESTAR VFX INICIAL",
+local previewFX = button(window, "PlayUnitFX", "▶  ANIMAR ATAQUE + VFX",
     UDim2.fromOffset(218, 393), UDim2.fromOffset(198, 35), P.Purple, 12)
 previewFX.ZIndex = 15
 
@@ -244,6 +245,7 @@ local current = "OVL_Climb"
 local visualStage = 0
 local yaw = math.rad(25)
 local selectedButtons: {[string]: TextButton} = {}
+local previewMotion: any = nil
 
 local function aimCamera()
     local focus = Vector3.new(0, 3.2, 0)
@@ -287,6 +289,7 @@ local function fxStroke(name: string, a: Vector3, b: Vector3,
 end
 
 local function playPreviewFX()
+    if previewMotion then previewMotion:Attack(visualStage, Vector3.new(1.6,3.05,-2.05)) end
     local colors = {
         OVL_Climb = Color3.fromRGB(122, 210, 255),
         OVL_Brain = Color3.fromRGB(224, 239, 255),
@@ -355,6 +358,7 @@ local function preview()
     infoNote.Text = "Etapa visual " .. tostring(visualStage) .. "/3. "
         .. visual.Visual .. ".\nSem liberar unidades ou habilidades."
 
+    if previewMotion then previewMotion:Destroy(); previewMotion = nil end
     world:ClearAllChildren()
     if not templates then
         infoNote.Text = "Preparando os modelos no Studio..."
@@ -371,6 +375,7 @@ local function preview()
     -- Builder coloca os pes no Y=0 e Root no Y=3; manter esse pivot.
     model:PivotTo(CFrame.new(0, 3, 0))
     Builder.SetVisualStage(model, visualStage)
+    previewMotion = Motion.Attach(model)
     aimCamera()
 end
 
@@ -547,9 +552,21 @@ end
 Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
 bindCamera()
 
+RunService.PreSimulation:Connect(function(_dt: number)
+    if overlay.Visible and screen.Enabled and previewMotion then
+        previewMotion:Update()
+    end
+end)
+
 local function setOpen(value: boolean)
     overlay.Visible = value
-    if value then preview() else dragging = false end
+    if value then
+        preview()
+    else
+        dragging = false
+        if previewMotion then previewMotion:Destroy(); previewMotion = nil end
+        world:ClearAllChildren()
+    end
 end
 toggle.Activated:Connect(function()
     setOpen(not overlay.Visible)
@@ -572,4 +589,4 @@ task.spawn(function()
     end
 end)
 
-print("[Anime Fissure] Model Lab Overlord v0.2 | modelos giraveis e botao Testar VFX")
+print("[Anime Fissure] Model Lab Overlord v0.9 | ataque animado R6 e VFX por etapa")
