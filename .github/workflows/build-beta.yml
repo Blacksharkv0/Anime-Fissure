@@ -50,6 +50,7 @@ jobs:
           test -f src/server/TowerModelBuilder.luau
           test -f src/server/OverlordCombatPrototype.luau
           test -f src/server/OverlordCombatSmokeTest.server.luau
+          test -f src/server/OverlordPairSynergySmokeTest.server.luau
           test -f src/client/TowerHUD.client.luau
           test -f src/client/OverlordCombatVFX.client.luau
           test -f src/client/OverlordCombatAnimator.client.luau
@@ -57,6 +58,8 @@ jobs:
           test -f src/shared/OverlordUnitRoster.luau
           test -f src/shared/OverlordAbilityDesign.luau
           test -f src/shared/OverlordModelProgression.luau
+          test -f src/shared/OverlordPairSynergy.luau
+          test -f src/shared/TowerAttackInfo.luau
           test -f src/shared/OverlordTowerModelBuilder.luau
           test -f src/shared/OverlordModelFinish.luau
           test -f src/shared/OverlordMotionController.luau
@@ -141,6 +144,22 @@ jobs:
           grep -q 'Serial = t.Serial' src/server/TowerService.luau
           grep -q 'previewMotion:Attack' src/client/OverlordModelGallery.client.luau
           grep -q 'OVERLORD ANIMATION SMOKE OK' src/server/OverlordAnimationSmokeTest.server.luau
+
+      - name: Validar painel de Tower e sinergia Albedo/Ainz
+        run: |
+          grep -q 'Pair.HasPair(state.Owners)' src/server/TowerService.luau
+          grep -q 'Pair.GetMultiplier(t.Id, pairActive)' src/server/TowerService.luau
+          grep -q 'SynergyActive' src/server/TowerService.luau
+          grep -q 'EffectiveDamage' src/server/TowerService.luau
+          grep -q 'AttackInfo.Get' src/server/TowerService.luau
+          grep -q 'UpgradeDot_' src/client/TowerHUD.client.luau
+          grep -q 'ATTACK:' src/client/TowerHUD.client.luau
+          grep -q 'DEVOÇÃO AO SUPREMO' src/client/TowerHUD.client.luau
+          grep -q 'PAIR SYNERGY + INFO SMOKE OK' src/server/OverlordPairSynergySmokeTest.server.luau
+          if grep -q 'OVL_Ainz' src/shared/SummonConfig.luau; then
+            echo "ERRO: Ainz nao pode entrar no banner"
+            exit 1
+          fi
 
       - name: Gerar arquivo Roblox
         run: |
