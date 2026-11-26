@@ -69,8 +69,8 @@ local function leftRight(folder: Instance,baseL: BasePart,baseR: BasePart,
 end
 
 local function climb(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     local la=m:FindFirstChild("Left Arm")::BasePart
     local ra=m:FindFirstChild("Right Arm")::BasePart
     local ll=m:FindFirstChild("Left Leg")::BasePart
@@ -102,8 +102,8 @@ local function climb(m: Model,f: Instance)
 end
 
 local function brain(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     local la=m:FindFirstChild("Left Arm")::BasePart
     local ra=m:FindFirstChild("Right Arm")::BasePart
     -- Slim swordmaster: loose robe, exposed slim waist and long hair.
@@ -139,8 +139,8 @@ local function brain(m: Model,f: Instance)
 end
 
 local function gazef(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     local la=m:FindFirstChild("Left Arm")::BasePart
     local ra=m:FindFirstChild("Right Arm")::BasePart
     local ll=m:FindFirstChild("Left Leg")::BasePart
@@ -176,8 +176,8 @@ local function gazef(m: Model,f: Instance)
 end
 
 local function shalltear(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     local ra=m:FindFirstChild("Right Arm")::BasePart
     -- Distinct gothic gothic-lolita ruffles and curled side locks, spear.
     add(f,t,"WhiteLaceCollar",Vector3.new(1.49,0.32,0.34),
@@ -213,8 +213,8 @@ local function shalltear(m: Model,f: Instance)
 end
 
 local function albedo(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     -- More graceful silhouette: layered white drapes, dramatic black feather fans.
     add(f,t,"WhiteDressBodice",Vector3.new(1.64,1.22,0.19),
         CFrame.new(0,0.19,-0.72),C.white,Enum.Material.Fabric)
@@ -254,8 +254,8 @@ local function albedo(m: Model,f: Instance)
 end
 
 local function ainz(m: Model,f: Instance)
-    local t=m.Torso::BasePart
-    local h=m.Head::BasePart
+    local t=m:FindFirstChild("Torso") :: BasePart
+    local h=m:FindFirstChild("Head") :: BasePart
     local ra=m:FindFirstChild("Right Arm")::BasePart
     -- Regal skull, enlarged trim and multi-layered robes; preserve recognizable orbs.
     add(f,t,"RoyalGoldCollar",Vector3.new(2.20,0.21,1.37),
