@@ -18,7 +18,7 @@
 
 ### Exemplo numérico
 
-Atributos provisórios da Albedo no nível 0: 91 de dano base, SPA 1,62s, Range 27.0. Com Ainz em campo e sem aura de upgrade 9: **91 × 1,30 = 118,3 → 118** de dano mostrado no HUD e calculado antes de críticos/resistências.
+Após o balanceamento Overlord v1.0: **Albedo Lv0 = 598 dano, SPA 2,16s, Range 29,25**. Com Ainz em campo e sem aura de upgrade 9: **598 × 1,30 = 777,4 → 777** de dano mostrado. No **Lv1**, Albedo possui 700 base e mostra **910** com a dupla. Consulte docs/OVERLORD-BALANCE-v1.0.md.
 
 ## Painel ao clicar na Tower
 
@@ -28,7 +28,7 @@ O painel atualizado fica **acima do deck de batalha** e oferece a seguinte estru
     │ ALBEDO • LV 0                         [ MYTHIC ]  │
     │                                                   │
     │      DANO              RANGE             SPA      │
-    │      118               27.0              1.62s    │
+    │      777               29.25             2.16s    │
     │                                                   │
     │ UPGRADES   0 / 9   •   ATAQUE 0                   │
     │         ○  ○  ○  ○  ○  ○  ○  ○  ○                 │
@@ -67,7 +67,7 @@ Nomes dos ataques e seus tipos são enviados pelo servidor com base no **Overlor
 1. Abra https://github.com/Blacksharkv0/Anime-Fissure/actions e escolha uma build **verde** da branch main, após a publicação.
 2. Abra o arquivo .rbxlx gerado e clique Play; inicie Carne Village no Studio.
 3. Posicione Albedo sem Ainz, clique nela e confira **SINERGIA: posicione Ainz ...**, além dos stats.
-4. Posicione Ainz. Selecione Albedo novamente e confira o bônus **+30%**; no nível 0 o HUD deverá mostrar aproximadamente **118 Dano** (sem outra aura).
+4. Posicione Ainz. Selecione Albedo novamente e confira o bônus **+30%**; no nível 0 o HUD deverá mostrar **777 Dano** (sem outra aura), ou **910 no Lv1**.
 5. Selecione Ainz: ele mostra a parceria ativa que **beneficia Albedo**, sem atribuir bônus a ele próprio.
 6. Venda o último Ainz: o bônus deve desaparecer e o dano da Albedo voltar ao normal.
 7. Se possível, com dois jogadores no Studio Coop: coloque Albedo em um jogador e Ainz no outro. Os dois podem ver as fichas das Towers; só o dono deve ter botões ativos de upgrade e venda.
