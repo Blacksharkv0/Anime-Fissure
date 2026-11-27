@@ -1,7 +1,8 @@
 --!strict
--- ANIME FISSURE | RelicIndexConfig v0.1
--- Catalogo de visualizacao, NAO e um sistema de inventario.
--- Availability = "Planned" nao libera crafting nem concede itens.
+-- ANIME FISSURE | RelicIndexConfig v0.2 - LEGACY ARCHIVE
+-- Old unapproved design concepts, formerly displayed in Edward alchemy.
+-- Archived entries now appear only in Gilgamesh global CONCEPTS drawer.
+-- NOT the approved Overlord stage drops; no item, recipe or reward exists.
 
 local RelicIndexConfig = {}
 
@@ -13,7 +14,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_01",
         Buff = "+20% de dano fisico; ignora 15% da armadura inimiga.",
         Target = "Unidades de dano fisico",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "OVL_NecromancerBook",
@@ -22,7 +23,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_02",
         Buff = "+25% de dano DOT; derrotas por DOT criam uma area de corrupcao.",
         Target = "Unidades com dano continuo (DOT)",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "OVL_HunterEye",
@@ -31,7 +32,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_03",
         Buff = "+12 pontos percentuais de critico; +20% de dano critico contra chefes.",
         Target = "Unidades com ataques criticos",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "OVL_BloodChalice",
@@ -40,7 +41,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_04",
         Buff = "+25% de dano magico; a cada 10 ataques, um golpe adicional.",
         Target = "Unidades de dano magico",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "OVL_FrostHeart",
@@ -49,7 +50,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_05",
         Buff = "+15% de velocidade de ataque; chance de aplicar lentidao.",
         Target = "Unidades de ataque",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "OVL_SupremeCrown",
@@ -58,7 +59,7 @@ RelicIndexConfig.Relics = {
         StageId = "OVL_06",
         Buff = "+20% de dano; ativa um impulso de velocidade uma vez por wave.",
         Target = "Unidades compativeis (a definir)",
-        Availability = "Planned",
+        Availability = "Archived",
     },
     {
         Id = "DB_MoneyCapsule",
@@ -67,7 +68,7 @@ RelicIndexConfig.Relics = {
         StageId = "DB_TBD",
         Buff = "-30% no custo de colocacao; +50% de Yen por wave.",
         Target = "Capsule e Capsule (Corp) exclusivamente",
-        Availability = "Planned",
+        Availability = "Archived",
     },
 }
 
