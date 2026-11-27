@@ -35,6 +35,8 @@ jobs:
           test -f src/server/Main.server.luau
           test -f src/server/BetaBridge.server.luau
           test -f src/server/BetaLobby.server.luau
+          test -f src/shared/UniversalRelicCatalog.luau
+          test -f src/server/UniversalRelicAuthoritySmokeTest.server.luau
           test -f src/server/BabylonHallBuilder.luau
           test -f src/server/BabylonHall.server.luau
           test -f src/server/BabylonHallSmokeTest.server.luau
@@ -222,10 +224,37 @@ jobs:
           grep -q 'Only attach to existing FissureLobby' src/server/BabylonHallBuilder.luau
           grep -q 'Builder.Build(lobby)' src/server/BabylonHall.server.luau
           grep -q 'RelicRingModelBuilder' src/server/BabylonHallBuilder.luau
-          grep -q 'RingBuilder.Build(selected)' src/client/RelicRingGallery.client.luau
-          grep -q 'prompt.Triggered:Connect' src/client/RelicRingGallery.client.luau
+          grep -q 'Builder.Build(selected.Id)' src/client/RelicRingGallery.client.luau
+          grep -q 'prompt.Triggered:Connect' src/server/BabylonHall.server.luau
           grep -q 'maxAnimated=if UserInputService.TouchEnabled then 4 else 9' src/client/BabylonHallVFX.client.luau
           grep -q 'BABYLON HALL SMOKE OK' src/server/BabylonHallSmokeTest.server.luau
+
+      - name: Garantir Gilgamesh como autoridade exclusiva das reliquias
+        run: |
+          grep -q 'Catalog.OwnerNPC="Gilgamesh"' src/shared/UniversalRelicCatalog.luau
+          grep -q 'Catalog.Scope="AllWorlds"' src/shared/UniversalRelicCatalog.luau
+          grep -q 'LegacyConcept' src/shared/UniversalRelicCatalog.luau
+          grep -q 'RelicScope","AllWorlds"' src/server/BabylonHallBuilder.luau
+          grep -q 'OpenRelicCatalog' src/server/BabylonHall.server.luau
+          grep -q 'OnClientEvent:Connect' src/client/RelicRingGallery.client.luau
+          grep -q 'UniversalRelicCatalog' src/client/RelicRingGallery.client.luau
+          grep -q 'OrbsAlchemyOnly' src/server/AlchemyWorkshop.server.luau
+          grep -q 'ORBES  -  ALQUIMIA' src/server/AlchemyWorkshop.server.luau
+          grep -q 'ORBES  /  TRANSMUTACAO' src/server/LobbyVisualPolish.server.luau
+          grep -q 'EDWARD ALCHEMY v0.2' src/client/AlchemyHUD.client.luau
+          if grep -q 'RelicIndexConfig' src/client/AlchemyHUD.client.luau; then
+            echo "ERRO: Edward ainda referencia o catalogo de reliquias"
+            exit 1
+          fi
+          if grep -q 'OwnedRelics' src/server/AlchemyGateway.server.luau; then
+            echo "ERRO: Edward ainda fornece dados de relíquias"
+            exit 1
+          fi
+          if grep -q 'local launch=button' src/client/RelicRingGallery.client.luau; then
+            echo "ERRO: catalogo de Gilgamesh ainda pode abrir fora do NPC"
+            exit 1
+          fi
+          grep -q 'GILGAMESH EXCLUSIVE RELIC AUTHORITY OK' src/server/UniversalRelicAuthoritySmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
