@@ -35,6 +35,10 @@ jobs:
           test -f src/server/Main.server.luau
           test -f src/server/BetaBridge.server.luau
           test -f src/server/BetaLobby.server.luau
+          test -f src/server/BabylonHallBuilder.luau
+          test -f src/server/BabylonHall.server.luau
+          test -f src/server/BabylonHallSmokeTest.server.luau
+          test -f src/client/BabylonHallVFX.client.luau
           test -f src/client/BetaLobby.client.luau
           test -f src/shared/LobbyStageConfig.luau
           test -f src/server/LobbyAtrium.server.luau
@@ -208,6 +212,20 @@ jobs:
           grep -q 'CycleRelic' src/client/TowerHUD.client.luau
           grep -q 'Builder.BuildAll(ReplicatedStorage)' src/server/RelicRingModels.server.luau
           grep -q 'RELIC RINGS STUDIO OK' src/server/RelicRingSmokeTest.server.luau
+
+      - name: Validar Babilonia, arsenais geek e acesso seguro ao catalogo
+        run: |
+          grep -q 'Hall.PortalCount=11' src/server/BabylonHallBuilder.luau
+          grep -q 'Hall.RingCount=5' src/server/BabylonHallBuilder.luau
+          grep -q 'local PORTALS: {PortalDef}' src/server/BabylonHallBuilder.luau
+          grep -q 'BabylonRelicPrompt' src/server/BabylonHallBuilder.luau
+          grep -q 'Only attach to existing FissureLobby' src/server/BabylonHallBuilder.luau
+          grep -q 'Builder.Build(lobby)' src/server/BabylonHall.server.luau
+          grep -q 'RelicRingModelBuilder' src/server/BabylonHallBuilder.luau
+          grep -q 'RingBuilder.Build(selected)' src/client/RelicRingGallery.client.luau
+          grep -q 'prompt.Triggered:Connect' src/client/RelicRingGallery.client.luau
+          grep -q 'maxAnimated=if UserInputService.TouchEnabled then 4 else 9' src/client/BabylonHallVFX.client.luau
+          grep -q 'BABYLON HALL SMOKE OK' src/server/BabylonHallSmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
