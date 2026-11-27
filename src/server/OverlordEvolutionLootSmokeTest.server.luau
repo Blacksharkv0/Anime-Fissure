@@ -30,8 +30,16 @@ for index,stage in ipairs(world.Stages) do
     assert(#entries==#approved, "Evolution items count mismatch: "..stage.Id)
     for i,item in ipairs(entries) do
         assert(item.Id==approved[i], "Unexpected evolution item in "..stage.Id)
-        assert(item.StageId==stage.Id and item.Type=="EvolutionMaterial",
-            "Invalid item classification")
+        assert(item.StageId==stage.Id,
+            "Invalid item stage classification")
+        if item.Relic == true then
+            assert(item.Type=="EvolutionRelic" and item.Equippable==true
+                and item.EvolutionLink=="OVL_Ainz",
+                "Ring must be relic and evolution material for Ainz")
+        else
+            assert(item.Type=="EvolutionMaterial" and item.Relic~=true,
+                "Dedicated character evolution items must not become rings")
+        end
         assert(not seen[item.Id], "Evolution item registered twice: "..item.Id)
         seen[item.Id]=true
         local source=Loot.GetItem(item.Id)
