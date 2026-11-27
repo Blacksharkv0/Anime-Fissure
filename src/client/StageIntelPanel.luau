@@ -362,20 +362,27 @@ local function render(info: any, keepScroll: boolean?)
         then info.PlannedEvolutionItems else {}
     if #planned > 0 then
         local count = math.min(#planned, 7)
-        local evolutionCard = section("ITENS DE EVOLUCAO • PLANEJADOS",
-            49 + count * 55, 5)
+        local evolutionCard = section("EVOLUCAO / RELIQUIAS • PLANEJADOS",
+            49 + count * 76, 5)
         for index = 1, count do
             local item = planned[index]
             if typeof(item) == "table" then
-                local y = 35 + (index - 1) * 55
+                local y = 35 + (index - 1) * 76
                 label(evolutionCard, "EvolutionName_" .. index,
                     "✧ " .. safeText(item.Name, "Item de evolucao"),
                     UDim2.fromOffset(12, y), UDim2.new(1, -24, 0, 23),
                     13, C.Gold, true)
-                label(evolutionCard, "EvolutionStatus_" .. index,
-                    "HARD • chance a definir • drop NAO ativo",
+                label(evolutionCard, "EvolutionEffect_" .. index,
+                    if item.Relic == true
+                        then safeText(item.RelicDescription, "Relíquia / evolução")
+                        else "Material exclusivo de evolução",
                     UDim2.fromOffset(12, y + 23),
-                    UDim2.new(1, -24, 0, 23), 11, C.Muted)
+                    UDim2.new(1, -24, 0, 24), 11, C.Cyan)
+                label(evolutionCard, "EvolutionStatus_" .. index,
+                    (if item.Difficulty == "Hard" then "HARD" else "MODO A DEFINIR")
+                        .. " • chance a definir • drop NAO ativo",
+                    UDim2.fromOffset(12, y + 48),
+                    UDim2.new(1, -24, 0, 22), 10, C.Muted)
             end
         end
     end
