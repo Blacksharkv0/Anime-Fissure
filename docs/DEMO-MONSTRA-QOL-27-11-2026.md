@@ -21,6 +21,7 @@ O Lobby mantém os **sete NPCs permanentes**: Vergil (Summon), Dante (Index), Ed
 7. **Correção de UI antiga**: InterfaceVisualPolish agora reconhece AlchemyWindow do Edward; removidas tentativas de redimensionamento duplicado que disputavam UIScale com as interfaces já responsivas.
 8. **Diagnóstico no Studio**: botão DIAGNÓSTICO DO LOBBY, com **13 verificações de presença** de modelos, prompts, portais, vitrines e mapa/FX. Verde significa **modelos carregados**, não funções de inventário ou raids prontas.
 9. **Pós-partida com retorno ao lobby:** no resultado real de vitória, derrota ou interrupção, o servidor envia um painel de resultados sem recompensas fictícias. O botão **VOLTAR AO LOBBY** retorna antecipadamente e, se o jogador não fizer nada, o servidor retorna automaticamente após **30 segundos**. O servidor beta ainda aceita apenas uma partida por sessão; reinicie o Play para repetir. Arquivos: src/server/Main.server.luau e src/client/PostMatchHUD.client.luau.
+10. **Terminal de missão sincronizado com o resultado:** ao retornar, o servidor marca a sessão como encerrada e a interface do Story mostra **SESSÃO FINALIZADA** com o botão de entrada desativado. Para jogar novamente é preciso reiniciar o Play, evitando tentativas recusadas sem explicação.
 
 ## Revisão de código e proteções
 
