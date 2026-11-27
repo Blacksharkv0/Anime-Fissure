@@ -42,6 +42,27 @@ local GAME_MODE = "Classic" -- fallback seguro; escolha valida vem do lobby
 local BETWEEN_WAVES_DELAY = 1.5
 local PREPARATION_TIME = 10
 local INITIAL_PREPARATION_TIME = 24 -- permite posicionar Torres antes da Wave 1
+local POST_MATCH_SECONDS=30
+-- Separate, restricted post-match UI. No gameplay actions or rewards.
+local postFolder=ReplicatedStorage:FindFirstChild("PostMatchRemotes")
+if postFolder and not postFolder:IsA("Folder") then
+    postFolder:Destroy();postFolder=nil
+end
+if not postFolder then
+    postFolder=Instance.new("Folder")
+    postFolder.Name="PostMatchRemotes"
+    postFolder.Parent=ReplicatedStorage
+end
+local function ensurePostRemote(name: string): RemoteEvent
+    local existing=postFolder:FindFirstChild(name)
+    if existing and existing:IsA("RemoteEvent") then return existing end
+    if existing then existing:Destroy() end
+    local remote=Instance.new("RemoteEvent")
+    remote.Name=name;remote.Parent=postFolder
+    return remote
+end
+local showResult=ensurePostRemote("ShowResult")
+local requestReturn=ensurePostRemote("ReturnLobby")
 
 -- CONTROLE INTERNO
 
@@ -93,6 +114,26 @@ local function countParticipants(): number
     return count
 end
 
+local function returnPlayerToLobby(player: Player)
+    local match=MatchService.GetMatch(MATCH_ID)
+    if not matchFinished or not match or match.Status=="Playing"
+        or player.Parent~=Players or not table.find(match.Players,player)
+        or player:GetAttribute("InArena")~=true then return end
+    local lobby=Workspace:FindFirstChild("FissureLobby")
+    local spawn=if lobby then lobby:FindFirstChild("LobbySpawn") else nil
+    if not spawn or not spawn:IsA("SpawnLocation") then
+        warn("[Anime Fissure] POST MATCH: LobbySpawn indisponível")
+        return
+    end
+    player.RespawnLocation=spawn
+    local character=player.Character
+    if character then
+        character:PivotTo(CFrame.new(spawn.Position+Vector3.new(0,5,0)))
+    end
+    player:SetAttribute("InArena",false)
+end
+requestReturn.OnServerEvent:Connect(returnPlayerToLobby)
+
 local function finishMatch()
     if matchFinished then
         return
@@ -121,8 +162,25 @@ local function finishMatch()
 
     WaveService.Remove(MATCH_ID)
 
-    -- O resultado permanece no MatchService.
-    -- Retorno ao lobby sera implementado depois.
+    -- Non-transactional post-match display: return to lobby after 30 s
+    -- regardless of client response. Beta remains one match per server.
+    if match then
+        for _,participant in ipairs(match.Players) do
+            if participant.Parent==Players
+                and participant:GetAttribute("InArena")==true then
+                showResult:FireClient(participant,{
+                    Status=match.Status,
+                    Wave=match.CurrentWave,
+                    MaxWaves=match.MaxWaves,
+                    AutoReturnSeconds=POST_MATCH_SECONDS,
+                    ReplayAvailable=false,
+                })
+                task.delay(POST_MATCH_SECONDS,function()
+                    returnPlayerToLobby(participant)
+                end)
+            end
+        end
+    end
 end
 
 -- A beta usa inimigos fisicos, e nao um contador que se auto-derrota.
