@@ -61,6 +61,23 @@ local trigger=button(gui,"OpenDirectory","⌖ NPCs / MAPA",
     UDim2.fromOffset(14,90),UDim2.fromOffset(158,38),C.Panel)
 local trigStroke=Instance.new("UIStroke")
 trigStroke.Color=C.Electric;trigStroke.Thickness=1.3;trigStroke.Parent=trigger
+-- Local cosmetic preference. Touch defaults to reduced effects.
+-- This attribute affects only client particles and ambient VFX; the
+-- SERVER still owns all combat, damage and reward calculations.
+player:SetAttribute("ReducedVFX",UserInputService.TouchEnabled)
+local fxButton=button(gui,"FXQualityToggle","FX: PADRÃO",
+    UDim2.fromOffset(183,90),UDim2.fromOffset(141,38),C.Panel)
+local function refreshFx()
+    local low=player:GetAttribute("ReducedVFX")==true
+    fxButton.Text=if low then "FX: LEVE ✓" else "FX: PADRÃO"
+    fxButton.BackgroundColor3=if low then C.Inner else C.Panel
+end
+fxButton.Activated:Connect(function()
+    player:SetAttribute("ReducedVFX",
+        player:GetAttribute("ReducedVFX")~=true)
+    refreshFx()
+end)
+refreshFx()
 local panel=frame(gui,"Directory",UDim2.fromOffset(14,137),
     UDim2.fromOffset(365,500),C.Panel)
 panel.Visible=false
