@@ -38,7 +38,7 @@ node(toggle,"UICorner","Round").CornerRadius=UDim.new(0,8)
 local panel=node(gui,"Frame","Report") :: Frame
 panel.AnchorPoint=Vector2.new(0,1)
 panel.Position=UDim2.new(0,12,1,-88)
-panel.Size=UDim2.fromOffset(338,452)
+panel.Size=UDim2.fromOffset(338,486)
 panel.BackgroundColor3=Color3.fromRGB(14,19,35)
 panel.BorderSizePixel=0
 panel.Visible=false
@@ -70,6 +70,7 @@ local list={
     "Dante • Index",
     "Praça de Eventos (Studio)",
     "Remotes e interfaces",
+    "Diretório / FX de desempenho",
 }
 local labels: {TextLabel}={}
 for i,name in ipairs(list) do
@@ -86,7 +87,7 @@ for i,name in ipairs(list) do
     labels[i]=l
 end
 local note=node(panel,"TextLabel","Footer") :: TextLabel
-note.Position=UDim2.fromOffset(12,415)
+note.Position=UDim2.fromOffset(12,453)
 note.Size=UDim2.fromOffset(309,32)
 note.Text="Isso verifica carga de modelos, NÃO valida jogabilidade."
 note.TextWrapped=true
@@ -134,6 +135,13 @@ local function ready()
         child(remotes,"OpenServiceInfo")~=nil
             and child(babylonRemote,"OpenRelicCatalog")~=nil
             and child(dialogue,"OpenDialogue")~=nil,
+        (function()
+            local navigator=child(playerGui,"AnimeFissureLobbyNavigator")
+            if not navigator then return false end
+            return child(navigator,"OpenDirectory")~=nil
+                and child(navigator,"FXQualityToggle")~=nil
+                and child(navigator,"Directory")~=nil
+        end)(),
     }
 end
 local function sync()
@@ -152,7 +160,7 @@ local function resize()
     local camera=Workspace.CurrentCamera
     if not camera then return end
     local view=camera.ViewportSize
-    scale.Scale=math.clamp(math.min((view.X-24)/345,(view.Y-90)/460,1),.47,1)
+    scale.Scale=math.clamp(math.min((view.X-24)/345,(view.Y-90)/498,1),.47,1)
 end
 toggle.Activated:Connect(function()
     if player:GetAttribute("InArena")==true then return end
@@ -174,4 +182,4 @@ task.spawn(function()
         task.wait(1.5)
     end
 end)
-print("[Anime Fissure] LOBBY STUDIO DIAGNOSTIC ready, 12 scene checks")
+print("[Anime Fissure] LOBBY STUDIO DIAGNOSTIC ready, 13 scene checks")
