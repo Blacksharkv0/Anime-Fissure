@@ -115,8 +115,8 @@ local barScale = Instance.new("UIScale")
 barScale.Parent = bar
 
 local deckTitle = text(bar, "DeckTitle", "DECK DE COMBATE  •  BETA",
-    UDim2.fromOffset(12, 3), UDim2.fromOffset(350, 23), 13, C.Cyan).TextXAlignment =
-    Enum.TextXAlignment.Left
+    UDim2.fromOffset(12, 3), UDim2.fromOffset(350, 23), 13, C.Cyan)
+deckTitle.TextXAlignment = Enum.TextXAlignment.Left
 local yen = text(bar, "Yen", "¥ 700",
     UDim2.fromOffset(382, 3), UDim2.fromOffset(158, 23), 15, C.Gold)
 yen.TextXAlignment = Enum.TextXAlignment.Right
