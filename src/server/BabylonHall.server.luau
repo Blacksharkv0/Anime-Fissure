@@ -63,7 +63,8 @@ elseif hall then
             or not root or not root:IsA("BasePart") then return end
         if (root.Position-anchor.Position).Magnitude>14 then return end
         lastOpen[player.UserId]=now
-        (open :: RemoteEvent):FireClient(player)
+        local openEvent = open :: RemoteEvent
+        openEvent:FireClient(player)
     end)
     Players.PlayerRemoving:Connect(function(player)
         lastOpen[player.UserId]=nil
