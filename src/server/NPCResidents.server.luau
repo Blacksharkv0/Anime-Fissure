@@ -185,7 +185,13 @@ local function install(kind: string, stationName: string, npcName: string)
 
     -- Tambem corrige modelos que ja existiam na oficina mas foram
     -- gerados abaixo do piso ou atras da bancada.
-    npc:PivotTo(POSITIONS[kind])
+    local destination=POSITIONS[kind]
+    -- Reborn Edward is deliberately shorter; keep his boot soles at the
+    -- original ground height rather than floating above the workshop.
+    if kind=="Edward" and npc:GetAttribute("CharacterReborn")=="Edward-v1" then
+        destination=destination-Vector3.new(0,3*(1-npc:GetScale()),0)
+    end
+    npc:PivotTo(destination)
     if freshlyBuilt then animateIdle(npc) end
 
     local remote = waitForRemote(kind)
