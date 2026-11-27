@@ -51,6 +51,8 @@ jobs:
           test -f src/server/LobbyNPCArtSmokeTest.server.luau
           test -f src/client/LobbyMentorVFX.client.luau
           test -f src/client/LobbyStudioAudit.client.luau
+          test -f src/client/LobbyNavigator.client.luau
+          test -f src/server/DemoReleaseSmokeTest.server.luau
           test -f src/shared/UnitIndexCatalog.luau
           test -f src/client/DanteUnitIndex.client.luau
           test -f src/server/DanteUnitIndexSmokeTest.server.luau
@@ -325,6 +327,39 @@ jobs:
           grep -q 'LOBBY STUDIO DIAGNOSTIC ready' src/client/LobbyStudioAudit.client.luau
           grep -q 'OpenDialogue' src/client/LobbyStudioAudit.client.luau
 
+      - name: Revisar QoL de lobby, mobile e arena - Demo final
+        run: |
+          grep -q 'AnimeFissureLobbyNavigator' src/client/LobbyNavigator.client.luau
+          grep -q 'FXQualityToggle' src/client/LobbyNavigator.client.luau
+          grep -q 'LocalWaypoint_' src/client/LobbyNavigator.client.luau
+          grep -q 'LobbyServiceConfig' src/client/LobbyNavigator.client.luau
+          grep -q 'ReducedVFX' src/client/LobbyNavigator.client.luau
+          grep -q 'ReducedVFX' src/client/OverlordCombatVFX.client.luau
+          grep -q 'ReducedVFX' src/client/LobbyMentorVFX.client.luau
+          grep -q 'ReducedVFX' src/client/BabylonHallVFX.client.luau
+          grep -q 'SellConfirmBackdrop' src/client/TowerHUD.client.luau
+          grep -q 'AcceptSell' src/client/TowerHUD.client.luau
+          grep -q 'requestSale()' src/client/TowerHUD.client.luau
+          grep -q 'InputEnded:Connect' src/client/TowerHUD.client.luau
+          grep -q 'touchAimY' src/client/TowerHUD.client.luau
+          grep -q 'Enum.KeyCode.One' src/client/TowerHUD.client.luau
+          grep -q 'Enum.KeyCode.U' src/client/TowerHUD.client.luau
+          grep -q 'AlchemyWindow' src/client/InterfaceVisualPolish.client.luau
+          grep -q '13 scene checks' src/client/LobbyStudioAudit.client.luau
+          grep -q 'DEMO RELEASE SMOKE OK' src/server/DemoReleaseSmokeTest.server.luau
+          if grep -q 'MainWindow' src/client/InterfaceVisualPolish.client.luau; then
+            echo "ERRO: visual patch busca janela antiga de Edward"
+            exit 1
+          fi
+          if grep -q 'request:FireServer("Sell", t.Serial)' src/client/TowerHUD.client.luau; then
+            echo "ERRO: venda de torre sem confirmacao"
+            exit 1
+          fi
+          if grep -q 'SellConfirmBackdrop' src/server/TowerService.luau; then
+            echo "ERRO: UI do cliente nao pode entrar no servidor de torres"
+            exit 1
+          fi
+
       - name: Gerar arquivo Roblox
         run: |
           mkdir -p build
@@ -334,6 +369,11 @@ jobs:
       - name: Verificar resultado
         run: |
           test -s build/AnimeFissure-Beta.rbxlx
+          grep -q 'LobbyNavigator' build/AnimeFissure-Beta.rbxlx
+          grep -q 'DemoReleaseSmokeTest' build/AnimeFissure-Beta.rbxlx
+          grep -q 'TowerHUD' build/AnimeFissure-Beta.rbxlx
+          grep -q 'BabylonHallBuilder' build/AnimeFissure-Beta.rbxlx
+          grep -q 'LobbyNPCArtFinish' build/AnimeFissure-Beta.rbxlx
           ls -lh build/AnimeFissure-Beta.rbxlx
 
       - name: Disponibilizar build
