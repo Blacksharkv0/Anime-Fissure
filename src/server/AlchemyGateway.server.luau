@@ -33,15 +33,14 @@ local openRemote = ensureRemote("OpenWorkshop", "RemoteEvent") :: RemoteEvent
 local snapshotRemote = ensureRemote("GetWorkshopSnapshot", "RemoteFunction") :: RemoteFunction
 
 -- Um perfil real sera ligado aqui futuramente.
--- Nao fabricamos moedas, materiais ou reliquias de teste.
+-- Nao fabricamos moedas, materiais nem receitas de teste. Relíquias são exclusivas de Gilgamesh.
 snapshotRemote.OnServerInvoke = function(player: Player)
     if player.Parent ~= Players or player:GetAttribute("InArena") == true then
         return nil
     end
     return {
         Inventory = {},
-        OwnedRelics = {},
-        Recipes = {},
+        Recipes = {}, -- somente receitas alquimicas/orbes, ainda vazias
         GoldConnected = false,
         CraftingEnabled = false,
         ProfileStatus = "Aguardando sistema de inventario",
