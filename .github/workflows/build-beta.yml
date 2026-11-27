@@ -50,6 +50,7 @@ jobs:
           test -f src/shared/LobbyNPCArtFinish.luau
           test -f src/server/LobbyNPCArtSmokeTest.server.luau
           test -f src/client/LobbyMentorVFX.client.luau
+          test -f src/client/LobbyStudioAudit.client.luau
           test -f src/shared/UnitIndexCatalog.luau
           test -f src/client/DanteUnitIndex.client.luau
           test -f src/server/DanteUnitIndexSmokeTest.server.luau
@@ -321,6 +322,8 @@ jobs:
           grep -q 'LOBBY MENTOR FX:' src/client/LobbyMentorVFX.client.luau
           grep -q 'ClientOnlyMentorGlow' src/client/LobbyMentorVFX.client.luau
           grep -q 'proximity-LOD' src/client/LobbyMentorVFX.client.luau
+          grep -q 'LOBBY STUDIO DIAGNOSTIC ready' src/client/LobbyStudioAudit.client.luau
+          grep -q 'OpenDialogue' src/client/LobbyStudioAudit.client.luau
 
       - name: Gerar arquivo Roblox
         run: |
