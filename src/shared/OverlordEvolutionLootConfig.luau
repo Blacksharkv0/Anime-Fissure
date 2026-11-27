@@ -5,6 +5,7 @@
 -- Does not enable real drops, pity, inventory, or evolution crafting.
 -- Carne Village's Magic Power Ring is designated for HARD farming.
 -- Other stages' eligible difficulties are intentionally UNDECIDED.
+local Rings = require(script.Parent:WaitForChild("RelicRingConfig"))
 local Loot = {}
 Loot.Version = "1.1.0"
 Loot.Status = "Planned_NoActiveDrops"
@@ -92,6 +93,8 @@ function Loot.GetPlannedPreview(stageId: string, difficulty: string): {any}
         if item.Difficulty == difficulty then
             table.insert(results, {
                 Id = item.Id, Name = item.Name, Type = item.Type,
+                Relic = item.Relic == true,
+                RelicDescription = if item.Relic then Rings.Get(item.Id).Description else nil,
                 Planned = true, Enabled = false, Chance = nil,
                 Pity = nil, Obtained = nil, ProgressConnected = false,
                 Difficulty = item.Difficulty,
