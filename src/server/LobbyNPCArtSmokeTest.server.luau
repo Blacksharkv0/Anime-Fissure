@@ -45,6 +45,32 @@ for _,entry in ipairs(expected) do
     end
     finished+=1
 end
+local raids=stations:FindFirstChild("RaidsStation")
+local hunter=if raids then raids:FindFirstChild("SungJinwooNPC") else nil
+assert(hunter and hunter:IsA("Model") and hunter:GetAttribute("CharacterReborn")=="Jinwoo-v1")
+local hunterHead=hunter:FindFirstChild("Head")
+assert(hunterHead and hunterHead:IsA("BasePart") and hunter.PrimaryPart==hunterHead)
+assert(hunterHead:FindFirstChild("Reborn_ShadowFace"))
+for _,name in ipairs({"Reborn_Fringe_0","Reborn_Lapel_1","Reborn_CoatTail_1",
+    "Reborn_Dagger_1_Core","Reborn_Dagger_-1_Edge","Reborn_ShadowWisp_1","HunterCircle1"}) do
+    local p=hunter:FindFirstChild(name)
+    assert(p and p:IsA("BasePart") and p.Anchored and not p.CanCollide
+        and not p.CanQuery and not p.CanTouch,"Jinwoo detail missing or unsafe: "..name)
+end
+local newParts=0
+for _,p in ipairs(hunter:GetChildren()) do
+    if p:IsA("BasePart") and string.sub(p.Name,1,7)=="Reborn_" then
+        newParts+=1
+        assert(p.Anchored and not p.CanCollide and not p.CanTouch and not p.CanQuery)
+    end
+end
+assert(newParts>=70 and newParts<=120,"Jinwoo cosmetic geometry budget: "..newParts)
+local interaction=raids:FindFirstChild("InteractionPoint")
+local raidPrompt=if interaction then interaction:FindFirstChild("LobbyServicePrompt") else nil
+assert(raidPrompt and raidPrompt:IsA("ProximityPrompt") and raidPrompt.Enabled and raidPrompt.ClickablePrompt)
+assert(raids:GetAttribute("GameplayActive")==false,"Art pass must not activate raids")
+print("[Anime Fissure] JINWOO REBORN SMOKE OK: "..newParts.." static cosmetic parts, raid prompt preserved")
+
 local event=stations:FindFirstChild("SeasonalEventHub")
 assert(event and event:GetAttribute("DisplayState")=="StudioPreviewOnly")
 local example=event:FindFirstChild("EscanorNPC")
