@@ -1,17 +1,18 @@
 --!strict
--- ANIME FISSURE | Relic Ring Model Lab (Studio only) v1.0
--- Inspect the actual 3D concepts in a ViewportFrame; no inventory,
--- rewards, equip actions or save data in this gallery.
+-- ANIME FISSURE | Babylon Relic Catalog v1.1
+-- In-lobby READ ONLY catalog, opens via Gilgamesh ProximityPrompt or button.
+-- 3D ring previews are safely built client-side outside Studio.
+-- No loot, fake ownership, equipping or currency operations.
 local Players=game:GetService("Players")
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local RunService=game:GetService("RunService")
 local Workspace=game:GetService("Workspace")
-if not RunService:IsStudio() then return end
 
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
 local Shared=ReplicatedStorage:WaitForChild("Shared")
 local Rings=require(Shared:WaitForChild("RelicRingConfig"))
+local RingBuilder=require(Shared:WaitForChild("RelicRingModelBuilder"))
 
 local old=playerGui:FindFirstChild("RelicRingGallery")
 if old then old:Destroy() end
@@ -62,7 +63,7 @@ end
 
 -- Third laboratory launch, below Overlord Models (y12) and
 -- Economy Items (y65); does not cover either existing button.
-local launch=button(gui,"OpenRings","✧ ANÉIS / RELÍQUIAS",
+local launch=button(gui,"OpenRings","✧ SALÃO DA BABILÔNIA",
     UDim2.fromOffset(218,38),UDim2.new(1,-230,0,119),P.Blue)
 local shade=panel(gui,"Backdrop",UDim2.fromScale(1,1),
     UDim2.fromScale(0,0),P.Dark)
@@ -73,7 +74,7 @@ local window=panel(shade,"RingLabWindow",UDim2.fromOffset(710,470),
 window.AnchorPoint=Vector2.new(0.5,0.5)
 local scaled=Instance.new("UIScale");scaled.Parent=window
 
-text(window,"Title","OVERLORD • RELÍQUIAS / EVOLUÇÃO",
+text(window,"Title","BABILÔNIA • CATÁLOGO DE RELÍQUIAS",
     UDim2.fromOffset(605,37),UDim2.fromOffset(16,11),22,P.Gold)
 local close=button(window,"Close","✕",UDim2.fromOffset(48,38),
     UDim2.fromOffset(647,10),P.Inner)
@@ -103,7 +104,7 @@ local origin=text(window,"Origin","",
 local ainz=text(window,"AinzRule","AINZ: sem bônus comum • material de evolução",
     UDim2.fromOffset(253,80),UDim2.fromOffset(441,302),12,P.Gold)
 local footer=text(window,"Note",
-    "Prévia Studio • 5 relíquias / materiais de evolução. Sem drops ativos ou inventário real.",
+    "CATÁLOGO • Sem drops ativos ou inventário real. Equipar e evoluir: em desenvolvimento.",
     UDim2.fromOffset(670,35),UDim2.fromOffset(18,432),12,P.Muted)
 
 local btns: {[string]: TextButton}={}
@@ -137,13 +138,16 @@ local function display()
         b.BackgroundColor3=if id==selected then P.Blue else P.Inner
     end
     world:ClearAllChildren()
-    if not templates then
-        footer.Text="Aguardando modelos 3D dos anéis no Studio..."
+    -- Outside Studio previews are built locally; no server equipment or
+    -- ownership state is inferred from having a preview model.
+    local source=if templates then templates:FindFirstChild(selected) else nil
+    local model=if source and source:IsA("Model")
+        then source:Clone() else RingBuilder.Build(selected)
+    if not model then
+        footer.Text="Prévia indisponível. Nenhum item foi alterado."
         return
     end
-    local source=templates:FindFirstChild(selected)
-    if not source or not source:IsA("Model") then return end
-    local model=source:Clone()
+    footer.Text="CATÁLOGO VISUAL • sem drops, inventário ou evolução ativos."
     model.Parent=world
     model:PivotTo(CFrame.Angles(0,yaw,0))
 end
@@ -182,10 +186,32 @@ RunService.RenderStepped:Connect(function(dt: number)
         model:PivotTo(CFrame.Angles(0,yaw,0))
     end
 end)
+-- Gilgamesh's proximity interaction opens the same UI as the launcher.
+-- Client-only trigger; no reward, equip or DataStore call is exposed.
 task.spawn(function()
-    local f=ReplicatedStorage:WaitForChild("RelicRingPreviewModels",40)
-    if f and f:IsA("Folder") then
-        templates=f; if shade.Visible then display() end
-    else warn("[Anime Fissure] Relic Ring Gallery: templates not loaded") end
+    local lobby=Workspace:WaitForChild("FissureLobby",60)
+    if not lobby or not lobby:IsA("Model") then return end
+    local hall=lobby:WaitForChild("BabylonHall",60)
+    if not hall or not hall:IsA("Model") then return end
+    local king=hall:WaitForChild("GilgameshNPC",15)
+    if not king then return end
+    local anchor=king:WaitForChild("RelicMasterInteraction",15)
+    if not anchor then return end
+    local prompt=anchor:FindFirstChild("BabylonRelicPrompt")
+    if prompt and prompt:IsA("ProximityPrompt") then
+        prompt.Triggered:Connect(function()
+            if player:GetAttribute("InArena")~=true then setOpen(true) end
+        end)
+    end
 end)
-print("[Anime Fissure] RELIC LAB STUDIO v1.0 | five authored ring models")
+
+if RunService:IsStudio() then
+    task.spawn(function()
+        local f=ReplicatedStorage:WaitForChild("RelicRingPreviewModels",12)
+        if f and f:IsA("Folder") then
+            templates=f
+            if shade.Visible then display() end
+        end
+    end)
+end
+print("[Anime Fissure] BABYLON RELIC CATALOG v1.1 | readonly 3D ring previews")
