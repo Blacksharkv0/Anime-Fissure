@@ -9,9 +9,10 @@
 local RS=game:GetService("ReplicatedStorage")
 local RingModelBuilder=require(RS:WaitForChild("Shared"):WaitForChild("RelicRingModelBuilder"))
 local RingConfig=require(RS:WaitForChild("Shared"):WaitForChild("RelicRingConfig"))
+local NPCArt=require(RS:WaitForChild("Shared"):WaitForChild("LobbyNPCArtFinish"))
 
 local Hall={}
-Hall.Version="1.0.0"
+Hall.Version="1.1.0"
 Hall.Center=Vector3.new(347,0,19)
 Hall.NPCCenter=Vector3.new(355,0,20)
 Hall.PortalCount=11
@@ -413,6 +414,7 @@ local function king(root: Model)
     local crown=item("RegalHairCrown",Vector3.new(1.78,0.43,1.33),0,9.22,0.1,
         COLOR.Gold,Enum.Material.Metal)
     folder.PrimaryPart=head
+    NPCArt.ApplyGilgamesh(folder,facing)
     -- Interaction collider is an invisible anchor in FRONT of the NPC,
     -- so players do not need to jump onto the display pedestal.
     local promptPart=block(folder,"RelicMasterInteraction",Vector3.new(2,4,2),
