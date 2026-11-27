@@ -1,4 +1,4 @@
-# Anime Fissure — Lobby multiversal: funções, NPCs e Praça de Eventos v1.0
+# Anime Fissure — Lobby multiversal: funções, NPCs e Praça de Eventos v1.1
 
 **Data:** 26/11/2026 · **Estado:** protótipos 3D e painéis de consulta publicados no GitHub, ainda sem playtest confirmado em Roblox Studio. Nenhuma evolução, raid, reroll ou evento foi ativado.
 
@@ -8,7 +8,8 @@ O lobby é um ponto de encontro entre universos. Cada NPC terá **uma especializ
 
 | Personagem | Papel definitivo | Local | Situação real do código |
 |---|---|---|---|
-| **Virgil** | Summon (e Warp, se esse fluxo vier a ser conectado) | Estação existente à esquerda, x≈233,z≈−2 | Summon protótipo já existente, não alterado |
+| **Vergil (Virgil no código)** | Summon (e Warp, se esse fluxo vier a ser conectado) | Estação existente à esquerda, x≈233,z≈−2 | Summon protótipo já existente, não alterado |
+| **Dante** (*Devil May Cry*) | **Index universal das unidades**: personagens, raridades, mundos e origem, sem posse falsa | Arquivo dos Caçadores, ao lado do Vergil, x247,z−8 | NPC estático + interface de Index com 8 registros oficiais de catálogo; coleção pessoal não conectada |
 | **Edward Elric** | Loja/crafting alquímico, orbes e materiais | Oficina existente à direita, x≈301,z≈−8 | Alquimia com crafting bloqueado; NÃO administra relíquias |
 | **Gilgamesh** | **TODAS as relíquias**, equipamento, aprimoramento da própria relíquia e reroll de relíquias | Salão da Babilônia, anexo direito, NPC x≈356,z≈20 | Catálogo universal somente leitura |
 | **Whis** (*Dragon Ball Super*) | **Evolução de TODOS os personagens**, independentemente de anime ou de material consumido | Santuário da Ascensão, x≈290,z≈33 | NPC estático + painel, sem evolução ativa |
@@ -57,7 +58,7 @@ Halo azul + dourado e espaço livre para NPC/props temáticos. O visual permanen
 
 1. O jogador chega em `LobbySpawn` na praça.
 2. O **Portal das Fissuras** oferece a história disponível.
-3. À esquerda: Virgil (Summon), Urahara (Traits).
+3. À esquerda: Vergil (Summon), **Dante (Index)** e Urahara (Traits).
 4. À direita: Edward (Alquimia), Whis (Evolução), Salão da Babilônia/Gilgamesh (Relíquias).
 5. Perto do portal: Jinwoo (Desafios e Raids).
 6. No centro: a **Praça dos Eventos**, que muda de anfitrião entre temporadas.
@@ -75,7 +76,7 @@ Halo azul + dourado e espaço livre para NPC/props temáticos. O visual permanen
 
 ## Outros pontos possivelmente esquecidos (não construídos nesta entrega)
 
-1. **Coleção / Decks salvos**: possuir, ordenar, travar e selecionar suas seis unidades; importante para conectar Evolução/Traits/Relíquias.
+1. **Coleção / Decks salvos**: possuir, ordenar, travar e selecionar suas seis unidades; importante para conectar Evolução/Traits/Relíquias. O **Index do Dante já existe** como enciclopédia de todas as unidades registradas, mas **não representa posse**.
 2. **Missões diárias e semanais**: desafios curtos e recompensas; podem ter um mural separado de Raids.
 3. **Recompensas de login, conquistas e códigos**: para retenção, com dados persistentes, controles de abuso e UI clara.
 4. **Ranking e progresso**: nível da conta, vitórias, coleção, histórico de raids e títulos; priorizar depois das mecânicas básicas.
@@ -87,7 +88,7 @@ Não multiplicar NPCs sem necessidade: coleção/decks pode entrar no HUD global
 
 - [ ] Build GitHub Actions verde e arquivo `.rbxlx` aberto em Studio.
 - [ ] Virgil, Edward, Gilgamesh, portal Story e spawn permanecem no lugar.
-- [ ] Whis, Urahara e Jinwoo têm pedestais e prompts visíveis no PC/gamepad/mobile.
+- [ ] Whis, Urahara, Jinwoo e **Dante** têm pedestais e prompts visíveis no PC/gamepad/mobile.
 - [ ] Escanor aparece como **EXEMPLO NÃO ATIVO** apenas no Studio; fora dele, praça neutra.
 - [ ] Praça de evento não bloqueia o corredor nem sobrepõe Edward.
 - [ ] Cada estação abre um painel informativo, **sem alterações de itens, moedas ou unidades**.
@@ -96,3 +97,26 @@ Não multiplicar NPCs sem necessidade: coleção/decks pode entrar no HUD global
 - [ ] FPS e colisões conferidos no Device Emulator do Roblox.
 
 **Direitos de terceiros:** Whis, Kisuke Urahara, Sung Jinwoo, Gilgamesh, Edward, Virgil, Escanor e outras referências pertencem a seus respectivos criadores/titulares. Modelos de laboratório não autorizam uso comercial dessas marcas; antes de publicar publicamente, verificar licenças ou trocar por NPCs originais com funções equivalentes.
+
+## Index do Dante — criado em 27/11/2026
+
+**Função diferente de Vergil**: Vergil invoca, Dante mostra **o arquivo de unidades**. Atualmente o Index lê `OverlordUnitRoster.luau` (6 personagens) e `CapsuleUnitConfig.luau` (2 versões), com raridade, universo, método planejado de obtenção e status, sem assumir que o jogador possui qualquer uma delas. Um personagem cadastrado no Index **não está automaticamente disponível no Summon**, especialmente Ainz e Capsule Corp.
+
+**Lugar**: `Vector3.new(247,0,-8)`, aproximadamente ao lado leste do stand do Vergil, no vão entre a borda x237,5 da estação de Summon e a borda x254,75 do corredor central. Planta e colisão final pendentes de playtest.
+
+**Arte**: Dante de *Devil May Cry*, versão estilizada 3D de Parts (protótipo estático), casaco vermelho, cabelos prateados, arma nas costas, núcleo/livro vermelho de registros, ao lado do irmão Vergil. O menu usa vinho/ô-nix/rubi, com filtros Todos, Overlord e Dragon Ball.
+
+**Código**:
+- `src/shared/UnitIndexCatalog.luau`: catálogo seguro de unidades de todos os mundos, sem inventário, raridade ou banner inventados.
+- `src/shared/LobbyServiceConfig.luau`: quarta estação `Index`, `NPC="Dante"`.
+- `src/server/LobbyServiceBuilder.luau`: stand 3D e NPC de Dante no lobby.
+- `src/client/DanteUnitIndex.client.luau`: Index somente leitura, acionado por interação validada no servidor.
+- `src/client/LobbyServiceStationsUI.client.luau`: não abre a janela genérica quando a interação for com Dante.
+- `src/server/DanteUnitIndexSmokeTest.server.luau`: oito unidades e exclusão de posse fictícia, mantendo Jinwoo como responsável pelas raids.
+- `src/server/LobbyServiceStationsSmokeTest.server.luau`: verifica **quatro NPCs de serviço + palco de evento**, posição e exclusividade.
+
+**Raids e desafios não foram esquecidos**: **Sung Jinwoo** continua no Portão dos Caçadores, para desafios e raids permanentes. O personagem rotativo da Praça dos Eventos apresenta exclusivamente a raid do seu evento, quando existir.
+
+**Dante** é o sétimo NPC fixo: Vergil, Dante, Edward, Gilgamesh, Whis, Urahara e Jinwoo; além do oitavo **posto sazonal** sem personagem fixo.
+
+**Limitações**: modelos de NPC ainda procedurais/estáticos; Index não demonstra unidade possuída ou descoberta e não concede unidades. O sistema de Coleção/Decks segue futuro e separado.
