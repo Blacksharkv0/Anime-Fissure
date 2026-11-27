@@ -210,44 +210,130 @@ end
 
 function Art.ApplyGilgamesh(npc: Model,cf: CFrame)
     if npc:GetAttribute("ArtFinish") then return end
-    -- Gilgamesh uses a taller figure than the other NPCs. Only add
-    -- ornaments, not copies of the already-built body parts.
+    -- Replace the old blockout's visible geometry while preserving the
+    -- original head/pivot, solid pedestal and independently validated prompt.
+    local gold=Color3.fromRGB(210,150,41)
+    local light=Color3.fromRGB(255,226,146)
+    local brass=Color3.fromRGB(124,78,27)
+    local dark=Color3.fromRGB(30,25,35)
+    local crimson=Color3.fromRGB(136,23,40)
+    local red=Color3.fromRGB(200,39,58)
+    local skin=Color3.fromRGB(244,208,169)
+    local hair=Color3.fromRGB(247,202,83)
+    local hairShade=Color3.fromRGB(183,120,35)
+    local function p(name: string,s: Vector3,x: number,y: number,z: number,
+        color: Color3,rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?)
+        return add(npc,name,s,cf,x,y,z,color,mat or Enum.Material.Metal,
+            Vector3.new(rx or 0,ry or 0,rz or 0),shape)
+    end
+    for _,part in ipairs(npc:GetChildren()) do
+        if part:IsA("BasePart") and not part.CanCollide
+            and part.Name~="RegalHead" then
+            part.Transparency=1
+        end
+    end
+    local head=npc:FindFirstChild("RegalHead")
+    if head and head:IsA("BasePart") then
+        head.Size=Vector3.new(1.52,1.65,1.37)
+        head.Color=skin
+        local mesh=Instance.new("SpecialMesh")
+        mesh.Name="Reborn_RegalFaceMesh"
+        mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+        local face=Instance.new("SurfaceGui")
+        face.Name="Reborn_RoyalFace";face.Face=Enum.NormalId.Front
+        face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud
+        face.PixelsPerStud=160;face.LightInfluence=.15;face.Parent=head
+        local canvas=Instance.new("Frame")
+        canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+        local function mark(name: string,x: number,y: number,w: number,h: number,col: Color3,rot: number)
+            local f=Instance.new("Frame")
+            f.Name=name;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,h)
+            f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot;f.Parent=canvas
+            local corner=Instance.new("UICorner");corner.CornerRadius=UDim.new(.22,0);corner.Parent=f
+        end
+        for side=-1,1,2 do
+            local x=if side==-1 then .18 else .58
+            local tilt=if side==-1 then 12 else -12
+            mark("EyeLine_"..side,x,.37,.24,.14,dark,tilt)
+            mark("EyeWhite_"..side,x+.014,.395,.21,.09,C.White,tilt)
+            mark("CrimsonIris_"..side,x+.083,.375,.075,.122,red,0)
+            mark("SlitPupil_"..side,x+.112,.383,.022,.108,dark,0)
+            mark("EyeGlint_"..side,x+.091,.39,.02,.022,C.White,0)
+            mark("Brow_"..side,x-.004,.28,.25,.049,hairShade,tilt)
+        end
+        mark("Nose",.492,.52,.036,.13,Color3.fromRGB(194,143,117),-8)
+        mark("RoyalSmirk",.42,.74,.19,.028,Color3.fromRGB(97,55,45),-9)
+    end
+    -- Golden hair swept upward. No oversized crown: the hair itself is
+    -- the distinctive royal silhouette.
+    p("Reborn_HairBase",Vector3.new(1.65,.76,1.48),0,8.97,-.02,hairShade,0,0,0,"Ball",Enum.Material.SmoothPlastic)
+    p("Reborn_HairCrown",Vector3.new(1.65,.60,1.38),0,9.13,-.06,hair,0,0,0,"Ball",Enum.Material.SmoothPlastic)
+    for i=-3,3 do
+        p("Reborn_SweptHair_"..i,Vector3.new(.34,.94+(.10-math.abs(i)*.025),.67),
+            i*.22,9.48-math.abs(i)*.04,-.14,hair,-24,0,-i*11,"Wedge",Enum.Material.SmoothPlastic)
+        p("Reborn_HairHighlight_"..i,Vector3.new(.15,.75,.29),i*.22,9.53,-.30,
+            light,-24,0,-i*11,"Wedge",Enum.Material.SmoothPlastic)
+    end
     for side=-1,1,2 do
-        add(npc,"ImperialPauldron_"..side,Vector3.new(1.53,.60,1.93),
-            cf,side*2.13,6.92,-.14,C.Champagne,Enum.Material.Metal,
-            Vector3.new(0,0,side*10),"Wedge")
-        add(npc,"RoyalGauntlet_"..side,Vector3.new(1.04,.84,1.23),
-            cf,side*2.15,3.73,-.12,C.Gold,Enum.Material.Metal)
-        add(npc,"RoyalGem_"..side,Vector3.new(.42,.43,.24),
-            cf,side*2.18,5.62,-.68,C.Ruby,Enum.Material.Glass,nil,"Ball")
-        add(npc,"RoyalBootSpur_"..side,Vector3.new(.70,.24,1.20),
-            cf,side*.92,.65,-.57,C.Champagne,Enum.Material.Metal)
-        add(npc,"HairSideFang_"..side,Vector3.new(.47,1.16,.55),
-            cf,side*.90,8.95,.04,C.Gold,nil,Vector3.new(0,0,side*24),"Wedge")
-        add(npc,"RubyPupil_"..side,Vector3.new(.18,.20,.09),
-            cf,side*.40,8.55,-.94,C.Ruby,Enum.Material.Neon,nil,"Ball")
-        add(npc,"GoldenBrow_"..side,Vector3.new(.51,.10,.14),
-            cf,side*.41,8.86,-.92,C.Gold,Enum.Material.Metal,
-            Vector3.new(0,0,side*-9))
+        p("Reborn_Temple_"..side,Vector3.new(.25,.66,.52),side*.72,8.68,.11,hair,7,0,side*18,"Wedge",Enum.Material.SmoothPlastic)
+        p("Reborn_Ear_"..side,Vector3.new(.20,.38,.31),side*.76,8.20,.02,skin,0,0,0,"Ball",Enum.Material.SmoothPlastic)
+        p("Reborn_RoyalEarring_"..side,Vector3.new(.17,.36,.18),side*.81,7.94,-.04,light,0,0,0,"Ball")
+        -- Legacy marker names remain present for existing Studio diagnostics.
+        p("GoldenBrow_"..side,Vector3.new(.28,.06,.05),side*.40,8.70,-.82,hairShade,0,0,side*-8,nil,Enum.Material.SmoothPlastic).Transparency=1
     end
-    add(npc,"RoyalPectoral",Vector3.new(2.08,.44,.18),
-        cf,0,6.52,-.85,C.Champagne,Enum.Material.Metal)
-    add(npc,"RoyalChestSigil",Vector3.new(.42,.58,.19),
-        cf,0,6.17,-1.04,C.Ruby,Enum.Material.Glass,
-        Vector3.new(0,0,45))
-    for i=1,5 do
-        add(npc,"RoyalBreastplateRidge_"..i,Vector3.new(1.7,.065,.12),
-            cf,0,6.19-(i*.19),-.84,C.Champagne,Enum.Material.Metal)
+    p("Reborn_Neck",Vector3.new(.88,.80,.85),0,7.42,0,skin,0,0,0,"Ball",Enum.Material.SmoothPlastic)
+    p("Reborn_UnderSuit",Vector3.new(2.27,2.95,1.32),0,5.56,0,dark,0,0,0,nil,Enum.Material.Fabric)
+    p("Reborn_Backplate",Vector3.new(2.34,2.28,.48),0,5.70,.49,brass,0,0,0,"Ball")
+    p("Reborn_ChestCore",Vector3.new(2.48,1.82,1.46),0,6.02,-.07,gold,0,0,0,"Ball")
+    p("Reborn_Gorget",Vector3.new(1.63,.31,1.12),0,7.02,0,light,0,0,0)
+    for side=-1,1,2 do
+        p("Reborn_Pectoral_"..side,Vector3.new(1.19,.83,.49),side*.57,6.29,-.63,light,0,side*13,side*11,"Ball")
+        p("Reborn_ChestEdge_"..side,Vector3.new(.12,1.02,.15),side*.93,6.05,-.73,brass,0,0,side*-25)
+        for i=1,4 do
+            p("Reborn_AbdominalPlate_"..side.."_"..i,Vector3.new(.93-i*.08,.34,.29),
+                side*(.48-i*.04),5.65-i*.30,-.64,gold,0,side*8,side*-7,"Wedge")
+        end
+        -- Overlapping shoulder lames taper into an articulated-looking arm.
+        p("ImperialPauldron_"..side,Vector3.new(1.69,.89,1.64),side*1.81,6.59,.02,light,0,0,side*-15,"Ball")
+        for i=1,3 do
+            p("Reborn_ShoulderLame_"..side.."_"..i,Vector3.new(1.12-i*.12,.45,1.28-i*.08),
+                side*(1.86+i*.10),6.45-i*.23,-.02,if i==1 then gold else brass,0,0,side*-14,"Wedge")
+        end
+        p("Reborn_Bicep_"..side,Vector3.new(.78,1.30,.83),side*2.04,5.56,0,dark,0,0,side*-5,"Ball",Enum.Material.Fabric)
+        p("Reborn_UpperArmPlate_"..side,Vector3.new(.80,.87,.81),side*2.04,5.68,-.02,gold,0,0,side*-5,"Ball")
+        p("Reborn_ElbowJoint_"..side,Vector3.new(.70,.34,.72),side*2.06,4.92,0,dark,0,0,0,"Ball")
+        p("Reborn_Vambrace_"..side,Vector3.new(.91,1.19,.92),side*2.08,4.37,-.01,gold,0,0,side*4,"Ball")
+        p("Reborn_VambraceRidge_"..side,Vector3.new(.43,.96,.19),side*2.08,4.38,-.43,light,0,0,0,"Wedge")
+        p("Reborn_WristRing_"..side,Vector3.new(.83,.20,.85),side*2.08,3.77,0,brass)
+        p("Reborn_Gauntlet_"..side,Vector3.new(.66,.63,.73),side*2.08,3.36,-.07,gold,0,0,0,"Ball")
+        for i=1,4 do
+            p("Reborn_Knuckle_"..side.."_"..i,Vector3.new(.12,.25,.16),side*2.08+(i-2.5)*.14,3.28,-.40,light,0,0,0,"Ball")
+        end
+        p("Reborn_Thumb_"..side,Vector3.new(.19,.36,.19),side*1.76,3.35,-.15,gold,0,0,side*-18,"Ball")
+        -- Waist tassets and greaves, with visible dark joints.
+        p("Reborn_HipPlate_"..side,Vector3.new(1.09,.83,1.16),side*.81,4.07,.02,gold,0,0,side*9,"Ball")
+        for i=1,3 do
+            p("Reborn_Tasset_"..side.."_"..i,Vector3.new(.72,.38,.32),side*(.92+i*.045),3.82-i*.26,-.62,
+                if i==1 then light else gold,0,side*10,side*8,"Wedge")
+        end
+        p("Reborn_Thigh_"..side,Vector3.new(.98,1.55,1.04),side*.83,3.04,0,dark,0,0,0,"Ball",Enum.Material.Fabric)
+        p("Reborn_ThighPlate_"..side,Vector3.new(.90,1.15,.46),side*.83,3.10,-.39,gold,0,0,side*5,"Ball")
+        p("Reborn_Knee_"..side,Vector3.new(.81,.55,.77),side*.83,2.36,-.12,light,0,0,0,"Ball")
+        p("Reborn_Greave_"..side,Vector3.new(.94,1.43,.94),side*.83,1.60,0,gold,0,0,0,"Ball")
+        p("Reborn_GreaveRidge_"..side,Vector3.new(.34,1.26,.22),side*.83,1.56,-.47,light,0,0,0,"Wedge")
+        p("Reborn_Boot_"..side,Vector3.new(1.08,.53,1.60),side*.83,.78,-.27,gold,0,0,0,"Ball")
+        p("Reborn_BootSole_"..side,Vector3.new(1.07,.14,1.52),side*.83,.54,-.27,brass)
+        -- Red cloth panels are separated from armor, with dark inner folds.
+        p("Reborn_RedCloth_"..side,Vector3.new(.86,3.43,.17),side*.85,2.40,.72,crimson,-7,0,side*8,nil,Enum.Material.Fabric)
+        p("Reborn_ClothFold_"..side,Vector3.new(.18,3.23,.10),side*1.02,2.39,.84,red,-7,0,side*8,nil,Enum.Material.Fabric)
     end
-    add(npc,"RoyalDiadem",Vector3.new(1.75,.30,1.16),
-        cf,0,9.17,-.12,C.Champagne,Enum.Material.Metal)
-    for i=1,7 do
-        add(npc,"RegalCrownSpire_"..i,Vector3.new(.27,.95,.42),
-            cf,(i-4)*.27,9.58+(i%2)*.14,-.05,C.Gold,
-            Enum.Material.Metal,Vector3.new(0,0,(i-4)*-5),"Wedge")
-    end
-    halo(npc,"BabylonGoldSigil",cf,Vector3.new(0,9.82,1.13),
-        2.26,C.Champagne,16,.08)
+    p("Reborn_RoyalBelt",Vector3.new(2.33,.34,1.40),0,4.24,0,brass)
+    p("Reborn_BeltClasp",Vector3.new(.65,.47,.20),0,4.24,-.78,light,0,0,45)
+    p("RoyalChestSigil",Vector3.new(.38,.51,.23),0,6.20,-.88,C.Ruby,0,0,45,nil,Enum.Material.Glass)
+    p("Reborn_SigilRim",Vector3.new(.55,.64,.13),0,6.20,-.79,light,0,0,45)
+    -- Restrained halo located behind the hair; the hall retains its 11 portals.
+    halo(npc,"BabylonGoldSigil",cf,Vector3.new(0,9.55,1.30),1.92,C.Champagne,16,.055)
+    npc:SetAttribute("CharacterReborn","Gilgamesh-v1")
     npc:SetAttribute("ArtFinish",Art.Version)
 end
 
