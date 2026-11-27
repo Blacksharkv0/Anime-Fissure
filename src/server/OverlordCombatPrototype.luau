@@ -8,6 +8,7 @@
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TowerConfig"))
+local Rings = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RelicRingConfig"))
 
 local Combat = {}
 local RNG = Random.new()
@@ -119,8 +120,10 @@ function Combat.Attack(t: any, target: any, targets: {any},
     local critical = RNG:NextNumber() < critChance
     if critical then damage *= critMultiplier end
 
-    local damageType = if t.Id == "OVL_Ainz" or t.Id == "OVL_Albedo"
-        then "Magic" else "Physical"
+    -- Match the same element used by the equipment rules, rather than
+    -- classifying Albedo as Magic while her TowerConfig says Physical.
+    local def=Config.Get(t.Id)
+    local damageType=if def and def.Element=="Magic" then "Magic" else "Physical"
 
     local hit = enemyService.DamageEnemy(matchId, target.Serial,
         capped(damage), damageType, player)
@@ -161,6 +164,10 @@ function Combat.AddBloodOnKill(owners: {[number]: any}, where: Vector3)
         for _, t in pairs(owner.Towers) do
             if t.Id == "OVL_Shalltear" then
                 local stats = Config.GetStats(t.Id, t.Level)
+                local def = Config.Get(t.Id)
+                if stats and def then
+                    stats = Rings.ApplyStats(stats,t.Id,def.Element,t.RelicId)
+                end
                 if stats and (t.Position - where).Magnitude <= stats.Range then
                     t.Blood = math.min(5, (t.Blood or 0) + 1)
                 end
