@@ -86,6 +86,12 @@ jobs:
           test -f src/shared/StageInfoConfig.luau
           test -f src/shared/StoryRewardConfig.luau
           test -f src/shared/OverlordEvolutionLootConfig.luau
+          test -f src/shared/RelicRingConfig.luau
+          test -f src/shared/RelicRingModelBuilder.luau
+          test -f src/client/RelicRingGallery.client.luau
+          test -f src/client/RelicRingEquipVisuals.client.luau
+          test -f src/server/RelicRingModels.server.luau
+          test -f src/server/RelicRingSmokeTest.server.luau
           test -f src/server/OverlordEvolutionLootSmokeTest.server.luau
           test -f src/client/SummonCinematic.client.luau
           test -f src/shared/GameConfig.luau
@@ -187,8 +193,21 @@ jobs:
           grep -q 'RestrictionRing' src/shared/OverlordEvolutionLootConfig.luau
           grep -q 'return false' src/shared/OverlordEvolutionLootConfig.luau
           grep -q 'PlannedEvolutionItems' src/shared/StageInfoConfig.luau
-          grep -q 'EVOLUCAO • PLANEJADOS' src/client/StageIntelPanel.luau
+          grep -q 'EVOLUCAO / RELIQUIAS • PLANEJADOS' src/client/StageIntelPanel.luau
           grep -q 'OVERLORD EVOLUTION LOOT TEST OK' src/server/OverlordEvolutionLootSmokeTest.server.luau
+
+      - name: Validar relíquias de evolução e buffs apenas fora do Ainz
+        run: |
+          grep -q 'Rings.SlotsPerTower=1' src/shared/RelicRingConfig.luau
+          grep -q 'unitId=="OVL_Ainz"' src/shared/RelicRingConfig.luau
+          grep -q 'result.Damage=math.floor(result.Damage\*1.20' src/shared/RelicRingConfig.luau
+          grep -q 'result.SPA=math.floor(result.SPA\*2' src/shared/RelicRingConfig.luau
+          grep -q 'return Rings.ApplyStats(stats,t.Id,def.Element,t.RelicId)' src/server/TowerService.luau
+          grep -q 'action == "EquipRelic"' src/server/TowerService.luau
+          grep -q 'not RunService:IsStudio()' src/server/TowerService.luau
+          grep -q 'CycleRelic' src/client/TowerHUD.client.luau
+          grep -q 'Builder.BuildAll(ReplicatedStorage)' src/server/RelicRingModels.server.luau
+          grep -q 'RELIC RINGS STUDIO OK' src/server/RelicRingSmokeTest.server.luau
 
       - name: Gerar arquivo Roblox
         run: |
