@@ -45,6 +45,33 @@ for _,entry in ipairs(expected) do
     end
     finished+=1
 end
+local evolution=stations:FindFirstChild("EvolutionStation")
+local whis=if evolution then evolution:FindFirstChild("WhisNPC") else nil
+assert(whis and whis:IsA("Model") and whis:GetAttribute("CharacterReborn")=="Whis-v1")
+local whisHead=whis:FindFirstChild("Head")
+assert(whisHead and whisHead:IsA("BasePart") and whis.PrimaryPart==whisHead)
+assert(whisHead:FindFirstChild("Reborn_WhisFace"))
+for _,name in ipairs({"Reborn_WhisHairTip","Reborn_WhisTabard","DiamondRobe_1",
+    "AngelicSash","AngelCuff_1","NeckRingPremium32","Reborn_WhisRingRim32",
+    "Reborn_WhisStaffShaft","Reborn_WhisStaffOrb","Reborn_WhisStaffOrbit20","StaffSunCore"}) do
+    local p=whis:FindFirstChild(name)
+    assert(p and p:IsA("BasePart") and p.Anchored and not p.CanCollide
+        and not p.CanQuery and not p.CanTouch,"Whis detail missing or unsafe: "..name)
+end
+local whisParts=0
+for _,p in ipairs(whis:GetChildren()) do
+    if p:IsA("BasePart") and string.sub(p.Name,1,7)=="Reborn_" then
+        whisParts+=1
+        assert(p.Anchored and not p.CanCollide and not p.CanQuery and not p.CanTouch)
+    end
+end
+assert(whisParts>=95 and whisParts<=150,"Whis cosmetic geometry budget: "..whisParts)
+local evolutionAnchor=evolution:FindFirstChild("InteractionPoint")
+local evolutionPrompt=if evolutionAnchor then evolutionAnchor:FindFirstChild("LobbyServicePrompt") else nil
+assert(evolutionPrompt and evolutionPrompt:IsA("ProximityPrompt") and evolutionPrompt.Enabled and evolutionPrompt.ClickablePrompt)
+assert(evolution:GetAttribute("GameplayActive")==false,"Art pass must not activate evolution")
+print("[Anime Fissure] WHIS REBORN SMOKE OK: "..whisParts.." static cosmetic parts, evolution prompt preserved")
+
 local index=stations:FindFirstChild("IndexStation")
 local dante=if index then index:FindFirstChild("DanteNPC") else nil
 assert(dante and dante:IsA("Model") and dante:GetAttribute("CharacterReborn")=="Dante-v1")
