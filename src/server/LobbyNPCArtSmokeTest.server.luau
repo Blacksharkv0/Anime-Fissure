@@ -45,6 +45,33 @@ for _,entry in ipairs(expected) do
     end
     finished+=1
 end
+local traits=stations:FindFirstChild("TraitsStation")
+local urahara=if traits then traits:FindFirstChild("KisukeUraharaNPC") else nil
+assert(urahara and urahara:IsA("Model") and urahara:GetAttribute("CharacterReborn")=="Urahara-v1")
+local uraharaHead=urahara:FindFirstChild("Head")
+assert(uraharaHead and uraharaHead:IsA("BasePart") and urahara.PrimaryPart==uraharaHead)
+assert(uraharaHead:FindFirstChild("Reborn_UraharaFace"))
+for _,name in ipairs({"Reborn_UraharaHatCrown","Reborn_UraharaHatStripe_15",
+    "Reborn_UraharaBrimPanel_15","HatDroop_1","SandySideHair_1","KimonoLapels_1",
+    "Reborn_UraharaHemDiamond_1_3","Reborn_UraharaGeta_1","FoldedFanLeaf_9","Reborn_UraharaFanRib_9"}) do
+    local p=urahara:FindFirstChild(name)
+    assert(p and p:IsA("BasePart") and p.Anchored and not p.CanCollide
+        and not p.CanQuery and not p.CanTouch,"Urahara detail missing or unsafe: "..name)
+end
+local uraharaParts=0
+for _,p in ipairs(urahara:GetChildren()) do
+    if p:IsA("BasePart") and string.sub(p.Name,1,7)=="Reborn_" then
+        uraharaParts+=1
+        assert(p.Anchored and not p.CanCollide and not p.CanQuery and not p.CanTouch)
+    end
+end
+assert(uraharaParts>=90 and uraharaParts<=150,"Urahara cosmetic geometry budget: "..uraharaParts)
+local traitsAnchor=traits:FindFirstChild("InteractionPoint")
+local traitsPrompt=if traitsAnchor then traitsAnchor:FindFirstChild("LobbyServicePrompt") else nil
+assert(traitsPrompt and traitsPrompt:IsA("ProximityPrompt") and traitsPrompt.Enabled and traitsPrompt.ClickablePrompt)
+assert(traits:GetAttribute("GameplayActive")==false,"Art pass must not activate Trait rerolls")
+print("[Anime Fissure] URAHARA REBORN SMOKE OK: "..uraharaParts.." static cosmetic parts, Traits prompt preserved")
+
 local evolution=stations:FindFirstChild("EvolutionStation")
 local whis=if evolution then evolution:FindFirstChild("WhisNPC") else nil
 assert(whis and whis:IsA("Model") and whis:GetAttribute("CharacterReborn")=="Whis-v1")
