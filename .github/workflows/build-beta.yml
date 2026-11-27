@@ -24,6 +24,30 @@ jobs:
       - name: Baixar repositorio
         uses: actions/checkout@v4
 
+      - name: Validar sintaxe Luau de todos os scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools_dir="$RUNNER_TEMP/luau-0.690"
+          mkdir -p "$tools_dir"
+          curl --fail --location --retry 3 https://github.com/luau-lang/luau/releases/download/0.690/luau-ubuntu.zip -o "$tools_dir/luau.zip"
+          unzip -q "$tools_dir/luau.zip" -d "$tools_dir"
+          compiler="$tools_dir/luau-compile"
+          test -f "$compiler"
+          chmod +x "$compiler"
+          count=0
+          failed=0
+          while IFS= read -r -d '' file; do
+            count=$((count+1))
+            if ! "$compiler" --null "$file"; then
+              echo "::error file=$file::Falha de compilacao Luau"
+              failed=$((failed+1))
+            fi
+          done < <(find src -type f \( -name '*.luau' -o -name '*.lua' \) -print0)
+          echo "Luau: $count scripts verificados; $failed falhas"
+          test "$count" -gt 0
+          test "$failed" -eq 0
+
       - name: Instalar Rojo
         run: |
           cargo install rojo --version 7.5.1 --locked
