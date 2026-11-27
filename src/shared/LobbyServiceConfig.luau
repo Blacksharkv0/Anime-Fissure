@@ -56,7 +56,7 @@ Config.Order={"Evolution","Traits","Raids"}
 Config.EventHub={
     Id="EventHub",Name="PRAÇA DOS EVENTOS",Title="EVENTO SAZONAL",
     Action="VER EVENTOS",NPC="A definir",
-    Position=Vector3.new(272,0,8),
+    Position=Vector3.new(270.6,0,8),
     Accent=Color3.fromRGB(250,186,98),
     Subtitle="O anfitrião muda conforme o evento ativo",
     Description="Um personagem temporário de anime ocupa o centro e apresenta sua Raid ou missão sazonal.",
