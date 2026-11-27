@@ -47,6 +47,9 @@ jobs:
           test -f src/server/LobbyVisualPolish.server.luau
           test -f src/server/NPCResidents.server.luau
           test -f src/shared/LobbyServiceConfig.luau
+          test -f src/shared/LobbyNPCArtFinish.luau
+          test -f src/server/LobbyNPCArtSmokeTest.server.luau
+          test -f src/client/LobbyMentorVFX.client.luau
           test -f src/shared/UnitIndexCatalog.luau
           test -f src/client/DanteUnitIndex.client.luau
           test -f src/server/DanteUnitIndexSmokeTest.server.luau
@@ -301,6 +304,23 @@ jobs:
             echo "ERRO: o Index de Dante nao pode escrever no servidor"
             exit 1
           fi
+
+      - name: Auditar detalhes dos sete NPCs e efeitos de lobby
+        run: |
+          grep -q 'Art.Version="1.0.0"' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'Art.ApplyService(npc,kind,frame,station)' src/server/LobbyServiceBuilder.luau
+          grep -q 'NPCArt.ApplyGilgamesh(folder,facing)' src/server/BabylonHallBuilder.luau
+          grep -q 'CrimsonLongCoat' src/server/LobbyServiceBuilder.luau
+          grep -q 'DanteBangs_' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'FoldedFanLeaf_' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'ObsidianPauldron_' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'NeckRingPremium' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'BabylonGoldSigil' src/shared/LobbyNPCArtFinish.luau
+          grep -q 'twinHunterEmblem(root)' src/server/LobbyServiceBuilder.luau
+          grep -q 'PREMIUM LOBBY ART SMOKE OK' src/server/LobbyNPCArtSmokeTest.server.luau
+          grep -q 'LOBBY MENTOR FX:' src/client/LobbyMentorVFX.client.luau
+          grep -q 'ClientOnlyMentorGlow' src/client/LobbyMentorVFX.client.luau
+          grep -q 'proximity-LOD' src/client/LobbyMentorVFX.client.luau
 
       - name: Gerar arquivo Roblox
         run: |
