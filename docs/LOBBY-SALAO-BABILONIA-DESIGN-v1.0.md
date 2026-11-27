@@ -48,7 +48,7 @@ Inspecionado em `src/server/BetaLobby.server.luau`:
                   |                         \
            Lobby Spawn                      vitrines (5 anéis)
                                              |            |
-                                        Gilgamesh     altar de evolução
+                                        Gilgamesh     forja de relíquias
                                              |
                                          tela de relíquias
 
@@ -68,7 +68,7 @@ Inspecionado em `src/server/BetaLobby.server.luau`:
 - Trono opcional atrás do NPC: **Gilgamesh deve ficar em pé**, destacado do fundo, acessível pela frente.
 - **11 portais âmbar suspensos** com armas de estilos geek distintos, flutuando atrás de Gilgamesh; cada portal é não colidente, com brilho local suave.
 - Céu/paredes não devem ser tomados por efeitos; permitir leitura rápida de NPC e botões.
-- Duas salas funcionais representadas por ornamentos, não por loadings distintos: **Relíquias** (esquerda) e **Evolução** (direita).
+- Duas salas funcionais representadas por ornamentos, não por loadings distintos: **Catálogo de relíquias** (esquerda) e **Aprimoramento de relíquias** (direita).
 
 ### Vitrines: conservar o visual dos anéis aprovados
 
@@ -99,7 +99,7 @@ Os cinco modelos 3D de anéis já têm builder de Studio em `src/shared/RelicRin
 2. Aproximação: Gilgamesh vira os olhos e inclina a cabeça.
 3. Interação: braço direito estendido, dois pequenos portais abrem atrás dele.
 4. Inspeção de relíquia: anel holográfico flutua sobre a mão.
-5. Evolução (futura): círculo dourado no chão, portal atrás do NPC, pulso de luz + confirmação.
+5. Aprimoramento de RELÍQUIA (futuro): círculo dourado no chão, portal atrás do NPC, pulso de luz + confirmação. Evolução de unidades é responsabilidade de WHIS.
 
 Evitar repetição incessante de partículas: efeitos pontuais e leves, com animação somente quando houver jogador próximo.
 
@@ -122,7 +122,7 @@ Painel em duas colunas, carrossel de anéis e visualizador 3D, escalável.
     +-----------------------------------------------------------+
     | SALÃO DA BABILÔNIA          GILGAMESH            [X]      |
     |-----------------------------------------------------------|
-    | CATÁLOGO | EQUIPAR | EVOLUIR | REROLL | INFORMAÇÕES        |
+    | CATÁLOGO | EQUIPAR | APRIMORAR | REROLL | INFORMAÇÕES        |
     |-----------------------------------------------------------|
     | [lista de itens] | [modelo 3D do item selecionado]         |
     |                   | Nome / tipo / bônus / mapa / posse      |
@@ -145,11 +145,11 @@ Painel em duas colunas, carrossel de anéis e visualizador 3D, escalável.
 - Ainz exibe aviso "BÔNUS DESATIVADO NO AINZ • material para evolução".
 - Se o inventário não estiver implementado, botão **bloqueado** em produção, com explicação clara. No Studio já existe `EquipRelic` temporário no HUD de combate; não confundir esse comando com equipamento persistente.
 
-### EVOLUIR — fase 3
-- Escolher Ainz, Shalltear ou Albedo quando suas evoluções estiverem prontas.
-- À direita, slots dos materiais necessários, cada qual com contagem real e status.
-- Fórmulas/quantidades e evolução definitiva ainda **não aprovadas**. Não criar receita fictícia nem executar consumo nesta fase de design.
-- "Iniciar evolução" somente habilitar após backend validar posse, materiais, requisitos e transação.
+### APRIMORAR RELÍQUIAS — fase 3
+- Gilgamesh aprimora as relíquias em si, quando essa mecânica for definida.
+- A EVOLUÇÃO DE PERSONAGENS (Ainz, Shalltear, Albedo e todos os universos) acontece EXCLUSIVAMENTE com Whis no Santuário da Ascensão.
+- Os anéis continuam como materiais de evolução, mas Gilgamesh não consome itens para evoluir unidades.
+- Melhorias da relíquia não podem ficar ativas sem inventário real, custos, validação e regras aprovadas.
 
 ### REROLL DE RELÍQUIAS — fase 4
 - Reusar a moeda de reroll de relíquia **já planejada**, sem misturar com reroll de Traits.
@@ -174,7 +174,7 @@ Quatro estados visuais para cada item:
 
 Código atual consultado:
 - `src/server/BetaLobby.server.luau`: gera `Workspace.FissureLobby`, respawn e Portal das Missões; **não modificar o fluxo do lobby/arena** para adicionar o salão.
-- `src/client/RelicRingGallery.client.luau`: **catálogo universal exclusivo de Gilgamesh**, aberto somente após `BabylonHall.server.luau` validar o ProximityPrompt e enviar `BabylonRemotes.OpenRelicCatalog`. A interface possui Catálogo, Equipar, Evoluir, Reroll e Informações; somente o catálogo consulta previews 3D, enquanto as demais abas explicam recursos ainda desativados.
+- `src/client/RelicRingGallery.client.luau`: **catálogo universal exclusivo de Gilgamesh**, aberto somente após `BabylonHall.server.luau` validar o ProximityPrompt e enviar `BabylonRemotes.OpenRelicCatalog`. A interface possui Catálogo, Equipar, Aprimorar, Reroll e Informações; somente o catálogo consulta previews 3D, enquanto as demais abas explicam recursos ainda desativados.
 - `src/shared/RelicRingConfig.luau`: efeitos, elementos e regra Ainz imutáveis nesta etapa.
 - `src/shared/OverlordEvolutionLootConfig.luau`: seis fases, sete materiais, cinco anéis dual-use.
 - `src/server/TowerService.luau`: buffs e troca de anel Studio-only no combate.
@@ -188,7 +188,7 @@ Código atual consultado:
 
 **Próximas etapas reais**:
 1. Transformar a versão decorativa estática de Gilgamesh em um rig animável com aparência premium, após playtest da silhueta.
-2. Refinar as abas universais de Gilgamesh (Catálogo, Equipar, Evoluir, Reroll, Informações) e conectá-las a inventário e serviços seguros. As abas já existem como placeholders, sem concessão ou consumo.
+2. Refinar as abas universais de Gilgamesh (Catálogo, Equipar, Aprimorar, Reroll, Informações) e conectá-las a inventário e serviços seguros. As abas já existem como placeholders, sem concessão ou consumo.
 3. Testar colisões, portal das missões, iluminação, FPS e UI no Roblox Studio/Android.
 4. Revisar licenças de referências geek antes de uma publicação pública.
 
@@ -210,7 +210,7 @@ Código atual consultado:
 - [ ] Ainz não recebe bônus normais dos anéis, em nenhum estado.
 - [ ] Restrição continua +100% dano e +100% SPA (multiplicadores 2×/2×).
 - [ ] Shalltear/Albedo têm materiais próprios, não anéis.
-- [x] Equipar / Evoluir / Reroll aparecem como explicações inativas no NPC de Gilgamesh, aguardando serviços reais.
+- [x] Equipar / Aprimorar / Reroll aparecem como explicações inativas no NPC de Gilgamesh, aguardando serviços reais.
 - [ ] Nenhuma modificação no Summon, ArenaRequested, Yen, drops/pity, DataStore ou combate é necessária para o **layout**.
 - [ ] Cliente mobile mantém FPS aceitável com o salão aberto.
 - [ ] Revisar direito de uso de Gilgamesh/Fate antes de publicar projeto comercial.
@@ -238,3 +238,7 @@ Código atual consultado:
 **Virgil:** summon inalterado. **TowerService:** o botão de troca de anel disponível no laboratório Studio permanece um *cheat de teste de combate*, não gerenciamento público de relíquias. Fora do Studio, jogador só poderá manipular relíquias pelo futuro fluxo autorizado de Gilgamesh, quando o inventário real estiver pronto.
 
 **Arquivo de teste:** `src/server/UniversalRelicAuthoritySmokeTest.server.luau`; a CI também verifica que o AlchemyHUD não importa RelicIndexConfig, que o AlchemyGateway não envia OwnedRelics e que o catálogo de Gilgamesh não tem botão global de abertura.
+
+## 11. Atualização de papéis (26/11/2026)
+
+Agora **Whis** será o único NPC que efetua a **evolução de personagens**, inclusive quando o custo envolver as relíquias administradas por Gilgamesh. O Salão da Babilônia mantém exclusivamente o catálogo, equipamento, aprimoramento e reroll das RELÍQUIAS. **Urahara** cuida somente das TRAITS de unidades, **Jinwoo** dos desafios/raids permanentes, e o anfitrião da praça central das raids sazonais. O desenho de todas as estações está em [LOBBY-NPCS-EVENTOS-v1.0.md](LOBBY-NPCS-EVENTOS-v1.0.md).
