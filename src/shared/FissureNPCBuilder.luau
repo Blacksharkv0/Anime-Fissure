@@ -4,7 +4,7 @@
 -- com Motor6D e acessorios soldados. Nao depende de asset externo.
 -- NPCs decorativos e interativos via prompts dos stands EXISTENTES.
 local Builder = {}
-Builder.Version = "0.3.0"
+Builder.Version = "0.4.0"
 
 local C = {
     Skin = Color3.fromRGB(245, 199, 164),
@@ -345,57 +345,174 @@ local function virgil(details: Folder, r: {[string]: BasePart})
     if model then model:SetAttribute("CharacterReborn","Vergil-v1") end
 end
 
+-- Character Reborn: Edward v1.0. Native welded cosmetics; the right
+-- automail arm and the existing dialogue rig remain independent of gameplay.
 local function edward(details: Folder, r: {[string]: BasePart})
-    local t, h = r.torso, r.head
-    attach(details, h, "GoldenHair", Vector3.new(2.10, 0.43, 1.15),
-        CFrame.new(0, 0.52, 0), C.Blonde, nil, "Ball")
-    for i = -2, 2 do
-        attach(details, h, "GoldenBangs", Vector3.new(0.40, 0.77, 0.40),
-            CFrame.new(i * 0.34, 0.24, -0.54) * CFrame.Angles(0, 0, math.rad(8 + i * 11)),
-            C.Blonde, nil, "Wedge")
+    local t,h=r.torso,r.head
+    local crimson=Color3.fromRGB(186,30,48)
+    local redLight=Color3.fromRGB(231,55,67)
+    local wine=Color3.fromRGB(98,22,35)
+    local ink=Color3.fromRGB(21,25,34)
+    local cloth=Color3.fromRGB(40,43,49)
+    local gold=Color3.fromRGB(241,199,79)
+    local paleGold=Color3.fromRGB(255,227,139)
+    local hairShadow=Color3.fromRGB(177,119,40)
+    local steel=Color3.fromRGB(157,175,192)
+    local darkSteel=Color3.fromRGB(61,73,88)
+    local silver=Color3.fromRGB(218,228,237)
+    local skin=Color3.fromRGB(246,211,178)
+    local white=Color3.fromRGB(243,240,226)
+    local function p(limb: BasePart,name: string,s: Vector3,pos: Vector3,
+        col: Color3,rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?)
+        return attach(details,limb,"EdwardReborn_"..name,s,
+            CFrame.new(pos)*CFrame.Angles(math.rad(rx or 0),math.rad(ry or 0),math.rad(rz or 0)),
+            col,mat,shape)
     end
-    for i = 1, 5 do
-        attach(details, h, "BlondeBraid", Vector3.new(0.42, 0.45, 0.42),
-            CFrame.new(0.68, 0.05 - i * 0.32, 0.55), C.Blonde, nil, "Ball")
+    h.Size=Vector3.new(1.52,1.24,1.12)
+    h.Color=skin
+    local mesh=Instance.new("SpecialMesh")
+    mesh.Name="EdwardReborn_RoundedHead"
+    mesh.MeshType=Enum.MeshType.Head
+    mesh.Parent=h
+    t.Color=ink
+    t.Transparency=1
+    for _,limb in ipairs({r.la,r.ra,r.ll,r.rl}) do limb.Transparency=1 end
+    local previous=h:FindFirstChild("AnimeFace")
+    if previous then previous:Destroy() end
+    local face=Instance.new("SurfaceGui")
+    face.Name="AnimeFace";face.Face=Enum.NormalId.Front
+    face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud
+    face.PixelsPerStud=160;face.LightInfluence=.12;face.Parent=h
+    local canvas=Instance.new("Frame")
+    canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+    local function mark(name: string,x: number,y: number,w: number,ht: number,col: Color3,rot: number?,rounded: boolean?)
+        local f=Instance.new("Frame")
+        f.Name=name;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,ht)
+        f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot or 0;f.Parent=canvas
+        if rounded then
+            local corner=Instance.new("UICorner")
+            corner.CornerRadius=UDim.new(.32,0);corner.Parent=f
+        end
+        return f
     end
-    attach(details, t, "WhiteCollar", Vector3.new(1.54, 0.38, 1.10),
-        CFrame.new(0, 0.85, 0), C.Silver)
-    attach(details, t, "BlackUnderShirt", Vector3.new(1.20, 1.7, 0.15),
-        CFrame.new(0, -0.05, -0.58), C.Black)
-    for _, side in ipairs({-1, 1}) do
-        attach(details, t, "RedCoatFront", Vector3.new(0.46, 2.3, 0.20),
-            CFrame.new(side * 0.76, -0.40, -0.59), C.Red)
-        attach(details, t, "RedCoatTail", Vector3.new(0.90, 2.35, 0.20),
-            CFrame.new(side * 0.55, -1.70, 0.48), C.RedDark)
-        attach(details, t, "SilverTrim", Vector3.new(0.08, 1.8, 0.10),
-            CFrame.new(side * 0.48, -0.20, -0.74), C.Silver)
+    for _,side in ipairs({-1,1}) do
+        local x=if side==-1 then .19 else .57
+        local tilt=if side==-1 then 10 else -10
+        mark("EyeOutline_"..side,x,.386,.24,.17,ink,tilt,true)
+        mark("EyeWhite_"..side,x+.018,.415,.204,.112,white,tilt,true)
+        mark("AmberIris_"..side,x+.087,.402,.083,.135,Color3.fromRGB(175,110,28),0,true)
+        mark("IrisGold_"..side,x+.099,.437,.059,.079,gold,0,true)
+        mark("Pupil_"..side,x+.113,.417,.029,.111,ink,0,true)
+        mark("EyeLight_"..side,x+.096,.417,.025,.025,white,0,true)
+        mark("Brow_"..side,x-.009,.313,.25,.047,hairShadow,tilt,true)
     end
-    attach(details, r.la, "RedSleeve", Vector3.new(1.08, 1.60, 1.09),
-        CFrame.new(0, 0.17, 0), C.Red)
-    attach(details, r.la, "BlackGlove", Vector3.new(1.11, 0.60, 1.12),
-        CFrame.new(0, -0.73, 0), C.Black)
-    -- Braco mecanico (lado direito): metal com juntas e detalhes azuis.
-    attach(details, r.ra, "AutomailArmor", Vector3.new(1.12, 1.9, 1.10),
-        CFrame.new(0, 0, 0), C.Steel, Enum.Material.Metal)
-    for _, y in ipairs({0.43, -0.10, -0.59}) do
-        attach(details, r.ra, "AutomailJoint", Vector3.new(1.16, 0.15, 1.15),
-            CFrame.new(0, y, 0), C.Silver, Enum.Material.Metal)
+    mark("NoseShadow",.492,.54,.035,.116,Color3.fromRGB(206,158,131),-10,true)
+    mark("ConfidentMouth",.408,.74,.184,.023,Color3.fromRGB(111,65,57),-8,true)
+    mark("SmileCorner",.576,.723,.028,.04,Color3.fromRGB(111,65,57),-12,true)
+
+    -- Layered centre-parted fringe and iconic antenna strand.
+    p(h,"HairBase",Vector3.new(1.63,.72,1.20),Vector3.new(0,.43,.09),hairShadow,0,0,0,"Ball")
+    p(h,"HairCrown",Vector3.new(1.60,.65,1.15),Vector3.new(0,.54,.025),gold,0,0,0,"Ball")
+    for _,side in ipairs({-1,1}) do
+        for i=1,4 do
+            p(h,"Fringe_"..side.."_"..i,Vector3.new(.27,.80-i*.055,.43),
+                Vector3.new(side*(.12+i*.13),.36-i*.065,-.49),if i%2==0 then paleGold else gold,
+                -8,side*10,side*(24+i*8),"Wedge")
+        end
+        p(h,"Temple_"..side,Vector3.new(.25,.59,.49),Vector3.new(side*.72,.07,.07),gold,9,0,side*13,"Wedge")
+        p(h,"Ear_"..side,Vector3.new(.18,.30,.26),Vector3.new(side*.76,-.08,.05),skin,0,0,0,"Ball")
     end
-    attach(details, r.ra, "AutomailGem", Vector3.new(0.26, 0.26, 0.12),
-        CFrame.new(0, 0.2, -0.57), C.Cyan, Enum.Material.Neon)
-    attach(details, t, "BrownBelt", Vector3.new(2.12, 0.24, 1.14),
-        CFrame.new(0, -0.83, 0), C.Brown)
-    for _, leg in ipairs({r.ll, r.rl}) do
-        attach(details, leg, "BrownBoot", Vector3.new(1.1, 0.83, 1.27),
-            CFrame.new(0, -0.60, -0.10), C.Brown)
+    p(h,"AntennaBase",Vector3.new(.17,.55,.22),Vector3.new(.07,.88,.00),gold,-18,0,-13,"Wedge")
+    p(h,"AntennaTip",Vector3.new(.15,.47,.18),Vector3.new(.20,1.13,.09),paleGold,22,0,-28,"Wedge")
+    p(h,"PonytailRoot",Vector3.new(.53,.45,.44),Vector3.new(0,.14,.65),gold,0,0,0,"Ball")
+    for i=1,7 do
+        local y=.03-i*.20
+        local z=.69+i*.037
+        for side=-1,1,2 do
+            p(h,"Braid_"..i.."_"..side,Vector3.new(.28-i*.012,.29,.31-i*.010),
+                Vector3.new(side*.09,y+side*.035,z),if side==1 then gold else paleGold,0,0,side*25,"Ball")
+        end
     end
-    local alchemy = attach(details, t, "AlchemyInsignia", Vector3.new(0.42, 0.42, 0.12),
-        CFrame.new(0.67, 0.39, -0.70) * CFrame.Angles(0, 0, math.rad(45)), C.Gold, Enum.Material.Neon)
-    local light = Instance.new("PointLight")
-    light.Color = C.Gold
-    light.Range = 7
-    light.Brightness = 0.30
-    light.Parent = alchemy
+    p(h,"BraidTie",Vector3.new(.24,.11,.23),Vector3.new(0,-1.47,.96),ink)
+    p(h,"BraidTip",Vector3.new(.22,.30,.23),Vector3.new(0,-1.62,.96),gold,9,0,0,"Wedge")
+
+    -- Fitted black uniform, high white collar, split red coat and hood.
+    p(t,"UniformCore",Vector3.new(1.64,1.81,1.05),Vector3.new(0,.03,0),ink,0,0,0,nil,Enum.Material.Fabric)
+    p(t,"UniformFront",Vector3.new(.95,1.60,.15),Vector3.new(0,.04,-.56),cloth,0,0,0,nil,Enum.Material.Fabric)
+    p(t,"WhiteCollar",Vector3.new(1.19,.25,.88),Vector3.new(0,.87,0),white)
+    p(t,"HoodOuter",Vector3.new(1.44,.73,.61),Vector3.new(0,.75,.48),crimson,15,0,0,"Ball",Enum.Material.Fabric)
+    p(t,"HoodLining",Vector3.new(1.07,.42,.42),Vector3.new(0,.84,.75),wine,15,0,0,"Ball",Enum.Material.Fabric)
+    for _,side in ipairs({-1,1}) do
+        p(t,"CoatFront_"..side,Vector3.new(.55,1.9,.24),Vector3.new(side*.63,-.01,-.49),crimson,0,side*8,side*3,nil,Enum.Material.Fabric)
+        p(t,"Lapel_"..side,Vector3.new(.28,1.26,.15),Vector3.new(side*.41,.22,-.67),redLight,0,0,side*13,nil,Enum.Material.Fabric)
+        p(t,"CollarPoint_"..side,Vector3.new(.37,.43,.23),Vector3.new(side*.35,.75,-.50),wine,0,0,side*23,"Wedge")
+        p(t,"CoatSide_"..side,Vector3.new(.20,2.14,.99),Vector3.new(side*.84,-.77,.03),crimson,0,0,-side*5,nil,Enum.Material.Fabric)
+        p(t,"Tail_"..side,Vector3.new(.81,2.36,.22),Vector3.new(side*.47,-1.67,.49),crimson,-11,0,side*8,nil,Enum.Material.Fabric)
+        p(t,"TailLining_"..side,Vector3.new(.71,2.20,.10),Vector3.new(side*.47,-1.67,.36),wine,-11,0,side*8,nil,Enum.Material.Fabric)
+        p(t,"TailSeam_"..side,Vector3.new(.05,2.28,.065),Vector3.new(side*.77,-1.68,.63),redLight,-11,0,side*8)
+    end
+    for i=1,5 do
+        p(t,"UniformButton_"..i,Vector3.new(.10,.10,.08),Vector3.new(0,.59-i*.22,-.66),silver,0,0,0,"Ball",Enum.Material.Metal)
+    end
+    p(t,"Belt",Vector3.new(1.68,.19,1.11),Vector3.new(0,-.79,0),ink,0,0,0,nil,Enum.Material.Leather)
+    p(t,"Buckle",Vector3.new(.34,.23,.12),Vector3.new(0,-.79,-.63),silver,0,0,0,nil,Enum.Material.Metal)
+    -- Back emblem formed from native dark pieces, not an external decal.
+    local emblem=Color3.fromRGB(41,19,26)
+    p(t,"BackEmblemCross",Vector3.new(.12,.79,.055),Vector3.new(0,-.17,.65),emblem)
+    p(t,"BackEmblemBar",Vector3.new(.61,.095,.055),Vector3.new(0,.03,.65),emblem)
+    for side=-1,1,2 do
+        p(t,"BackEmblemWing_"..side,Vector3.new(.29,.08,.055),Vector3.new(side*.25,.20,.65),emblem,0,0,side*31)
+    end
+
+    -- Left sleeve and pale alchemist glove, asymmetric against automail.
+    p(r.la,"LeftShoulder",Vector3.new(.91,1.15,.94),Vector3.new(.055,.43,0),crimson,0,0,-5,"Ball",Enum.Material.Fabric)
+    p(r.la,"LeftSleeve",Vector3.new(.77,.95,.82),Vector3.new(.055,-.21,0),redLight,0,0,4,"Ball",Enum.Material.Fabric)
+    p(r.la,"LeftCuff",Vector3.new(.79,.18,.83),Vector3.new(.055,-.57,0),wine)
+    p(r.la,"WhiteGlove",Vector3.new(.64,.50,.68),Vector3.new(.055,-.80,0),white,0,0,0,"Ball")
+    for i=1,3 do
+        p(r.la,"GloveSeam_"..i,Vector3.new(.035,.18,.035),Vector3.new((i-2)*.13+.055,-.82,-.31),steel)
+    end
+
+    -- Anatomical right arm with plates, exposed elbow, piston rods and fingers.
+    local arm=r.ra
+    p(arm,"AutomailUpperCore",Vector3.new(.61,1.02,.66),Vector3.new(-.07,.43,0),darkSteel,0,0,0,"Ball",Enum.Material.Metal)
+    p(arm,"AutomailShoulderPlate",Vector3.new(.88,.63,.87),Vector3.new(-.07,.63,0),silver,0,0,0,"Ball",Enum.Material.Metal)
+    p(arm,"AutomailBicepPlate",Vector3.new(.63,.66,.22),Vector3.new(-.07,.37,-.31),steel,0,0,-6,"Wedge",Enum.Material.Metal)
+    p(arm,"AutomailElbow",Vector3.new(.66,.28,.66),Vector3.new(-.07,-.07,0),darkSteel,0,0,0,"Ball",Enum.Material.Metal)
+    for side=-1,1,2 do
+        p(arm,"ElbowHinge_"..side,Vector3.new(.15,.34,.34),Vector3.new(-.07+side*.31,-.06,0),silver,0,0,0,"Cylinder",Enum.Material.Metal)
+        p(arm,"Piston_"..side,Vector3.new(.11,.52,.12),Vector3.new(-.07+side*.22,-.31,.25),darkSteel,0,0,side*7,nil,Enum.Material.Metal)
+    end
+    p(arm,"AutomailForearm",Vector3.new(.76,.70,.76),Vector3.new(-.07,-.35,0),steel,0,0,0,"Ball",Enum.Material.Metal)
+    p(arm,"ForearmPlate",Vector3.new(.58,.56,.18),Vector3.new(-.07,-.35,-.34),silver,0,0,0,"Wedge",Enum.Material.Metal)
+    for i=1,3 do
+        p(arm,"ForearmRivet_"..i,Vector3.new(.075,.075,.06),Vector3.new(-.07+(i-2)*.15,-.25,-.44),darkSteel,0,0,0,"Ball",Enum.Material.Metal)
+    end
+    p(arm,"WristRing",Vector3.new(.65,.13,.67),Vector3.new(-.07,-.66,0),darkSteel,0,0,0,nil,Enum.Material.Metal)
+    p(arm,"AutomailPalm",Vector3.new(.56,.33,.52),Vector3.new(-.07,-.83,0),steel,0,0,0,"Ball",Enum.Material.Metal)
+    for i=1,4 do
+        local x=-.07+(i-2.5)*.125
+        p(arm,"Finger_"..i,Vector3.new(.11,.22,.15),Vector3.new(x,-.99,-.08),silver,-15,0,0,"Ball",Enum.Material.Metal)
+        p(arm,"FingerJoint_"..i,Vector3.new(.09,.075,.09),Vector3.new(x,-.94,-.15),darkSteel,0,0,0,"Ball",Enum.Material.Metal)
+    end
+    p(arm,"Thumb",Vector3.new(.15,.26,.17),Vector3.new(-.36,-.81,-.06),silver,0,0,-24,"Ball",Enum.Material.Metal)
+    for i,leg in ipairs({r.ll,r.rl}) do
+        p(leg,"Trousers_"..i,Vector3.new(.82,1.54,.88),Vector3.new(0,.23,0),cloth,0,0,0,"Ball",Enum.Material.Fabric)
+        p(leg,"BootShaft_"..i,Vector3.new(.86,.94,.92),Vector3.new(0,-.39,0),ink,0,0,0,"Ball",Enum.Material.Leather)
+        p(leg,"BootToe_"..i,Vector3.new(.88,.40,1.22),Vector3.new(0,-.78,-.18),ink,0,0,0,"Ball",Enum.Material.Leather)
+        p(leg,"BootSole_"..i,Vector3.new(.90,.13,1.20),Vector3.new(0,-.94,-.16),wine)
+        for j=1,3 do
+            p(leg,"BootLace_"..i.."_"..j,Vector3.new(.32,.055,.06),Vector3.new(0,-.25-j*.13,-.47),steel,0,0,if j%2==0 then 9 else -9)
+        end
+    end
+    local sigil=p(t,"AlchemySigil",Vector3.new(.20,.20,.07),Vector3.new(.58,.44,-.69),gold,0,0,45,nil,Enum.Material.Neon)
+    local light=Instance.new("PointLight")
+    light.Color=gold;light.Range=4;light.Brightness=.18;light.Parent=sigil
+    local model=t.Parent
+    if model and model:IsA("Model") then
+        model:SetAttribute("CharacterReborn","Edward-v1")
+        model:ScaleTo(.88)
+    end
 end
 
 function Builder.Build(kind: string): Model?
