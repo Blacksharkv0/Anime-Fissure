@@ -1,28 +1,32 @@
 --!strict
 -- ANIME FISSURE | OverlordEvolutionLootConfig v1.0
 -- Approved map -> evolution item mapping from game designer (26/11/2026).
--- DATA ONLY: not an active drop table, no rates, pity, inventory, crafting.
+-- DATA ONLY: rings are evolution materials AND equippable relic designs.
+-- Does not enable real drops, pity, inventory, or evolution crafting.
 -- Carne Village's Magic Power Ring is designated for HARD farming.
 -- Other stages' eligible difficulties are intentionally UNDECIDED.
 local Loot = {}
-Loot.Version = "1.0.0"
+Loot.Version = "1.1.0"
 Loot.Status = "Planned_NoActiveDrops"
 Loot.WorldId = "Overlord"
 
 Loot.Items = {
     MagicPowerRing = {
         Id = "MagicPowerRing", Name = "Anel de Magic Power",
-        Type = "EvolutionMaterial", StageId = "OVL_01",
-        Difficulty = "Hard", EvolutionLink = "OVL_Ainz",
+        Type = "EvolutionRelic", StageId = "OVL_01",
+        Relic = true, Equippable = true, EvolutionLink = "OVL_Ainz",
+        Difficulty = "Hard",
     },
     SPARing = {
         Id = "SPARing", Name = "Anel de SPA",
-        Type = "EvolutionMaterial", StageId = "OVL_02",
+        Type = "EvolutionRelic", StageId = "OVL_02",
+        Relic = true, Equippable = true, EvolutionLink = "OVL_Ainz",
         Difficulty = "Undecided",
     },
     PhysicalDamageRing = {
         Id = "PhysicalDamageRing", Name = "Anel de dano físico",
-        Type = "EvolutionMaterial", StageId = "OVL_03",
+        Type = "EvolutionRelic", StageId = "OVL_03",
+        Relic = true, Equippable = true, EvolutionLink = "OVL_Ainz",
         Difficulty = "Undecided",
     },
     ShalltearEvolutionItem = {
@@ -32,12 +36,14 @@ Loot.Items = {
     },
     RangeRing = {
         Id = "RangeRing", Name = "Anel de range",
-        Type = "EvolutionMaterial", StageId = "OVL_05",
+        Type = "EvolutionRelic", StageId = "OVL_05",
+        Relic = true, Equippable = true, EvolutionLink = "OVL_Ainz",
         Difficulty = "Undecided",
     },
     RestrictionRing = {
         Id = "RestrictionRing", Name = "Anel da restrição",
-        Type = "EvolutionMaterial", StageId = "OVL_06",
+        Type = "EvolutionRelic", StageId = "OVL_06",
+        Relic = true, Equippable = true, EvolutionLink = "OVL_Ainz",
         Difficulty = "Undecided",
     },
     AlbedoEvolutionItem = {
