@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
+local Rings = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("RelicRingConfig"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -127,7 +128,7 @@ local hint = text(bar, "PlaceHint", "Selecione uma Tower e toque no terreno livr
 -- Layout scales to landscape and mobile portrait; the action buttons
 -- are protected both client-side and by the authoritative server.
 local management = frame(gui, "TowerManagement",
-    UDim2.new(0.5, 0, 1, -195), UDim2.fromOffset(520, 251), C.Panel)
+    UDim2.new(0.5, 0, 1, -195), UDim2.fromOffset(520, 324), C.Panel)
 management.AnchorPoint = Vector2.new(0.5, 1)
 management.Visible = false
 round(management, 12)
@@ -187,12 +188,20 @@ passiveLabel.TextXAlignment = Enum.TextXAlignment.Left
 local synergyLabel = text(management, "PairSynergy", "",
     UDim2.fromOffset(14, 190), UDim2.fromOffset(490, 19), 11, C.Green)
 synergyLabel.TextXAlignment = Enum.TextXAlignment.Left
+local relicLabel = text(management, "RelicName", "RELÍQUIA: NENHUMA",
+    UDim2.fromOffset(14, 211), UDim2.fromOffset(310, 23), 12, C.Gold)
+relicLabel.TextXAlignment = Enum.TextXAlignment.Left
+local relicButton = button(management, "CycleRelic", "TROCAR (STUDIO)",
+    UDim2.fromOffset(330, 208), UDim2.fromOffset(177, 29), C.Purple)
+local relicStatus = text(management, "RelicEffect", "",
+    UDim2.fromOffset(14, 242), UDim2.fromOffset(491, 32), 11, C.Muted)
+relicStatus.TextXAlignment = Enum.TextXAlignment.Left
 local upgradeButton = button(management, "Upgrade", "UPGRADE",
-    UDim2.fromOffset(10, 214), UDim2.fromOffset(238, 29), C.Blue)
+    UDim2.fromOffset(10, 285), UDim2.fromOffset(238, 30), C.Blue)
 local sellButton = button(management, "Sell", "VENDER",
-    UDim2.fromOffset(259, 214), UDim2.fromOffset(153, 29), C.Purple)
+    UDim2.fromOffset(259, 285), UDim2.fromOffset(153, 30), C.Purple)
 local closeManage = button(management, "CloseSelection", "X",
-    UDim2.fromOffset(423, 214), UDim2.fromOffset(86, 29), C.Dark)
+    UDim2.fromOffset(423, 285), UDim2.fromOffset(86, 30), C.Dark)
 
 local slotButtons: {[number]: TextButton} = {}
 for i = 1, 6 do
@@ -310,7 +319,7 @@ local function updateManagement()
         local damage = t.EffectiveDamage or t.Damage or 0
         damageValue.Text = tostring(damage)
         damageValue.TextColor3 = if (t.SynergyBonus or 0) > 0
-            then C.Green else C.White
+            or t.RelicActive == true then C.Green else C.White
         rangeValue.Text = string.format("%.1f", t.Range or 0)
         spaValue.Text = string.format("%.2fs", t.SPA or 0)
     end
@@ -353,6 +362,17 @@ local function updateManagement()
     else
         synergyLabel.Visible = false
     end
+    local ring=if typeof(t.RelicId)=="string" then Rings.Get(t.RelicId) else nil
+    relicLabel.Text="RELÍQUIA: " .. (if ring then ring.Name else "NENHUMA")
+    relicLabel.TextColor3=if ring then ring.MainColor else C.Gold
+    relicStatus.Text=if typeof(t.RelicStatus)=="string"
+        then t.RelicStatus else "Nenhuma relíquia equipada"
+    relicStatus.TextColor3=if t.RelicActive == true then C.Green else C.Muted
+    relicButton.Visible=RunService:IsStudio()
+        and canManage and t.UnitId~="Capsule"
+    relicButton.Active=relicButton.Visible
+    relicButton.Text=if ring then "TROCAR ANEL (STUDIO)"
+        else "EQUIPAR ANEL (STUDIO)"
     upgradeButton.Text = if not canManage then "SOMENTE O DONO"
         elseif t.UpgradeCost then "UPGRADE  •  ¥ " .. tostring(t.UpgradeCost)
         else "LEVEL MAX"
@@ -507,6 +527,24 @@ labFunds.Activated:Connect(function()
     if RunService:IsStudio() and ready then request:FireServer("LabFunds") end
 end)
 
+-- Lab equipment: one ring slot. The server validates the owner and keeps
+-- everything temporary; pressing cycles to the next ring, then NONE.
+relicButton.Activated:Connect(function()
+    local t=findSelectedTower()
+    if not RunService:IsStudio() or not relicButton.Visible or not t
+        or t.OwnerId~=player.UserId then return end
+    local currentIndex=0
+    if typeof(t.RelicId)=="string" then
+        for index,id in ipairs(Rings.Order) do
+            if id==t.RelicId then currentIndex=index;break end
+        end
+    end
+    local nextIndex=currentIndex+1
+    local nextId=if nextIndex>#Rings.Order then "None"
+        else Rings.Order[nextIndex]
+    request:FireServer("EquipRelic",t.Serial,nextId)
+end)
+
 upgradeButton.Activated:Connect(function()
     local t = findSelectedTower()
     if t and t.OwnerId == player.UserId and upgradeButton.Active then
@@ -567,9 +605,9 @@ local function resize()
     local cam = Workspace.CurrentCamera
     if not cam then return end
     local v = cam.ViewportSize
-    -- Reserve room for an open 251px detail card plus 122px deck,
-    -- 41px Studio controls and spacing on short mobile landscape screens.
-    local totalHeight = if lab.Visible then 443 else 394
+    -- Reserve space for 324px card, 122px deck and 41px Studio controls
+    -- on compact mobile screens; UIScale also shrinks all card labels.
+    local totalHeight = if lab.Visible then 516 else 467
     local factor = math.clamp(math.min((v.X - 12) / 556,
         (v.Y - 16) / totalHeight, 1), 0.48, 1)
     barScale.Scale = factor
@@ -590,4 +628,4 @@ bindCamera()
 
 updateSlots()
 updateVisibility()
-print("[Anime Fissure] TowerHUD v1.3 | detailed tower card, upgrades, attack types, Ainz/Albedo synergy")
+print("[Anime Fissure] TowerHUD v1.4 | server-side relic stats + Studio-only equip cycle")
