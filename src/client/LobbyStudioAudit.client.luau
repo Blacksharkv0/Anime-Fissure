@@ -133,7 +133,7 @@ local function ready()
             and event:GetAttribute("GameplayActive")==false,
         child(remotes,"OpenServiceInfo")~=nil
             and child(babylonRemote,"OpenRelicCatalog")~=nil
-            and child(dialogue,"Open")~=nil,
+            and child(dialogue,"OpenDialogue")~=nil,
     }
 end
 local function sync()
