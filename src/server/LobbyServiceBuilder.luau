@@ -5,8 +5,9 @@
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local RunService=game:GetService("RunService")
 local Config=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyServiceConfig"))
+local Art=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyNPCArtFinish"))
 local Builder={}
-Builder.Version="1.0.0"
+Builder.Version="1.1.0"
 
 local P={
     Ink=Color3.fromRGB(15,19,35),Stone=Color3.fromRGB(33,37,57),
@@ -212,6 +213,7 @@ local function stationaryCharacter(parent: Model,station: any,kind: string)
             0,5.9,-.76,P.Gold,Enum.Material.Neon)
     end
     npc.PrimaryPart=head
+    Art.ApplyService(npc,kind,frame,station)
     return npc
 end
 local function station(root: Model,info: any,kind: string)
