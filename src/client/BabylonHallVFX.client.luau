@@ -32,6 +32,7 @@ for _,p in ipairs(portals:GetChildren()) do
         while disc.Parent and hall.Parent do
             local camera=Workspace.CurrentCamera
             local near=player:GetAttribute("InArena")~=true
+                and player:GetAttribute("ReducedVFX")~=true
                 and camera~=nil and
                 (camera.CFrame.Position-disc.Position).Magnitude<98
             if near then
