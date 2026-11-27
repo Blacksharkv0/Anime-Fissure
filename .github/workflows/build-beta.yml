@@ -376,6 +376,16 @@ jobs:
           grep -q 'ReturnToLobby' src/client/PostMatchHUD.client.luau
           grep -q 'PostMatchRemotes' src/server/DemoReleaseSmokeTest.server.luau
 
+      - name: Check-up final de interface e interacao
+        run: |
+          grep -Fq 'gui.DisplayOrder=39' src/client/LobbyNavigator.client.luau
+          grep -Fq 'gui.AbsoluteSize' src/client/LobbyNavigator.client.luau
+          grep -Fq 'setDirectoryVisible' src/client/LobbyNavigator.client.luau
+          grep -Fq 'if placementTouch then return end' src/client/TowerHUD.client.luau
+          grep -Fq 'WindowFocusReleased' src/client/TowerHUD.client.luau
+          grep -Fq 'NPC INTERACTION SMOKE OK' src/server/DemoReleaseSmokeTest.server.luau
+          grep -Fq 'TENTAR VOLTAR AO LOBBY' src/client/PostMatchHUD.client.luau
+
       - name: Gerar arquivo Roblox
         run: |
           mkdir -p build
