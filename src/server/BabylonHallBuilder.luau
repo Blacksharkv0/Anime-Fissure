@@ -209,18 +209,19 @@ local function makeWeapon(portal: Model,style: string,point: Vector3,shade: Colo
     return weapon
 end
 
-local PORTALS={
-    {-23,13.0,2.38,"HeroBlade",Color3.fromRGB(133,239,183)},
-    {-17,20.0,3.0,"TitanGreatblade",Color3.fromRGB(220,235,255)},
-    {-12,12.3,2.25,"KeyScepter",Color3.fromRGB(106,190,249)},
-    {-7,22.3,2.70,"StarSabre",Color3.fromRGB(113,223,255)},
-    {-2,15.0,2.45,"MoonGreatsword",Color3.fromRGB(104,169,251)},
-    {4,22.6,3.12,"OniKatana",Color3.fromRGB(255,92,137)},
-    {10,13.1,2.56,"FrostAxe",Color3.fromRGB(110,218,255)},
-    {15,20.6,2.80,"CursedGreatblade",Color3.fromRGB(124,125,247)},
-    {20,13.7,2.53,"CelestialSpear",Color3.fromRGB(232,204,120)},
-    {24.2,21.4,2.66,"RuneStaff",Color3.fromRGB(198,127,253)},
-    {-25.0,24.0,2.06,"DualHookBlades",Color3.fromRGB(253,182,99)},
+type PortalDef={offset: number,height: number,radius: number,style: string,tint: Color3}
+local PORTALS: {PortalDef}={
+    {offset=-23,height=13.0,radius=2.38,style="HeroBlade",tint=Color3.fromRGB(133,239,183)},
+    {offset=-17,height=20.0,radius=3.0,style="TitanGreatblade",tint=Color3.fromRGB(220,235,255)},
+    {offset=-12,height=12.3,radius=2.25,style="KeyScepter",tint=Color3.fromRGB(106,190,249)},
+    {offset=-7,height=22.3,radius=2.70,style="StarSabre",tint=Color3.fromRGB(113,223,255)},
+    {offset=-2,height=15.0,radius=2.45,style="MoonGreatsword",tint=Color3.fromRGB(104,169,251)},
+    {offset=4,height=22.6,radius=3.12,style="OniKatana",tint=Color3.fromRGB(255,92,137)},
+    {offset=10,height=13.1,radius=2.56,style="FrostAxe",tint=Color3.fromRGB(110,218,255)},
+    {offset=15,height=20.6,radius=2.80,style="CursedGreatblade",tint=Color3.fromRGB(124,125,247)},
+    {offset=20,height=13.7,radius=2.53,style="CelestialSpear",tint=Color3.fromRGB(232,204,120)},
+    {offset=24.2,height=21.4,radius=2.66,style="RuneStaff",tint=Color3.fromRGB(198,127,253)},
+    {offset=-25.0,height=24.0,radius=2.06,style="DualHookBlades",tint=Color3.fromRGB(253,182,99)},
 }
 
 local function architecture(root: Model)
@@ -318,7 +319,8 @@ end
 local function portalCloud(root: Model)
     local portalFolder=newModel(root,"GateOfBabylonPortals")
     for idx,entry in ipairs(PORTALS) do
-        local dz,dy,r,style,tint=entry[1],entry[2],entry[3],entry[4],entry[5]
+        local dz,dy,r,style,tint=entry.offset,entry.height,entry.radius,
+            entry.style,entry.tint
         local center=Vector3.new(374.0,dy,19+dz)
         local model=newModel(portalFolder,"Portal_"..string.format("%02d",idx))
         model:SetAttribute("WeaponStyle",style)
@@ -432,17 +434,18 @@ local function king(root: Model)
     return folder
 end
 
-local SHOWCASES={
-    {"MagicPowerRing",335,-4},
-    {"PhysicalDamageRing",348,-4},
-    {"SPARing",362,-4},
-    {"RangeRing",340,42},
-    {"RestrictionRing",358,42},
+type Showcase={id: string,x: number,z: number}
+local SHOWCASES: {Showcase}={
+    {id="MagicPowerRing",x=335,z=-4},
+    {id="PhysicalDamageRing",x=348,z=-4},
+    {id="SPARing",x=362,z=-4},
+    {id="RangeRing",x=340,z=42},
+    {id="RestrictionRing",x=358,z=42},
 }
 local function galleries(root: Model)
     local stands=newModel(root,"RelicShowcases")
     for i,data in ipairs(SHOWCASES) do
-        local id,x,z=data[1],data[2],data[3]
+        local id,x,z=data.id,data.x,data.z
         local meta=RingConfig.Get(id)
         local model=newModel(stands,"Display_"..id)
         model:SetAttribute("RingId",id)
