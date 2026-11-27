@@ -45,6 +45,32 @@ for _,entry in ipairs(expected) do
     end
     finished+=1
 end
+local index=stations:FindFirstChild("IndexStation")
+local dante=if index then index:FindFirstChild("DanteNPC") else nil
+assert(dante and dante:IsA("Model") and dante:GetAttribute("CharacterReborn")=="Dante-v1")
+local danteHead=dante:FindFirstChild("Head")
+assert(danteHead and danteHead:IsA("BasePart") and dante.PrimaryPart==danteHead)
+assert(danteHead:FindFirstChild("Reborn_DanteFace"))
+for _,name in ipairs({"DanteBangs_7","DanteCollarL","Reborn_DanteTail_1",
+    "Reborn_DantePocket_-1","Reborn_DanteBladeCore","Reborn_DanteSwordGuard",
+    "SwordPommel","Reborn_DanteBootLace_1_3"}) do
+    local p=dante:FindFirstChild(name)
+    assert(p and p:IsA("BasePart") and p.Anchored and not p.CanCollide
+        and not p.CanQuery and not p.CanTouch,"Dante detail missing or unsafe: "..name)
+end
+local danteParts=0
+for _,p in ipairs(dante:GetChildren()) do
+    if p:IsA("BasePart") and string.sub(p.Name,1,7)=="Reborn_" then
+        danteParts+=1
+        assert(p.Anchored and not p.CanCollide and not p.CanQuery and not p.CanTouch)
+    end
+end
+assert(danteParts>=70 and danteParts<=130,"Dante cosmetic geometry budget: "..danteParts)
+local indexAnchor=index:FindFirstChild("InteractionPoint")
+local indexPrompt=if indexAnchor then indexAnchor:FindFirstChild("LobbyServicePrompt") else nil
+assert(indexPrompt and indexPrompt:IsA("ProximityPrompt") and indexPrompt.Enabled and indexPrompt.ClickablePrompt)
+print("[Anime Fissure] DANTE REBORN SMOKE OK: "..danteParts.." static cosmetic parts, Index prompt preserved")
+
 local raids=stations:FindFirstChild("RaidsStation")
 local hunter=if raids then raids:FindFirstChild("SungJinwooNPC") else nil
 assert(hunter and hunter:IsA("Model") and hunter:GetAttribute("CharacterReborn")=="Jinwoo-v1")
