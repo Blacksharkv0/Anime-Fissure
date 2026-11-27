@@ -7,7 +7,7 @@ local RunService=game:GetService("RunService")
 local Config=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyServiceConfig"))
 local Art=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyNPCArtFinish"))
 local Builder={}
-Builder.Version="1.1.0"
+Builder.Version="1.2.0"
 
 local P={
     Ink=Color3.fromRGB(15,19,35),Stone=Color3.fromRGB(33,37,57),
@@ -272,6 +272,33 @@ local function station(root: Model,info: any,kind: string)
     end
     return m
 end
+-- The original Vergil stand and Dante Index together form a single
+-- visual district. Keep this emblem above the path, not a physical wall.
+local function twinHunterEmblem(root: Model)
+    local emblem=model(root,"TwinHuntersEmblem")
+    emblem:SetAttribute("Decorative",true)
+    local center=Vector3.new(240.1,12.8,-8.5)
+    circle(emblem,"CrimsonDemonSigil",center,2.65,
+        Color3.fromRGB(232,67,93),.11,16,"front")
+    circle(emblem,"AzureDemonSigil",center,2.10,
+        Color3.fromRGB(78,164,255),.085,16,"front")
+    for _,side in ipairs({-1,1}) do
+        local tint=if side<0 then Color3.fromRGB(91,178,255)
+            else Color3.fromRGB(240,80,97)
+        rod(emblem,"HunterBlade"..side,
+            center+Vector3.new(-side*1.70,-2.10,-.20),
+            center+Vector3.new(side*1.70,2.10,-.20),
+            .24,tint,Enum.Material.Metal)
+        rod(emblem,"HunterGuard"..side,
+            center+Vector3.new(-side*.66,-1.03,-.21),
+            center+Vector3.new(-side*.05,-1.59,-.21),
+            .17,P.Gold,Enum.Material.Metal)
+    end
+    billboard(emblem,"IRMÃOS CAÇADORES",
+        "SUMMON  •  INDEX",center+Vector3.new(0,4.0,0),
+        Color3.fromRGB(222,212,248))
+    return emblem
+end
 local function eventHub(root: Model)
     local info=Config.Get("EventHub")
     local m=model(root,"SeasonalEventHub")
@@ -329,6 +356,7 @@ function Builder.Build(lobby: Model): Model
         station(root,info,kind)
     end
     eventHub(root)
+    twinHunterEmblem(root)
     root:SetAttribute("StationCount",#Config.Order)
     root:SetAttribute("EventHubCount",1)
     root:SetAttribute("Ready",true)
