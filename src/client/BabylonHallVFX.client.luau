@@ -22,10 +22,11 @@ for _,p in ipairs(portals:GetChildren()) do
     if not p:IsA("Model") then continue end
     count+=1
     if count>maxAnimated then continue end
+    local portalIndex=count
     local disc=p:FindFirstChild("GoldenRippleCore")
     if not disc or not disc:IsA("BasePart") then continue end
     task.spawn(function()
-        local phase=count*0.14
+        local phase=portalIndex*0.14
         task.wait(phase)
         local original=disc.Transparency
         while disc.Parent and hall.Parent do
