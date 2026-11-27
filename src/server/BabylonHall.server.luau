@@ -4,9 +4,29 @@
 local Workspace=game:GetService("Workspace")
 local RS=game:GetService("ReplicatedStorage")
 local Players=game:GetService("Players")
-local Builder=require(script.Parent:WaitForChild("BabylonHallBuilder"))
+local statusKey="FoundationBabylon"
+local function stage(state: string,detail: string?)
+    Workspace:SetAttribute(statusKey,state)
+    Workspace:SetAttribute(statusKey.."Detail",detail or "")
+end
+stage("Loading","Carregando BabylonHallBuilder")
+local moduleScript=script.Parent:WaitForChild("BabylonHallBuilder",20)
+if not moduleScript then
+    stage("Error","Módulo BabylonHallBuilder ausente")
+    warn("[Anime Fissure] "..statusKey..": módulo ausente")
+    return
+end
+local loaded,Builder=xpcall(function()
+    return require(moduleScript)
+end,debug.traceback)
+if not loaded then
+    stage("Error",tostring(Builder))
+    warn("[Anime Fissure] "..statusKey..": "..tostring(Builder))
+    return
+end
 local lobby=Workspace:WaitForChild("FissureLobby",55)
 if not lobby or not lobby:IsA("Model") then
+    stage("Error","FissureLobby indisponível")
     warn("[Anime Fissure] BABYLON HALL: FissureLobby indisponivel")
     return
 end
@@ -14,13 +34,16 @@ local floor=lobby:WaitForChild("LobbyFloor",15)
 local spawn=lobby:WaitForChild("LobbySpawn",15)
 local portal=lobby:WaitForChild("ArenaPortal",15)
 if not floor or not spawn or not portal then
+    stage("Error","Piso, spawn ou portal ausente")
     warn("[Anime Fissure] BABYLON HALL: aguardando elementos do lobby")
     return
 end
-local ok,hall=pcall(function()
+stage("Loading","Construindo Salão da Babilônia")
+local ok,hall=xpcall(function()
     return Builder.Build(lobby)
-end)
+end,debug.traceback)
 if not ok then
+    stage("Error",tostring(hall))
     warn("[Anime Fissure] BABYLON HALL: falha ao criar decoracao: "..tostring(hall))
 elseif hall then
     -- The client may only OPEN the catalog after Gilgamesh's server prompt
@@ -48,6 +71,7 @@ elseif hall then
     local prompt=if anchor then anchor:FindFirstChild("BabylonRelicPrompt") else nil
     if not prompt or not prompt:IsA("ProximityPrompt") or not anchor
         or not anchor:IsA("BasePart") then
+        stage("Error","Prompt de Gilgamesh indisponível")
         warn("[Anime Fissure] BABYLON: prompt do Gilgamesh indisponivel")
         return
     end
@@ -69,6 +93,7 @@ elseif hall then
     Players.PlayerRemoving:Connect(function(player)
         lastOpen[player.UserId]=nil
     end)
+    stage("Ready","Gilgamesh e catálogo conectados")
     print("[Anime Fissure] BABYLON HALL READY: Gilgamesh governs ALL relics; "..
         "server-validated catalog, 11 portals and 5 ring vitrines")
 end
