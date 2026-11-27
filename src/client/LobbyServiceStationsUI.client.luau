@@ -133,6 +133,8 @@ UIS.InputBegan:Connect(function(input: InputObject,processed: boolean)
         or input.KeyCode==Enum.KeyCode.ButtonB then closeHud() end
 end)
 local function openInfo(id: string)
+    -- Dante has his own full Index interface. Never open two panels at once.
+    if id=="Index" then return end
     if player:GetAttribute("InArena")==true then return end
     local info=Config.Get(id)
     if not info then return end
