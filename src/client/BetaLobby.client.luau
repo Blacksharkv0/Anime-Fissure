@@ -281,7 +281,7 @@ guideLimit.Parent = guideWindow
 text(guideWindow, "GuideTitle", "GUIA DO LOBBY",
     UDim2.fromOffset(18, 14), UDim2.new(1, -36, 0, 32), 21, C.Cyan, true)
 text(guideWindow, "GuideBody",
-    "PORTAL: escolher Story Mode.\nVIRGIL: Summon.\nEDWARD: alquimia e orbes.\nGILGAMESH: relíquias de todos os mundos.\nWHIS: evolução de unidades (em desenvolvimento).\nURAHARA: Traits das unidades (em desenvolvimento).\nJINWOO: desafios e Raids permanentes (em desenvolvimento).\nPRAÇA CENTRAL: anfitrião do evento sazonal, quando ativo.\nCOLEÇÃO E DECKS: interface definitiva em desenvolvimento.",
+    "PORTAL: escolher Story Mode.\nVIRGIL: Summon.\nDANTE: Index de todas as unidades, ao lado do Vergil.\nEDWARD: alquimia e orbes.\nGILGAMESH: relíquias de todos os mundos.\nWHIS: evolução de unidades (em desenvolvimento).\nURAHARA: Traits das unidades (em desenvolvimento).\nJINWOO: desafios e Raids permanentes (em desenvolvimento).\nPRAÇA CENTRAL: anfitrião do evento sazonal, quando ativo.\nINDEX mostra unidades cadastradas, não posse.\nCOLEÇÃO E DECKS: interface definitiva em desenvolvimento.",
     UDim2.fromOffset(18, 53), UDim2.new(1, -36, 1, -113), 12, C.White)
 local guideClose = button(guideWindow, "GuideClose", "ENTENDI",
     UDim2.new(0, 18, 1, -52), UDim2.new(1, -36, 0, 38), C.Electric, 14)
