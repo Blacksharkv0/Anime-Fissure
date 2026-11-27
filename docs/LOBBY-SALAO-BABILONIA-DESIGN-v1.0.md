@@ -1,7 +1,7 @@
 # ANIME FISSURE — Salão da Babilônia
-## Documento de design do Lobby de Relíquias · Conceito v1.0 · 26/11/2026
+## Documento de design do Lobby de Relíquias · Conceito v1.1 / primeiro protótipo 3D · 26/11/2026
 
-**Estado: proposta de design, não implementação 3D no Roblox Studio.** O projeto já possui os cinco modelos de anéis em laboratório e seu sistema de efeitos no combate de teste; este documento define a futura **área permanente de NPC e UI do lobby**, sem alterar os scripts executáveis nesta entrega.
+**Estado atualizado:** o primeiro **Salão da Babilônia 3D foi publicado** como protótipo procedural no GitHub, com 11 portais de armas originais, 5 vitrines 3D dos anéis e Gilgamesh como **modelo decorativo estático** com ProximityPrompt abrindo um **catálogo somente leitura**. A build e a exibição no Roblox Studio ainda não foram verificadas. Não existem equipamento persistente, reroll, drops ou evoluções executáveis no salão.
 
 ## Visão
 
@@ -29,15 +29,15 @@ Inspecionado em `src/server/BetaLobby.server.luau`:
 - Spawn do jogador: posição relativa (0,0.5,+25).
 - Outro script não deve destruir, mover ou sobrescrever `Workspace.FissureLobby`.
 
-**Implantação planejada** (posições em studs, apenas sugestão, não world parts prontas):
-- Ala direita para o jogador que sai do spawn olhando o Portal de Missões (sentido −Z).
-- Área: faixa aproximada x=275…312 e z=−22…20, contida dentro do piso atual.
-- Entrada/portal arquitetônico do salão: x≈275, z≈+15.
-- Átrio central e espaço livre de circulação: x≈287, z≈+6.
-- Pedestal de Gilgamesh: x≈298, z≈−3, NPC olhando para o corredor de chegada (direção −X).
-- Cinco vitrines de anéis: semicírculo de pedestais nas bordas, sem bloquear a frente do NPC.
-- Arco do tesouro e portais dourados decorativos: atrás do NPC, direção +X, sem bloquear o piso.
-- Rota transitável de largura desejada >= 8 studs, sobretudo para mobile e quatro jogadores.
+**Implantação 3D de protótipo — corrigida após inspeção dos NPCs existentes**:
+- Edward e a oficina de alquimia já ocupam a direita do lobby (Edward em x≈301,z≈−8,5; oficina em x≈293,z≈5). Por isso a antiga planta dentro do piso, x275–312, foi **descartada por conflito espacial**.
+- O salão passa a ser um **anexo na ala direita**, fora do limite leste do piso existente, mas conectado por uma ponte jogável.
+- Piso do salão: centro `Vector3.new(347,0,19)`, largura ≈61 studs em X e 62 em Z; faixa x≈316,5–377,5, z≈−12–50.
+- Ponte de acesso pela praça em x≈304–332, z≈14–26, sem atravessar Edward nem a oficina.
+- Arco dourado de entrada em x≈318, z≈20. Gilgamesh está em um pedestal em x≈356, z≈20 e olha para o jogador que vem do oeste.
+- Os **11 portais armados** ficam na parede do fundo (x≈374), em alturas e formatos variados; todos são decorativos sem colisão.
+- As cinco vitrines distribuem-se nas bordas z≈−4 e z≈42, longe do corredor central.
+- Piso de acesso e ponte possuem colisão; ornamentos, portais e armas não possuem colisão.
 
 ### Planta funcional, não em escala
 
@@ -52,7 +52,7 @@ Inspecionado em `src/server/BetaLobby.server.luau`:
                                              |
                                          tela de relíquias
 
-**Observação**: tudo deve ser construído em modelo filho separado de `FissureLobby` (ex.: `RelicHall`), com script de construção independente que aguarda o lobby estar pronto. Respeitar o Spawn e o MissionBoardPrompt existentes.
+**Implementado**: `src/server/BabylonHallBuilder.luau` + `src/server/BabylonHall.server.luau` geram somente `Workspace.FissureLobby.BabylonHall` depois do spawn e do portal de missão carregarem, preservando `LobbySpawn`, `ArenaPortal` e remotes.
 
 ## 3. Arquitetura e direção de arte
 
@@ -66,7 +66,7 @@ Inspecionado em `src/server/BetaLobby.server.luau`:
 - Piso de placas de ônix com filigranas douradas, reflexos moderados.
 - Paredes ou molduras semiabertas que não causem clipping na câmera Roblox.
 - Trono opcional atrás do NPC: **Gilgamesh deve ficar em pé**, destacado do fundo, acessível pela frente.
-- 5 portais âmbar suspensos, não colidentes; um arco central maior se destaca.
+- **11 portais âmbar suspensos** com armas de estilos geek distintos, flutuando atrás de Gilgamesh; cada portal é não colidente, com brilho local suave.
 - Céu/paredes não devem ser tomados por efeitos; permitir leitura rápida de NPC e botões.
 - Duas salas funcionais representadas por ornamentos, não por loadings distintos: **Relíquias** (esquerda) e **Evolução** (direita).
 
@@ -173,18 +173,23 @@ Quatro estados visuais para cada item:
 
 Código atual consultado:
 - `src/server/BetaLobby.server.luau`: gera `Workspace.FissureLobby`, respawn e Portal das Missões; **não modificar o fluxo do lobby/arena** para adicionar o salão.
-- `src/client/RelicRingGallery.client.luau`: laboratório de previews existente **apenas no Studio**, deve se tornar a base da aba CATÁLOGO, não ser removido.
+- `src/client/RelicRingGallery.client.luau`: **catálogo visual agora disponível no lobby** por botão ou ProximityPrompt de Gilgamesh; previews 3D são renderizados localmente. Não oferece ações de inventário.
 - `src/shared/RelicRingConfig.luau`: efeitos, elementos e regra Ainz imutáveis nesta etapa.
 - `src/shared/OverlordEvolutionLootConfig.luau`: seis fases, sete materiais, cinco anéis dual-use.
 - `src/server/TowerService.luau`: buffs e troca de anel Studio-only no combate.
 
-**Plano de integração futuro**:
-1. Criar `src/server/BabylonHall.server.luau` após o lobby estar pronto, construindo só `Workspace.FissureLobby.RelicHall` e prompt, sem mexer em `LobbyRemotes.EnterArena`.
-2. Criar `src/shared/BabylonHallConfig.luau` para posições propostas, paleta, NPC e estados de tela.
-3. Criar `src/client/BabylonRelicHUD.client.luau` para a tela de catálogo e diálogo com NPC.
-4. Reutilizar os `RelicRingPreviewModels` de Studio para protótipo; em produção, disponibilizar modelos visuais com política de desempenho validada.
-5. Em etapa separada, criar inventário persistente real, serviço de equipar seguro, reroll e receitas de evolução.
-6. Testar em PC, Android e coop no Studio; o salão deve ficar visível para jogadores que ainda não entraram na arena.
+**Integração entregue nesta revisão**:
+1. `BabylonHallBuilder.luau` cria arquitetura, ponte, NPC decorativo, 11 portais, armas estilo geek e vitrines das cinco relíquias, sem tocar no sistema de missão.
+2. `BabylonHall.server.luau` monta o salão depois de localizar `FissureLobby` e seus componentes.
+3. `RelicRingGallery.client.luau` abre catálogo 3D somente leitura pelo botão do lobby ou ProximityPrompt.
+4. `BabylonHallVFX.client.luau` faz cintilação local de portais, limitada a 4 superfícies no touch e 9 no PC; sem atualização constante por frame.
+5. `BabylonHallSmokeTest.server.luau` faz checagens de cena no Studio, sem alterar os sistemas já existentes.
+
+**Próximas etapas reais**:
+1. Transformar a versão decorativa estática de Gilgamesh em um rig animável com aparência premium, após playtest da silhueta.
+2. Transformar o catálogo em painel definitivo com outras abas; equipar/evoluir/reroll devem aguardar inventário e servidor.
+3. Testar colisões, portal das missões, iluminação, FPS e UI no Roblox Studio/Android.
+4. Revisar licenças de referências geek antes de uma publicação pública.
 
 **Performance**:
 - Construir arquitetura com blocos/meshes reutilizáveis, ancorados; ornamentos não colidentes.
@@ -196,11 +201,11 @@ Código atual consultado:
 
 ## 8. Checklist de aceitação para implementação futura
 
-- [ ] Hall no canto direito sem interceptar portal/spawn atuais nem bloquear caminhada.
-- [ ] O Gilgamesh tem silhueta ouro/rubi legível e pose de rei.
-- [ ] Prompt abre painel em PC/mobile/gamepad, não emite recompensa.
-- [ ] Cinco pedestais representam os cinco anéis exatos, com mesma cor e nomenclatura da RelicRingConfig.
-- [ ] Aba catálogo abre previews 3D sem conceder itens.
+- [x] Hall montado como anexo à direita, com ponte e sem alterar o portal/spawn em código (**pendente playtest de navegação**).
+- [x] Protótipo **estático** de Gilgamesh em ouro/rubi criado (rig premium e animação ainda pendentes).
+- [x] Prompt conectado ao catálogo visual do cliente (teste interativo em Studio ainda pendente).
+- [x] Cinco pedestais com os cinco modelos 3D exatos, usando RelicRingModelBuilder.
+- [x] Catálogo 3D em modo somente leitura implementado (teste em Studio pendente).
 - [ ] Ainz não recebe bônus normais dos anéis, em nenhum estado.
 - [ ] Restrição continua +100% dano e +100% SPA (multiplicadores 2×/2×).
 - [ ] Shalltear/Albedo têm materiais próprios, não anéis.
