@@ -158,6 +158,34 @@ assert(example and example:GetAttribute("ArtFinish")==Art.Version)
 assert(example:FindFirstChild("SolarCrown1"),
     "Escanor event concept should remain visually distinct, Studio only")
 
+assert(example:IsA("Model") and example:GetAttribute("CharacterReborn")=="Escanor-v1"
+    and example:GetAttribute("SeasonalPreviewOnly")==true)
+local solarHead=example:FindFirstChild("Head")
+assert(solarHead and solarHead:IsA("BasePart") and example.PrimaryPart==solarHead)
+assert(solarHead:FindFirstChild("Reborn_EscanorFace"))
+for _,name in ipairs({"SolarMoustache","Reborn_SolarPectoral_1","SunArmor_1",
+    "Reborn_SolarCape_1","Reborn_Rhitta_Shaft","Reborn_Rhitta_BladeMain",
+    "Reborn_Rhitta_SolarGem","SolarCrown24","Reborn_SolarGround20"}) do
+    local p=example:FindFirstChild(name)
+    assert(p and p:IsA("BasePart") and p.Anchored and not p.CanCollide
+        and not p.CanTouch and not p.CanQuery,"Escanor detail missing or unsafe: "..name)
+end
+local solarParts=0
+for _,p in ipairs(example:GetChildren()) do
+    if p:IsA("BasePart") and string.sub(p.Name,1,7)=="Reborn_" then
+        solarParts+=1
+        assert(p.Anchored and not p.CanCollide and not p.CanTouch and not p.CanQuery)
+    end
+end
+assert(solarParts>=95 and solarParts<=160,"Escanor cosmetic geometry budget: "..solarParts)
+assert(event:GetAttribute("GameplayActive")==false and event:GetAttribute("EventId")=="")
+local eventAnchor=event:FindFirstChild("InteractionPoint")
+local eventPrompt=if eventAnchor then eventAnchor:FindFirstChild("LobbyServicePrompt") else nil
+assert(eventPrompt and eventPrompt:IsA("ProximityPrompt") and eventPrompt.ClickablePrompt)
+local Config=require(RS:WaitForChild("Shared"):WaitForChild("LobbyServiceConfig"))
+assert(Config.GetEvent()==nil,"No live seasonal event should be activated by art")
+print("[Anime Fissure] ESCANOR REBORN SMOKE OK: "..solarParts.." static cosmetic parts, preview only")
+
 local hall=lobby:WaitForChild("BabylonHall",70)
 local king=hall:FindFirstChild("GilgameshNPC")
 assert(king and king:GetAttribute("ArtFinish")==Art.Version)
