@@ -163,7 +163,7 @@ local status = box(gui, "LobbyStatus", C.Dark,
     UDim2.new(0, 15, 1, -15), UDim2.fromOffset(285, 44), 10)
 status.AnchorPoint = Vector2.new(0, 1)
 status.BackgroundTransparency = 0.11
-local statusText = text(status, "Status", "Virgil: esquerda  •  Edward: direita",
+local statusText = text(status, "Status", "Mentores e Praça dos Eventos: explore o lobby",
     UDim2.fromOffset(11, 4), UDim2.new(1, -20, 1, -8), 11, C.Cyan)
 
 -- Overlay nao fica ativo quando o usuario apenas circula pela praca.
@@ -272,17 +272,17 @@ guide.Active = true
 guide.Visible = false
 guide.ZIndex = 10
 local guideWindow = box(guide, "GuideWindow", C.Base,
-    UDim2.fromScale(0.5, 0.5), UDim2.new(1, -40, 0, 286), 13)
+    UDim2.fromScale(0.5, 0.5), UDim2.new(1, -40, 0, 338), 13)
 guideWindow.AnchorPoint = Vector2.new(0.5, 0.5)
 outline(guideWindow, C.Purple, 1.5)
 local guideLimit = Instance.new("UISizeConstraint")
-guideLimit.MaxSize = Vector2.new(500, 320)
+guideLimit.MaxSize = Vector2.new(500, 365)
 guideLimit.Parent = guideWindow
 text(guideWindow, "GuideTitle", "GUIA DO LOBBY",
     UDim2.fromOffset(18, 14), UDim2.new(1, -36, 0, 32), 21, C.Cyan, true)
 text(guideWindow, "GuideBody",
-    "PORTAL: abra o terminal e escolha uma fase.\n\nVIRGIL: aproxime-se e pressione E (ou toque) para conversar e invocar.\n\nEDWARD: aproxime-se para explorar a oficina de alquimia.\n\nCOLECAO/DECKS: interface completa em desenvolvimento.",
-    UDim2.fromOffset(18, 53), UDim2.new(1, -36, 1, -113), 14, C.White)
+    "PORTAL: escolher Story Mode.\nVIRGIL: Summon.\nEDWARD: alquimia e orbes.\nGILGAMESH: relíquias de todos os mundos.\nWHIS: evolução de unidades (em desenvolvimento).\nURAHARA: Traits das unidades (em desenvolvimento).\nJINWOO: desafios e Raids permanentes (em desenvolvimento).\nPRAÇA CENTRAL: anfitrião do evento sazonal, quando ativo.\nCOLEÇÃO E DECKS: interface definitiva em desenvolvimento.",
+    UDim2.fromOffset(18, 53), UDim2.new(1, -36, 1, -113), 12, C.White)
 local guideClose = button(guideWindow, "GuideClose", "ENTENDI",
     UDim2.new(0, 18, 1, -52), UDim2.new(1, -36, 0, 38), C.Electric, 14)
 
