@@ -301,6 +301,7 @@ end
 local function syncSelection()
     local stage = findStage(selectedId)
     if not stage then return end
+    local sessionFinished=Workspace:GetAttribute("DemoMatchFinished")==true
     for id, b in pairs(stageButtons) do
         local selected = id == selectedId
         b.BackgroundColor3 = if selected then C.Electric else C.Inner
@@ -327,11 +328,19 @@ local function syncSelection()
     end
     classic.BackgroundColor3 = if selectedMode == "Classic" then C.Electric else C.Inner
     hard.BackgroundColor3 = if selectedMode == "Hard" then C.Purple else C.Inner
-    play.Active = stage.Playable and not waiting
-    play.AutoButtonColor = stage.Playable and not waiting
-    play.BackgroundColor3 = if stage.Playable then C.Green else C.Dark
-    play.Text = if waiting then "ENTRANDO..." elseif stage.Playable
-        then "INICIAR " .. string.upper(selectedMode) else "INDISPONIVEL"
+    play.Active=stage.Playable and not waiting and not sessionFinished
+    play.AutoButtonColor=play.Active
+    play.BackgroundColor3=if play.Active then C.Green else C.Dark
+    play.Text=if sessionFinished then "SESSÃO FINALIZADA"
+        elseif waiting then "ENTRANDO..."
+        elseif stage.Playable then "INICIAR "..string.upper(selectedMode)
+        else "INDISPONÍVEL"
+    if sessionFinished then
+        notice.Text="Esta beta aceita UMA partida por servidor."..
+            "\nReinicie o Play no Roblox Studio para jogar novamente."
+        stageStatus.Text="SESSÃO DE TESTE ENCERRADA"
+        stageStatus.TextColor3=C.Gold
+    end
 end
 
 for i, stage in ipairs(catalog) do
@@ -384,6 +393,12 @@ guideClose.Activated:Connect(function() guide.Visible = false end)
 
 play.Activated:Connect(function()
     if waiting then return end
+    if Workspace:GetAttribute("DemoMatchFinished")==true then
+        statusText.Text="Sessão encerrada. Reinicie o Play para jogar novamente."
+        statusText.TextColor3=C.Gold
+        syncSelection()
+        return
+    end
     local stage = findStage(selectedId)
     if not stage or not stage.Playable then return end
     waiting = true
@@ -419,6 +434,14 @@ local function syncVisibility()
     end
 end
 player:GetAttributeChangedSignal("InArena"):Connect(syncVisibility)
+Workspace:GetAttributeChangedSignal("DemoMatchFinished"):Connect(function()
+    if Workspace:GetAttribute("DemoMatchFinished")==true then
+        waiting=false
+        statusText.Text="Partida encerrada • explore o lobby ou reinicie o Play"
+        statusText.TextColor3=C.Gold
+    end
+    syncSelection()
+end)
 
 local function resize()
     local camera = Workspace.CurrentCamera
