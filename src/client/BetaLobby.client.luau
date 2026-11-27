@@ -139,7 +139,7 @@ outline(brand, C.Electric, 1.4, 0.19)
 gradient(brand, C.Inner, C.Dark)
 text(brand, "Logo", "ANIME FISSURE", UDim2.fromOffset(15, 7),
     UDim2.fromOffset(231, 29), 20, C.White, true)
-text(brand, "Version", "LOBBY 1.0   •   BETA SOLO", UDim2.fromOffset(15, 39),
+text(brand, "Version", "LOBBY DEMO 1.1   •   BETA SOLO", UDim2.fromOffset(15, 39),
     UDim2.fromOffset(231, 21), 11, C.Cyan, true)
 
 -- Dock inferior: a praça e os NPCs continuam visiveis e interativos.
@@ -281,7 +281,7 @@ guideLimit.Parent = guideWindow
 text(guideWindow, "GuideTitle", "GUIA DO LOBBY",
     UDim2.fromOffset(18, 14), UDim2.new(1, -36, 0, 32), 21, C.Cyan, true)
 text(guideWindow, "GuideBody",
-    "PORTAL: escolher Story Mode.\nVIRGIL: Summon.\nDANTE: Index de todas as unidades, ao lado do Vergil.\nEDWARD: alquimia e orbes.\nGILGAMESH: relíquias de todos os mundos.\nWHIS: evolução de unidades (em desenvolvimento).\nURAHARA: Traits das unidades (em desenvolvimento).\nJINWOO: desafios e Raids permanentes (em desenvolvimento).\nPRAÇA CENTRAL: anfitrião do evento sazonal, quando ativo.\nINDEX mostra unidades cadastradas, não posse.\nCOLEÇÃO E DECKS: interface definitiva em desenvolvimento.",
+    "PORTAL: escolher Story Mode.\nVIRGIL: Summon.\nDANTE: Index de todas as unidades, ao lado do Vergil.\nEDWARD: alquimia e orbes.\nGILGAMESH: relíquias de todos os mundos.\nWHIS: evolução de unidades (em desenvolvimento).\nURAHARA: Traits das unidades (em desenvolvimento).\nJINWOO: desafios e Raids permanentes (em desenvolvimento).\nPRAÇA CENTRAL: anfitrião do evento sazonal, quando ativo.\nNPCs / MAPA: marque qualquer estação e acompanhe a distância.\nFX: PADRÃO/LEVE: controle visual de desempenho, ideal para celular.\nINDEX mostra personagens cadastrados, não posse.\nCOLEÇÃO E DECKS: interface definitiva em desenvolvimento.",
     UDim2.fromOffset(18, 53), UDim2.new(1, -36, 1, -113), 12, C.White)
 local guideClose = button(guideWindow, "GuideClose", "ENTENDI",
     UDim2.new(0, 18, 1, -52), UDim2.new(1, -36, 0, 38), C.Electric, 14)
