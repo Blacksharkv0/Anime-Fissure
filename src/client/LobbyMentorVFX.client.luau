@@ -45,6 +45,7 @@ local function pulse(base: BasePart,tint: Color3)
         while active and base.Parent and stations.Parent do
             local camera=Workspace.CurrentCamera
             local inLobby=player:GetAttribute("InArena")~=true
+                and player:GetAttribute("ReducedVFX")~=true
             local near=inLobby and camera~=nil
                 and (camera.CFrame.Position-base.Position).Magnitude<maxDistance
             if near then
