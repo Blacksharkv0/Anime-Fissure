@@ -27,7 +27,7 @@ end
 local workshop = Instance.new("Model")
 workshop.Name = workshopName
 workshop:SetAttribute("Version", "0.1.0")
-workshop:SetAttribute("Role", "RelicAndOrbCrafting")
+workshop:SetAttribute("Role", "OrbsAlchemyOnly")
 workshop.Parent = lobby
 
 local C = {
@@ -203,7 +203,7 @@ signText.Font = Enum.Font.GothamBold
 signText.TextColor3 = C.Cyan
 signText.TextStrokeTransparency = 0.6
 signText.TextScaled = true
-signText.Text = "OFICINA DE TRANSMUTACAO\nORBes  -  RELIQUIAS"
+signText.Text = "OFICINA DE TRANSMUTACAO\nORBES  -  ALQUIMIA"
 signText.Parent = signGui
 local rounded = Instance.new("UICorner")
 rounded.CornerRadius = UDim.new(0, 12)
