@@ -18,7 +18,7 @@ if old then old:Destroy() end
 local gui=Instance.new("ScreenGui")
 gui.Name="RelicRingGallery"
 gui.ResetOnSpawn=false
-gui.DisplayOrder=42
+gui.DisplayOrder=80
 gui.IgnoreGuiInset=false
 gui.Enabled=player:GetAttribute("InArena")~=true
 gui.Parent=playerGui
@@ -60,8 +60,10 @@ local function button(parent: Instance,name: string,content: string,
     return t
 end
 
+-- Third laboratory launch, below Overlord Models (y12) and
+-- Economy Items (y65); does not cover either existing button.
 local launch=button(gui,"OpenRings","✧ ANÉIS / RELÍQUIAS",
-    UDim2.fromOffset(175,35),UDim2.new(1,-190,0,13),P.Blue)
+    UDim2.fromOffset(218,38),UDim2.new(1,-230,0,119),P.Blue)
 local shade=panel(gui,"Backdrop",UDim2.fromScale(1,1),
     UDim2.fromScale(0,0),P.Dark)
 shade.BackgroundTransparency=0.12
