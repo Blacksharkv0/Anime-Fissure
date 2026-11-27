@@ -47,6 +47,9 @@ jobs:
           test -f src/server/LobbyVisualPolish.server.luau
           test -f src/server/NPCResidents.server.luau
           test -f src/shared/LobbyServiceConfig.luau
+          test -f src/shared/UnitIndexCatalog.luau
+          test -f src/client/DanteUnitIndex.client.luau
+          test -f src/server/DanteUnitIndexSmokeTest.server.luau
           test -f src/server/LobbyServiceBuilder.luau
           test -f src/server/LobbyServiceStations.server.luau
           test -f src/client/LobbyServiceStationsUI.client.luau
@@ -277,6 +280,25 @@ jobs:
           grep -q 'APRIMORAR' src/client/RelicRingGallery.client.luau
           if grep -q '"EVOLUIR"' src/client/RelicRingGallery.client.luau; then
             echo "ERRO: Evolucao de personagens deve ser exclusiva do Whis"
+            exit 1
+          fi
+
+      - name: Validar Dante Index ao lado do Vergil e Jinwoo com raids
+        run: |
+          grep -q 'Id="Index",NPC="Dante"' src/shared/LobbyServiceConfig.luau
+          grep -q 'Position=Vector3.new(247,0,-8)' src/shared/LobbyServiceConfig.luau
+          grep -q 'NPC="Sung Jinwoo"' src/shared/LobbyServiceConfig.luau
+          grep -q 'Catalog.OwnerNPC="Dante"' src/shared/UnitIndexCatalog.luau
+          grep -q 'Catalog.CollectionConnected=false' src/shared/UnitIndexCatalog.luau
+          grep -q 'Overlord.GetAll()' src/shared/UnitIndexCatalog.luau
+          grep -q 'Catalog.GetOwnershipState' src/shared/UnitIndexCatalog.luau
+          grep -q 'kind=="Index"' src/server/LobbyServiceBuilder.luau
+          grep -q '"IndexStation"' src/server/LobbyServiceStationsSmokeTest.server.luau
+          grep -q 'if id=="Index" then return end' src/client/LobbyServiceStationsUI.client.luau
+          grep -q 'OpenServiceInfo' src/client/DanteUnitIndex.client.luau
+          grep -q 'DANTE UNIVERSAL INDEX SMOKE OK' src/server/DanteUnitIndexSmokeTest.server.luau
+          if grep -q 'FireServer(' src/client/DanteUnitIndex.client.luau; then
+            echo "ERRO: o Index de Dante nao pode escrever no servidor"
             exit 1
           fi
 
