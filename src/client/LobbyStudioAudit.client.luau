@@ -134,7 +134,9 @@ local function ready()
             and event:GetAttribute("GameplayActive")==false,
         child(remotes,"OpenServiceInfo")~=nil
             and child(babylonRemote,"OpenRelicCatalog")~=nil
-            and child(dialogue,"OpenDialogue")~=nil,
+            and child(dialogue,"OpenDialogue")~=nil
+            and Workspace:GetAttribute("FoundationBabylon")=="Ready"
+            and Workspace:GetAttribute("FoundationMentors")=="Ready",
         (function()
             local navigator=child(playerGui,"AnimeFissureLobbyNavigator")
             if not navigator then return false end
@@ -155,6 +157,20 @@ local function sync()
             else Color3.fromRGB(246,172,118)
     end
     title.Text="DIAGNÓSTICO • "..tostring(ok).."/"..tostring(#list).." carregados"
+    local issues={}
+    for _,key in ipairs({"FoundationBabylon","FoundationMentors"}) do
+        local state=Workspace:GetAttribute(key)
+        if state=="Error" then
+            table.insert(issues,if key=="FoundationBabylon" then "Babilônia" else "Mentores")
+        end
+    end
+    if #issues>0 then
+        note.Text="ERRO: "..table.concat(issues," / ").." • Veja Output do servidor."
+        note.TextColor3=Color3.fromRGB(255,135,135)
+    else
+        note.Text="Isso verifica carga de modelos, NÃO valida jogabilidade."
+        note.TextColor3=Color3.fromRGB(173,186,213)
+    end
 end
 local function resize()
     local camera=Workspace.CurrentCamera
