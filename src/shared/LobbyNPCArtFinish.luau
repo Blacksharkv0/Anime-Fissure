@@ -102,7 +102,7 @@ end
 function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
     if npc:GetAttribute("ArtFinish") then return end
     local accent=station.Accent
-    if kind~="Raids" then basicFace(npc,cf,kind) end
+    if kind~="Raids" and kind~="Index" then basicFace(npc,cf,kind) end
     if kind=="Evolution" then
         -- Whis: elongated coiffure, blue-violet robe with geometric
         -- orange diamond ornaments, dual pale sleeves and neck torus.
@@ -253,30 +253,131 @@ function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
         halo(npc,"HunterCircle",cf,Vector3.new(0,.27,0),2.79,violet,20,.055,"Horizontal")
         npc:SetAttribute("CharacterReborn","Jinwoo-v1")
     elseif kind=="Index" then
-        -- Dante: strong crimson shoulder silhouette, white hair swept
-        -- across forehead, silver belts, dark undersuit, broad sword.
-        armorTrim(npc,cf,C.Silver)
-        add(npc,"DanteCollarL",Vector3.new(.46,1.13,1.13),
-            cf,-1.08,6.62,-.15,C.Wine,Enum.Material.Fabric,
-            Vector3.new(0,0,-17),"Wedge")
-        add(npc,"DanteCollarR",Vector3.new(.46,1.13,1.13),
-            cf,1.08,6.62,-.15,C.Wine,Enum.Material.Fabric,
-            Vector3.new(0,0,17),"Wedge")
-        add(npc,"DanteSilverBuckle",Vector3.new(.88,.18,.18),
-            cf,0,4.40,-.85,C.Silver,Enum.Material.Metal)
+        -- Character Reborn: Dante. Retain station identity and original
+        -- head pivot; replace the old rectangular mannequin cosmetically.
+        local red=Color3.fromRGB(153,25,43)
+        local wine=Color3.fromRGB(71,18,30)
+        local worn=Color3.fromRGB(193,49,58)
+        local ink=Color3.fromRGB(24,25,32)
+        local charcoal=Color3.fromRGB(43,45,54)
+        local steel=Color3.fromRGB(146,158,177)
+        local silver=Color3.fromRGB(224,230,238)
+        local hairShade=Color3.fromRGB(163,173,190)
+        local skin=Color3.fromRGB(236,201,174)
+        local function p(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?)
+            return add(npc,n,s,cf,x,y,z,col,mat or Enum.Material.SmoothPlastic,
+                Vector3.new(rx or 0,ry or 0,rz or 0),shape)
+        end
+        for _,obj in ipairs(npc:GetChildren()) do
+            if obj:IsA("BasePart") and obj.Name~="Head" then obj.Transparency=1 end
+        end
+        local head=npc:FindFirstChild("Head")
+        if head and head:IsA("BasePart") then
+            head.Size=Vector3.new(1.54,1.66,1.38);head.Color=skin
+            local mesh=Instance.new("SpecialMesh")
+            mesh.Name="Reborn_DanteHead";mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+            local face=Instance.new("SurfaceGui")
+            face.Name="Reborn_DanteFace";face.Face=Enum.NormalId.Front
+            face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud
+            face.PixelsPerStud=160;face.LightInfluence=.16;face.Parent=head
+            local canvas=Instance.new("Frame")
+            canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+            local function mark(n: string,x: number,y: number,w: number,h: number,col: Color3,rot: number)
+                local f=Instance.new("Frame")
+                f.Name=n;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,h)
+                f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot;f.Parent=canvas
+                local corner=Instance.new("UICorner");corner.CornerRadius=UDim.new(.25,0);corner.Parent=f
+            end
+            for side=-1,1,2 do
+                local x=if side==-1 then .17 else .57
+                local tilt=if side==-1 then 8 else -5
+                mark("EyeOutline_"..side,x,.39,.25,.145,ink,tilt)
+                mark("EyeWhite_"..side,x+.018,.415,.214,.092,C.White,tilt)
+                mark("BlueIris_"..side,x+.085,.397,.08,.128,Color3.fromRGB(85,151,190),0)
+                mark("Pupil_"..side,x+.113,.408,.027,.105,ink,0)
+                mark("EyeGlint_"..side,x+.09,.414,.025,.025,silver,0)
+                mark("Brow_"..side,x-.005,.315,.25,.048,hairShade,tilt)
+            end
+            mark("NoseShadow",.49,.53,.032,.127,Color3.fromRGB(185,141,124),-8)
+            mark("Smirk",.405,.735,.20,.025,Color3.fromRGB(101,58,53),-10)
+            mark("SmirkCorner",.584,.713,.035,.045,Color3.fromRGB(101,58,53),-14)
+            -- Subtle stubble, rather than the clean-shaven Vergil expression.
+            for i=1,7 do
+                mark("Stubble_"..i,.30+i*.045,.81+math.abs(i-4)*-.012,.012,.023,Color3.fromRGB(157,142,137),0)
+            end
+        end
+        p("Reborn_DanteHairBase",Vector3.new(1.69,.77,1.47),0,8.69,.06,hairShade,0,0,0,"Ball")
+        p("Reborn_DanteHairCrown",Vector3.new(1.68,.65,1.40),0,8.91,.01,silver,0,0,0,"Ball")
+        for i=1,7 do
+            local x=-.79+i*.20
+            p("DanteBangs_"..i,Vector3.new(.34,.98-(i%3)*.10,.48),x,8.64+(i%2)*.10,-.58,
+                if i%2==0 then silver else Color3.fromRGB(199,210,225),-12,0,24-i*5,"Wedge")
+            p("Reborn_DanteCrownLock_"..i,Vector3.new(.29,.62,.61),x,9.00,.13,silver,-29,0,24-i*5,"Wedge")
+            p("Reborn_DanteBackLock_"..i,Vector3.new(.28,.80,.50),x,8.48,.56,hairShade,18,0,-12+i*4,"Wedge")
+        end
+        for side=-1,1,2 do
+            p("Reborn_DanteTemple_"..side,Vector3.new(.32,.79,.57),side*.68,8.20,.02,silver,0,0,side*10,"Wedge")
+            p("Reborn_DanteEar_"..side,Vector3.new(.18,.33,.29),side*.77,7.98,.02,skin,0,0,0,"Ball")
+        end
+        p("Reborn_DanteNeck",Vector3.new(.70,.73,.77),0,7.03,0,skin,0,0,0,"Ball")
+        p("Reborn_DanteTorso",Vector3.new(2.24,2.74,1.25),0,5.39,0,ink,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_DanteShirt",Vector3.new(1.40,2.29,.18),0,5.38,-.66,charcoal,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_DanteCollarBack",Vector3.new(1.55,.53,.28),0,6.79,.35,wine,-12,0,0,nil,Enum.Material.Leather)
+        for side=-1,1,2 do
+            local collarName=if side==-1 then "DanteCollarL" else "DanteCollarR"
+            p(collarName,Vector3.new(.47,1.26,.27),side*.62,6.16,-.78,worn,0,0,side*22,nil,Enum.Material.Leather)
+            p("Reborn_DanteCoatFront_"..side,Vector3.new(.74,2.52,.23),side*.78,5.30,-.54,red,0,side*9,side*5,nil,Enum.Material.Leather)
+            p("Reborn_DanteLapelEdge_"..side,Vector3.new(.065,1.30,.10),side*.45,6.16,-.94,wine,0,0,side*22)
+            p("Reborn_DanteShoulder_"..side,Vector3.new(1.04,.73,1.19),side*1.43,6.36,.02,red,0,0,side*-12,"Ball",Enum.Material.Leather)
+            local reach=if side==1 then 1.77 else 1.61
+            p("Reborn_DanteUpperSleeve_"..side,Vector3.new(.84,1.49,.91),side*1.53,5.67,0,red,0,0,side*10,"Ball",Enum.Material.Leather)
+            p("Reborn_DanteLowerSleeve_"..side,Vector3.new(.77,1.37,.85),side*reach,4.50,-.10,wine,if side==1 then -16 else 0,0,side*8,"Ball",Enum.Material.Leather)
+            p("Reborn_DanteCuff_"..side,Vector3.new(.79,.22,.88),side*reach,3.91,-.22,ink,0,0,side*6)
+            p("Reborn_DanteGlove_"..side,Vector3.new(.69,.61,.74),side*reach,3.53,-.26,charcoal,0,0,side*6,"Ball",Enum.Material.Leather)
+            for i=1,3 do
+                p("Reborn_DanteGloveSeam_"..side.."_"..i,Vector3.new(.045,.22,.055),side*reach+(i-2)*.15,3.53,-.61,steel)
+            end
+            p("Reborn_DanteCoatSide_"..side,Vector3.new(.24,3.17,1.04),side*1.02,3.84,.04,red,0,0,side*6,nil,Enum.Material.Leather)
+            p("Reborn_DanteTail_"..side,Vector3.new(1.16,3.43,.24),side*.68,3.20,.66,red,-14,0,side*10,nil,Enum.Material.Leather)
+            p("Reborn_DanteTailLining_"..side,Vector3.new(1.02,3.27,.12),side*.68,3.20,.51,wine,-14,0,side*10,nil,Enum.Material.Fabric)
+            p("Reborn_DanteTailSeam_"..side,Vector3.new(.075,3.25,.10),side*1.12,3.20,.82,worn,-14,0,side*10)
+            p("Reborn_DantePocket_"..side,Vector3.new(.49,.36,.16),side*.87,4.57,-.72,wine,0,0,side*8,nil,Enum.Material.Leather)
+            p("Reborn_DanteThigh_"..side,Vector3.new(.92,1.63,.96),side*.60,2.88,0,ink,0,0,side*4,"Ball",Enum.Material.Fabric)
+            p("Reborn_DanteShin_"..side,Vector3.new(.86,1.51,.90),side*.67,1.57,0,charcoal,0,0,side*2,"Ball",Enum.Material.Leather)
+            p("Reborn_DanteBoot_"..side,Vector3.new(.96,.69,1.34),side*.68,.68,-.19,ink,0,0,0,"Ball",Enum.Material.Leather)
+            p("Reborn_DanteSole_"..side,Vector3.new(.97,.14,1.29),side*.68,.38,-.18,charcoal)
+            for i=1,3 do
+                p("Reborn_DanteBootLace_"..side.."_"..i,Vector3.new(.34,.06,.075),side*.67,1.28-i*.17,-.45,steel,0,0,if i%2==0 then 11 else -11)
+            end
+        end
         for i=1,4 do
-            add(npc,"DanteCoatButton_"..i,Vector3.new(.17,.17,.11),
-                cf,.66,6.08-i*.49,-.97,C.Champagne,Enum.Material.Metal,nil,"Ball")
+            p("DanteCoatButton_"..i,Vector3.new(.14,.14,.09),.80,5.83-i*.36,-.75,steel,0,0,0,"Ball",Enum.Material.Metal)
         end
+        p("Reborn_DanteBelt",Vector3.new(1.90,.24,1.12),0,4.03,0,ink,0,0,0,nil,Enum.Material.Leather)
+        p("DanteSilverBuckle",Vector3.new(.40,.29,.15),0,4.03,-.65,silver,0,0,0,nil,Enum.Material.Metal)
+        p("Reborn_DanteBuckleInset",Vector3.new(.27,.16,.06),0,4.03,-.75,charcoal)
+        -- Large sword carried diagonally on the back. A single local
+        -- coordinate frame keeps blade, guard and wrapped grip aligned.
+        local swordCF=cf*CFrame.new(.30,5.10,.99)*CFrame.Angles(0,0,math.rad(-27))
+        local function sword(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            shape: string?,mat: Enum.Material?,angle: number?)
+            return add(npc,n,s,swordCF,x,y,z,col,mat,Vector3.new(0,0,angle or 0),shape)
+        end
+        sword("Reborn_DanteBladeCore",Vector3.new(.79,3.71,.24),0,-.80,0,steel,nil,Enum.Material.Metal)
+        sword("GreatbladeBackRidge",Vector3.new(.22,3.69,.14),0,-.80,.14,charcoal,nil,Enum.Material.Metal)
+        for side=-1,1,2 do
+            sword("Reborn_DanteBladeEdge_"..side,Vector3.new(.15,3.56,.18),side*.43,-.80,0,silver,nil,Enum.Material.Metal)
+            sword("Reborn_DanteGuardHorn_"..side,Vector3.new(.38,.70,.35),side*.67,1.13,0,steel,"Wedge",Enum.Material.Metal,side*35)
+        end
+        sword("Reborn_DanteBladeTip",Vector3.new(.86,.78,.24),0,-2.98,0,silver,"Wedge",Enum.Material.Metal,180)
+        sword("Reborn_DanteSwordGuard",Vector3.new(1.26,.27,.39),0,1.16,0,steel,nil,Enum.Material.Metal)
+        sword("Reborn_DanteSwordGrip",Vector3.new(.28,1.02,.29),0,1.80,0,ink,nil,Enum.Material.Leather)
         for i=1,5 do
-            add(npc,"DanteBangs_"..i,Vector3.new(.35,.76,.44),
-                cf,-.72+i*.29,8.94,-.53,C.Silver,nil,
-                Vector3.new(23,0,-15+i*7),"Wedge")
+            sword("Reborn_DanteGripWrap_"..i,Vector3.new(.32,.10,.32),0,1.36+i*.15,0,charcoal,nil,Enum.Material.Fabric,15)
         end
-        add(npc,"GreatbladeBackRidge",Vector3.new(.19,3.29,.23),
-            cf,1.88,5.45,.70,C.Champagne,Enum.Material.Metal)
-        add(npc,"SwordPommel",Vector3.new(.50,.52,.48),
-            cf,1.92,7.25,.89,C.Ruby,Enum.Material.Metal,nil,"Ball")
+        sword("SwordPommel",Vector3.new(.43,.31,.38),0,2.43,0,steel,"Ball",Enum.Material.Metal)
+        npc:SetAttribute("CharacterReborn","Dante-v1")
     elseif kind=="EventHub" then
         -- Escanor Studio ONLY: giant golden sun imagery; no event enabled.
         armorTrim(npc,cf,C.Gold)
