@@ -49,14 +49,12 @@ createPart(
     Enum.Material.Slate
 )
 
-for _, x in ipairs({-54, 54}) do
-    createPart(
-        "BlueBorder",
-        Vector3.new(1, 1, 108),
-        CENTER + Vector3.new(x, 0.5, 0),
-        BLUE,
-        Enum.Material.Neon
-    )
+-- Split the east border around the Babylon bridge (z=14..26).
+-- Keep a generous clear passage for walking and touch controls.
+createPart("BlueBorder",Vector3.new(1,1,108),CENTER+Vector3.new(-54,.5,0),BLUE,Enum.Material.Neon)
+for _,span in ipairs({{-54,13},{27,54}}) do
+    createPart("BlueBorder",Vector3.new(1,1,span[2]-span[1]),
+        CENTER+Vector3.new(54,.5,(span[1]+span[2])*.5),BLUE,Enum.Material.Neon)
 end
 
 for _, z in ipairs({-54, 54}) do
