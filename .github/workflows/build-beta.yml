@@ -46,6 +46,11 @@ jobs:
           test -f src/server/LobbyAtrium.server.luau
           test -f src/server/LobbyVisualPolish.server.luau
           test -f src/server/NPCResidents.server.luau
+          test -f src/shared/LobbyServiceConfig.luau
+          test -f src/server/LobbyServiceBuilder.luau
+          test -f src/server/LobbyServiceStations.server.luau
+          test -f src/client/LobbyServiceStationsUI.client.luau
+          test -f src/server/LobbyServiceStationsSmokeTest.server.luau
           test -f src/server/BetaMap.server.luau
           test -f src/server/CarneVillageArtPass.luau
           test -f src/server/CarneVillageArtPass.server.luau
@@ -255,6 +260,25 @@ jobs:
             exit 1
           fi
           grep -q 'GILGAMESH EXCLUSIVE RELIC AUTHORITY OK' src/server/UniversalRelicAuthoritySmokeTest.server.luau
+
+      - name: Validar mentores multiversais e praca sazonal
+        run: |
+          grep -q 'NPC="Whis"' src/shared/LobbyServiceConfig.luau
+          grep -q 'NPC="Kisuke Urahara"' src/shared/LobbyServiceConfig.luau
+          grep -q 'NPC="Sung Jinwoo"' src/shared/LobbyServiceConfig.luau
+          grep -q 'Config.CurrentEventId=nil' src/shared/LobbyServiceConfig.luau
+          grep -q 'ApprovedForRelease=false' src/shared/LobbyServiceConfig.luau
+          grep -q 'Config.EventHub.Position' src/server/LobbyServiceStationsSmokeTest.server.luau
+          grep -q 'Builder.Build(lobby)' src/server/LobbyServiceStations.server.luau
+          grep -q 'root.Position-anchor.Position' src/server/LobbyServiceStations.server.luau
+          grep -q 'OpenServiceInfo' src/server/LobbyServiceStations.server.luau
+          grep -q 'OnClientEvent:Connect' src/client/LobbyServiceStationsUI.client.luau
+          grep -q 'LOBBY SERVICE NETWORK SMOKE OK' src/server/LobbyServiceStationsSmokeTest.server.luau
+          grep -q 'APRIMORAR' src/client/RelicRingGallery.client.luau
+          if grep -q '"EVOLUIR"' src/client/RelicRingGallery.client.luau; then
+            echo "ERRO: Evolucao de personagens deve ser exclusiva do Whis"
+            exit 1
+          fi
 
       - name: Gerar arquivo Roblox
         run: |
