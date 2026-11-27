@@ -168,65 +168,11 @@ atmosphere.Decay = Color3.fromRGB(94, 124, 182)
 
 local floor = lobby:FindFirstChild("LobbyFloor")
 if floor and floor:IsA("BasePart") then
-    floor.Color = C.Floor
-    floor.Material = Enum.Material.Concrete
+    floor.Color = Color3.fromRGB(33,44,63)
+    floor.Material = Enum.Material.Slate
 end
 
--- 25 placas largas, separadas por frestas, suavizam o grande chao vazio.
--- Todas decorativas, sobre o piso existente (topo em Y = 0).
-for gx = -2, 2 do
-    for gz = -2, 2 do
-        local tile = part("PlazaStone", CENTER + Vector3.new(gx * 20.5, 0.055, gz * 20.5),
-            Vector3.new(19.95, 0.11, 19.95),
-            ((gx + gz) % 2 == 0) and C.Floor or C.FloorAlt,
-            Enum.Material.Concrete, false)
-        tile.Reflectance = 0.02
-    end
-end
-
--- A entrada central tem uma trilha clara ate a arena.
-for _, z in ipairs({26, 20, 14, 8, 2, -4, -10, -16, -22, -28, -34}) do
-    part("CentralWalkway", CENTER + Vector3.new(0, 0.14, z),
-        Vector3.new(10.5, 0.12, 5.65), C.Path, Enum.Material.SmoothPlastic, false)
-end
-
--- Trilhas laterais ligando o Summon e a Oficina ao centro da praca.
-for x = -28, 28, 7 do
-    if math.abs(x) > 7 then
-        local accent = x < 0 and C.Purple or C.Gold
-        local path = part("StationWalkway", CENTER + Vector3.new(x, 0.145, 2),
-            Vector3.new(6.75, 0.12, 7.2), C.Path, Enum.Material.Concrete, false)
-        path.Color = C.Path
-        part("StationWayLight", CENTER + Vector3.new(x, 0.214, -1.0),
-            Vector3.new(4.8, 0.065, 0.12), accent, Enum.Material.Neon, false)
-    end
-end
-
--- Circulo sinalizador desenhado sobre o piso, sem criar barreira.
-local ringCenter = CENTER + Vector3.new(0, 0.245, 2)
-for i = 0, 39 do
-    local a = 2 * math.pi * i / 40
-    local b = 2 * math.pi * (i + 1) / 40
-    line("CentralRing", ringCenter + Vector3.new(math.cos(a) * 14, 0, math.sin(a) * 14),
-        ringCenter + Vector3.new(math.cos(b) * 14, 0, math.sin(b) * 14),
-        0.09, C.Blue)
-end
-
--- Luminarias fisicas para definir profundidade, sem cobrir as lojas.
-for _, z in ipairs({23, -22}) do
-    for _, x in ipairs({-23, 23}) do
-        local origin = CENTER + Vector3.new(x, 0, z)
-        part("LampBase", origin + Vector3.new(0, 0.4, 0),
-            Vector3.new(2.5, 0.8, 2.5), C.Ink, Enum.Material.Metal, false)
-        part("LampPole", origin + Vector3.new(0, 4.6, 0),
-            Vector3.new(0.65, 8.3, 0.65), C.Metal, Enum.Material.Metal, false)
-        part("LampCrown", origin + Vector3.new(0, 8.75, 0),
-            Vector3.new(2.0, 0.32, 2.0), C.Ink, Enum.Material.Metal, false)
-        local core = part("LampCore", origin + Vector3.new(0, 8.25, 0),
-            Vector3.new(1.45, 1.55, 1.45), C.Cyan, Enum.Material.Neon, false)
-        lamp(core, C.White, 1.5, 29)
-    end
-end
+-- Fissure City owns pavers, routes, plaza and lamps; no duplicate overlays.
 
 -- Moldura em volta do portal existente (o azul solido escondia o formato).
 local portal = lobby:FindFirstChild("ArenaPortal")
