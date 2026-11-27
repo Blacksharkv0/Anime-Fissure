@@ -132,7 +132,7 @@ jobs:
       - name: Conferir modelos 3D detalhados e VFX de economia
         run: |
           grep -q 'Builder.Version = "0.2.0"' src/shared/EconomyItemModelBuilder.luau
-          grep -q 'BlueCrystalUpper' src/shared/EconomyItemModelBuilder.luau
+          grep -q 'diamond(model,"BlueCrystal"' src/shared/EconomyItemModelBuilder.luau
           grep -q 'CoinFaceFront' src/shared/EconomyItemModelBuilder.luau
           grep -q 'ArmorHex' src/shared/EconomyItemModelBuilder.luau
           grep -q 'OctagonalRuneArmor' src/shared/EconomyItemModelBuilder.luau
