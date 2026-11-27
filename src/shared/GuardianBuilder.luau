@@ -423,7 +423,8 @@ function GuardianBuilder.SetPose(
         * CFrame.new(2.25, 6.65, 0)
         * CFrame.Angles(pitch, yaw, roll)
 
-    (arm :: Model):PivotTo(shoulderCF)
+    local rightArmModel = arm :: Model
+    rightArmModel:PivotTo(shoulderCF)
 
     -- Espada acompanha a posicao do braco.
     local swordCF =
@@ -431,7 +432,8 @@ function GuardianBuilder.SetPose(
         * CFrame.new(0, -3.0, -0.1)
         * CFrame.Angles(math.rad(85), 0, 0)
 
-    (sword :: Model):PivotTo(swordCF)
+    local swordModel = sword :: Model
+    swordModel:PivotTo(swordCF)
 
     local leftCF =
         root
@@ -442,7 +444,8 @@ function GuardianBuilder.SetPose(
             math.rad(-5 * alpha)
         )
 
-    (leftArm :: Model):PivotTo(leftCF)
+    local leftArmModel = leftArm :: Model
+    leftArmModel:PivotTo(leftCF)
 end
 
 return GuardianBuilder
