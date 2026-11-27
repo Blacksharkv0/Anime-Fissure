@@ -44,9 +44,9 @@ local LINES = {
         Symbol = "E",
         Accent = C.Gold,
         Intro = "A alquimia não é um truque de mágica, entendeu?",
-        Detail = "Estude as relíquias, descubra seus efeitos e prepare-se. Uma transmutação exige mais que vontade.",
+        Detail = "Transformação de materiais, síntese de orbes e alquimia. A arte dos tesouros agora pertence ao Salão da Babilônia.",
         Action = "EXPLORAR OFICINA",
-        Footnote = "Nesta beta, o Index funciona; transmutação ainda está bloqueada.",
+        Footnote = "Transmutação ainda bloqueada até existir inventário e receitas reais.",
     },
 }
 
