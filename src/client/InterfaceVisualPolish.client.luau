@@ -1,5 +1,5 @@
 --!strict
--- ANIME FISSURE | Interface Visual Polish v0.2
+-- ANIME FISSURE | Interface Visual Polish v0.3
 -- Patch visual ADITIVO: nao troca botao de Summon, remotes nem inventario.
 -- Ajusta o layout a largura/altura reais para respeitar a barra superior.
 
@@ -16,38 +16,16 @@ local function textColor(root: Instance, name: string, color: Color3)
     if label and label:IsA("TextLabel") then label.TextColor3 = color end
 end
 
-local function styleWindow(gui: ScreenGui, root: Frame, baseW: number, baseH: number)
-    gui.IgnoreGuiInset = false -- A interface nao fica atras dos controles do Roblox.
-    local scale = root:FindFirstChildOfClass("UIScale")
-    if not scale then return end
-
-    local function resize()
-        local camera = Workspace.CurrentCamera
-        if not camera then return end
-        local v = camera.ViewportSize
-        local usableW = math.max(320, v.X - 66)
-        local usableH = math.max(310, v.Y - 118)
-        local factor = math.min(usableW / baseW, usableH / baseH, 1)
-        scale.Scale = math.max(0.35, factor)
-    end
-
-    resize()
-    local camera = Workspace.CurrentCamera
-    if camera then camera:GetPropertyChangedSignal("ViewportSize"):Connect(resize) end
-    Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-        local nextCamera = Workspace.CurrentCamera
-        if nextCamera then
-            nextCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
-        end
-        resize()
-    end)
-
-    root.BackgroundColor3 = Color3.fromRGB(16, 26, 52)
-    local close = root:FindFirstChild("Close", true)
+-- Every main screen now owns its own responsive UIScale. This art pass
+-- must NOT attach a second resize handler that fights Summon/Alchemy.
+local function styleWindow(gui: ScreenGui,root: Frame)
+    gui.IgnoreGuiInset=false
+    root.BackgroundColor3=Color3.fromRGB(16,26,52)
+    local close=root:FindFirstChild("Close",true)
     if close and close:IsA("TextButton") then
-        close.Text = "X"
-        close.TextSize = 21
-        close.TextColor3 = PALE
+        close.Text="✕"
+        close.TextSize=19
+        close.TextColor3=PALE
     end
 end
 
@@ -58,7 +36,7 @@ local function polishSummon(gui: ScreenGui)
     if gui:GetAttribute("VisualPolishApplied") then return end
     gui:SetAttribute("VisualPolishApplied", true)
 
-    styleWindow(gui, root, 1000, 620)
+    styleWindow(gui, root)
     local veil = backdrop :: Frame
     veil.BackgroundTransparency = 0.17
     for _, name in ipairs({"CharacterPanel", "PurchasePanel"}) do
@@ -92,24 +70,24 @@ end
 
 local function polishAlchemy(gui: ScreenGui)
     local backdrop = gui:WaitForChild("Backdrop", 18)
-    local root = backdrop and backdrop:WaitForChild("MainWindow", 18)
+    local root = backdrop and backdrop:WaitForChild("AlchemyWindow", 18)
     if not root or not root:IsA("Frame") then return end
     if gui:GetAttribute("VisualPolishApplied") then return end
     gui:SetAttribute("VisualPolishApplied", true)
 
-    styleWindow(gui, root, 1120, 660)
+    styleWindow(gui, root)
     local veil = backdrop :: Frame
     veil.BackgroundTransparency = 0.20
-    for _, name in ipairs({"CraftingPanel", "IndexPanel"}) do
+    for _, name in ipairs({"AlchemyBody", "TransmutationCircle"}) do
         local panel = root:FindFirstChild(name, true)
         if panel and panel:IsA("Frame") then
             panel.BackgroundColor3 = PANEL
         end
     end
-    for _, name in ipairs({"Gold", "EvolutionNote", "ItemDescription"}) do
+    for _, name in ipairs({"Mode", "IngredientInventory", "Explanation"}) do
         textColor(root, name, PALE)
     end
-    print("[Fissure Visual] Alchemy HUD responsivo")
+    print("[Fissure Visual] Alchemy HUD v0.2 compatível, sem redimensionamento duplicado")
 end
 
 local function findLobbyMenu(gui: ScreenGui): Frame?
