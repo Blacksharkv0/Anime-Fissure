@@ -291,7 +291,7 @@ if workshop and workshop:IsA("Model") then
     local signAnchor = part("AlchemyTitleAnchor", Vector3.new(293, 14.9, 4.6),
         Vector3.new(0.5, 0.5, 0.5), C.Ink, Enum.Material.SmoothPlastic, false)
     signAnchor.Transparency = 1
-    billboard(signAnchor, "ALQUIMIA", "ORBES  /  RELIQUIAS", C.Gold, 220)
+    billboard(signAnchor, "ALQUIMIA", "ORBES  /  TRANSMUTACAO", C.Gold, 220)
     for _, x in ipairs({-13, 13}) do
         local p = part("AlchemistLight", Vector3.new(293 + x, 7.8, 5.0),
             Vector3.new(0.4, 0.75, 0.4), C.Gold, Enum.Material.Neon, false)
