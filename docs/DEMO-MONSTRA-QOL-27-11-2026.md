@@ -20,6 +20,7 @@ O Lobby mantém os **sete NPCs permanentes**: Vergil (Summon), Dante (Index), Ed
 6. **ESC / B no controle**: fecha Summon quando não há transação em andamento, Alquimia, Index, Gilgamesh e painéis de mentores. Interfaces ajustadas a telas menores e tema preservado.
 7. **Correção de UI antiga**: InterfaceVisualPolish agora reconhece AlchemyWindow do Edward; removidas tentativas de redimensionamento duplicado que disputavam UIScale com as interfaces já responsivas.
 8. **Diagnóstico no Studio**: botão DIAGNÓSTICO DO LOBBY, com **13 verificações de presença** de modelos, prompts, portais, vitrines e mapa/FX. Verde significa **modelos carregados**, não funções de inventário ou raids prontas.
+9. **Pós-partida com retorno ao lobby:** no resultado real de vitória, derrota ou interrupção, o servidor envia um painel de resultados sem recompensas fictícias. O botão **VOLTAR AO LOBBY** retorna antecipadamente e, se o jogador não fizer nada, o servidor retorna automaticamente após **30 segundos**. O servidor beta ainda aceita apenas uma partida por sessão; reinicie o Play para repetir. Arquivos: src/server/Main.server.luau e src/client/PostMatchHUD.client.luau.
 
 ## Revisão de código e proteções
 
@@ -40,7 +41,8 @@ O Lobby mantém os **sete NPCs permanentes**: Vergil (Summon), Dante (Index), Ed
 6. Entre no **Story Mode: Overlord → Carne Village Classic/Hard**. No **Studio**, se quiser, use o deck de laboratório para testar os modelos Overlord; ele não comprova posse real das unidades.
 7. Coloque uma torre, aperte **U** para upgrade quando possível; clique em **VENDER** e **CANCELAR**, certificando-se de que não vendeu. Confirme depois e veja o resultado retornado pelo servidor.
 8. No emulador mobile, escolha um slot, **arraste e solte** para testar a prévia deslocada; verifique a interface e o desempenho.
-9. Abra **View → Output** e confira as mensagens “DEMO RELEASE SMOKE OK”, “PREMIUM LOBBY ART SMOKE OK”, “DANTE UNIVERSAL INDEX SMOKE OK”, “LOBBY SERVICE NETWORK SMOKE OK”. Qualquer erro no Output deve ser considerado falha a corrigir.
+9. Termine uma partida ou faça o teste de resultado quando possível: confira **VOLTAR AO LOBBY** e o retorno automático de 30 segundos. Para reiniciar a partida, encerre e reinicie o Play.
+10. Abra **View → Output** e confira as mensagens “DEMO RELEASE SMOKE OK”, “PREMIUM LOBBY ART SMOKE OK”, “DANTE UNIVERSAL INDEX SMOKE OK”, “LOBBY SERVICE NETWORK SMOKE OK”. Qualquer erro no Output deve ser considerado falha a corrigir.
 
 **Limitações honestas:** Rojo compila arquivos mas não executa o jogo. O Play real, física, desempenho do Android, rigging e visual 3D precisam de teste manual. Esta é uma **demo de apresentação e teste**, não o jogo final pronto para lançamento público.
 
