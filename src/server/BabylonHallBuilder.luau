@@ -346,8 +346,9 @@ end
 local function king(root: Model)
     local folder=newModel(root,"GilgameshNPC")
     folder:SetAttribute("DisplayName","Gilgamesh")
-    folder:SetAttribute("Role","Mestre das Reliquias")
+    folder:SetAttribute("Role","Mestre Universal das Reliquias")
     folder:SetAttribute("Prototype","DecorativeStaticNpc")
+    folder:SetAttribute("RelicScope","AllWorlds")
     local origin=Vector3.new(356,0.35,20)
     local facing=CFrame.new(origin)*CFrame.Angles(0,math.rad(90),0)
     local function item(n: string,size: Vector3,x: number,y: number,z: number,
@@ -420,7 +421,7 @@ local function king(root: Model)
     local prompt=Instance.new("ProximityPrompt")
     prompt.Name="BabylonRelicPrompt"
     prompt.ActionText="VER RELIQUIAS"
-    prompt.ObjectText="GILGAMESH • MESTRE DAS RELIQUIAS"
+    prompt.ObjectText="GILGAMESH • RELIQUIAS DE TODOS OS MUNDOS"
     prompt.KeyboardKeyCode=Enum.KeyCode.E
     prompt.GamepadKeyCode=Enum.KeyCode.ButtonX
     prompt.RequiresLineOfSight=false
@@ -481,6 +482,7 @@ function Hall.Build(lobby: Model): Model
     root:SetAttribute("Version",Hall.Version)
     root:SetAttribute("Type","RelicLobbyAnnex")
     root:SetAttribute("NPC","Gilgamesh")
+    root:SetAttribute("RelicScope","AllWorlds")
     root:SetAttribute("DecorOnly",true)
     architecture(root)
     portalCloud(root)
