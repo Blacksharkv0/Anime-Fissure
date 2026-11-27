@@ -53,6 +53,7 @@ jobs:
           test -f src/client/LobbyStudioAudit.client.luau
           test -f src/client/LobbyNavigator.client.luau
           test -f src/server/DemoReleaseSmokeTest.server.luau
+          test -f src/client/PostMatchHUD.client.luau
           test -f src/shared/UnitIndexCatalog.luau
           test -f src/client/DanteUnitIndex.client.luau
           test -f src/server/DanteUnitIndexSmokeTest.server.luau
@@ -360,6 +361,18 @@ jobs:
             exit 1
           fi
 
+      - name: Validar resultado da partida e retorno seguro
+        run: |
+          grep -q 'POST_MATCH_SECONDS=30' src/server/Main.server.luau
+          grep -q 'requestReturn.OnServerEvent:Connect(returnPlayerToLobby)' src/server/Main.server.luau
+          grep -q 'showResult:FireClient' src/server/Main.server.luau
+          grep -q 'player:SetAttribute("InArena",false)' src/server/Main.server.luau
+          grep -q 'ReplayAvailable=false' src/server/Main.server.luau
+          grep -q 'AnimeFissurePostMatchHUD' src/client/PostMatchHUD.client.luau
+          grep -q 'Retorno automático ao lobby em' src/client/PostMatchHUD.client.luau
+          grep -q 'ReturnToLobby' src/client/PostMatchHUD.client.luau
+          grep -q 'PostMatchRemotes' src/server/DemoReleaseSmokeTest.server.luau
+
       - name: Gerar arquivo Roblox
         run: |
           mkdir -p build
@@ -372,6 +385,7 @@ jobs:
           grep -q 'LobbyNavigator' build/AnimeFissure-Beta.rbxlx
           grep -q 'DemoReleaseSmokeTest' build/AnimeFissure-Beta.rbxlx
           grep -q 'TowerHUD' build/AnimeFissure-Beta.rbxlx
+          grep -q 'PostMatchHUD' build/AnimeFissure-Beta.rbxlx
           grep -q 'BabylonHallBuilder' build/AnimeFissure-Beta.rbxlx
           grep -q 'LobbyNPCArtFinish' build/AnimeFissure-Beta.rbxlx
           ls -lh build/AnimeFissure-Beta.rbxlx
