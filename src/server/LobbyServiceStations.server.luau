@@ -73,7 +73,8 @@ for _,stationModel in ipairs(built:GetChildren()) do
         local now=os.clock()
         if now-(last[player.UserId] or -10)<0.45 then return end
         last[player.UserId]=now
-        (open :: RemoteEvent):FireClient(player,id)
+        local openEvent = open :: RemoteEvent
+        openEvent:FireClient(player,id)
     end)
     count+=1
 end
