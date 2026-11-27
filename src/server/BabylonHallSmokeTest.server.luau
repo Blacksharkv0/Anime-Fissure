@@ -23,6 +23,7 @@ assert(ready==true,"Babylon Hall did not complete construction")
 assert(hall:GetAttribute("Type")=="RelicLobbyAnnex")
 assert(hall:GetAttribute("PortalCount")==11)
 assert(hall:GetAttribute("RingCount")==5)
+assert(hall:GetAttribute("RelicScope")=="AllWorlds")
 assert(lobby:FindFirstChild("ArenaPortal")==originalPortal)
 assert(lobby:FindFirstChild("LobbySpawn")==originalSpawn)
 assert(lobby:FindFirstChild("LobbyFloor")==originalFloor)
@@ -80,6 +81,7 @@ assert(prompt and prompt:IsA("ProximityPrompt") and prompt.ClickablePrompt
     and prompt.KeyboardKeyCode==Enum.KeyCode.E
     and prompt.GamepadKeyCode==Enum.KeyCode.ButtonX)
 assert(prompt.ActionText=="VER RELIQUIAS")
+assert(king:GetAttribute("RelicScope")=="AllWorlds")
 assert(king:GetAttribute("Prototype")=="DecorativeStaticNpc",
     "Gilgamesh must not impersonate a finished rig")
 local bridge=architecture:FindFirstChild("BridgeFoundation")
