@@ -59,6 +59,45 @@ local event=stations:FindFirstChild("SeasonalEventHub")
 assert(event and event:GetAttribute("GameplayActive")==false)
 assert(event:GetAttribute("DisplayState")=="StudioPreviewOnly")
 
+-- Verify the actual anchors used by the navigator, not merely station names.
+local function checkPrompt(anchor: Instance?,name: string,context: string)
+    assert(anchor and anchor:IsA("BasePart"),context.." missing BasePart anchor")
+    local prompt=anchor:FindFirstChild(name)
+    assert(prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled,
+        context.." missing enabled prompt")
+    assert(prompt.ClickablePrompt and prompt.MaxActivationDistance>0,
+        context.." prompt unusable on touch")
+end
+for _,id in ipairs(Services.Order) do
+    local station=stations:FindFirstChild(id.."Station")
+    assert(station,"Missing station "..id)
+    checkPrompt(station:FindFirstChild("InteractionPoint"),"LobbyServicePrompt",id)
+end
+checkPrompt(event:FindFirstChild("InteractionPoint"),"LobbyServicePrompt","EventHub")
+local king=hall:WaitForChild("GilgameshNPC",30)
+assert(king and king:IsA("Model"),"Gilgamesh model missing")
+checkPrompt(king:FindFirstChild("RelicMasterInteraction"),"BabylonRelicPrompt","Gilgamesh")
+for _,entry in ipairs({{summon,"VirgilNPC"},{alchemy,"AlchemistNPC"}}) do
+    local stand=entry[1] :: Instance
+    local name=entry[2] :: string
+    local npc=stand:WaitForChild(name,45)
+    assert(npc and npc:IsA("Model"),name.." model missing")
+    local untilTime=os.clock()+30
+    while npc:GetAttribute("InteractionReady")~=true and os.clock()<untilTime do
+        task.wait(.2)
+    end
+    assert(npc:GetAttribute("InteractionReady")==true,name.." interaction never became ready")
+    local prompt=npc:FindFirstChild("FissureNPCPrompt",true)
+    assert(prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled
+        and prompt.ClickablePrompt,name.." has no usable NPC prompt")
+    local attachment=prompt.Parent
+    assert(attachment and attachment:IsA("Attachment")
+        and attachment.Parent and attachment.Parent:IsA("BasePart"),
+        name.." prompt is not attached to a physical anchor")
+end
+print("[Anime Fissure] NPC INTERACTION SMOKE OK: 7 permanent prompts + event hub")
+
+
 -- Triggering the NPC menu should be client-only UI. No new remotes allow
 -- crafting, card mutations, drops, fake summoning, extra raids or rerolls.
 local lobbyRemotes=RS:WaitForChild("LobbyServicesRemotes",30)
