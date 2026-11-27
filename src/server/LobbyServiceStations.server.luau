@@ -6,23 +6,51 @@ local Players=game:GetService("Players")
 local RS=game:GetService("ReplicatedStorage")
 local Workspace=game:GetService("Workspace")
 local Config=require(RS:WaitForChild("Shared"):WaitForChild("LobbyServiceConfig"))
-local Builder=require(script.Parent:WaitForChild("LobbyServiceBuilder"))
+local statusKey="FoundationMentors"
+local function stage(state: string,detail: string?)
+    Workspace:SetAttribute(statusKey,state)
+    Workspace:SetAttribute(statusKey.."Detail",detail or "")
+end
+stage("Loading","Carregando LobbyServiceBuilder")
+local moduleScript=script.Parent:WaitForChild("LobbyServiceBuilder",20)
+if not moduleScript then
+    stage("Error","Módulo LobbyServiceBuilder ausente")
+    warn("[Anime Fissure] "..statusKey..": módulo ausente")
+    return
+end
+local loaded,Builder=xpcall(function()
+    return require(moduleScript)
+end,debug.traceback)
+if not loaded then
+    stage("Error",tostring(Builder))
+    warn("[Anime Fissure] "..statusKey..": "..tostring(Builder))
+    return
+end
 
 local lobby=Workspace:WaitForChild("FissureLobby",60)
-if not lobby or not lobby:IsA("Model") then return end
+if not lobby or not lobby:IsA("Model") then
+    stage("Error","FissureLobby indisponível")
+    return
+end
 if not lobby:WaitForChild("LobbyFloor",15)
     or not lobby:WaitForChild("LobbySpawn",15)
     or not lobby:WaitForChild("ArenaPortal",15) then
+    stage("Error","Piso, spawn ou portal ausente")
     warn("[Anime Fissure] SERVICE STATIONS: main lobby incomplete")
     return
 end
 
-local ok,built=pcall(function() return Builder.Build(lobby) end)
+stage("Loading","Construindo estações e praça")
+local ok,built=xpcall(function() return Builder.Build(lobby) end,debug.traceback)
 if not ok then
+    stage("Error",tostring(built))
     warn("[Anime Fissure] SERVICE STATIONS build failed: "..tostring(built))
     return
 end
-if not built or not built:IsA("Model") then return end
+if not built or not built:IsA("Model") then
+    stage("Error","Builder não retornou um Model")
+    return
+end
 
 local remotes=RS:FindFirstChild("LobbyServicesRemotes")
 if remotes and not remotes:IsA("Folder") then
@@ -81,5 +109,7 @@ end
 Players.PlayerRemoving:Connect(function(player)
     last[player.UserId]=nil
 end)
+local expected=#Config.Order+1
+stage(if count==expected then "Ready" else "Error",tostring(count).."/"..tostring(expected).." prompts conectados")
 print("[Anime Fissure] LOBBY SERVICE NPCS READY: "..tostring(count)
     .." NPC prompts (Whis/Urahara/Jinwoo/Event Hub), no gameplay actions")
