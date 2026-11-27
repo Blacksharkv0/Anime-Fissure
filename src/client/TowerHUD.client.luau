@@ -439,6 +439,9 @@ local function chooseSlot(i: number)
         cancelPlacement()
         setHint("Posicionamento cancelado.")
     else
+        -- A different deck selection invalidates any finger still dragging.
+        placementTouch=nil
+        removePreview()
         selectedUnit=item.UnitId
         setHint("Posicione "..item.Name.." em uma área de grama livre.")
     end
@@ -508,7 +511,8 @@ local function ensurePreview()
     preview.CanCollide = false
     preview.CanQuery = false
     preview.CanTouch = false
-    preview.Parent = Workspace.CurrentCamera
+    -- Local-only part; survives camera replacement and is never queried.
+    preview.Parent = Workspace
 end
 
 local function updatePreview(x: number, y: number)
@@ -565,6 +569,10 @@ end)
 UserInputService.InputEnded:Connect(function(input: InputObject)
     if placementTouch~=input then return end
     placementTouch=nil
+    if input.UserInputState==Enum.UserInputState.Cancel then
+        removePreview()
+        return
+    end
     if not selectedUnit or not gui.Enabled
         or player:GetAttribute("InArena")~=true or sellShade.Visible then return end
     local hit=raycastGround(input.Position.X,touchAimY(input.Position.Y))
@@ -573,6 +581,7 @@ UserInputService.InputEnded:Connect(function(input: InputObject)
             Vector3.new(hit.Position.X,0,hit.Position.Z))
         setHint("Posição enviada ao servidor. Aguarde confirmação.",C.Cyan)
     else
+        removePreview()
         setHint("Arraste e solte sobre uma área livre de grama.",C.Gold)
     end
 end)
@@ -609,11 +618,14 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
         and input.UserInputType ~= Enum.UserInputType.Touch then return end
     local x, y = input.Position.X, input.Position.Y
     if selectedUnit and input.UserInputType==Enum.UserInputType.Touch then
+        -- A second finger must never steal a placement already in progress.
+        if placementTouch then return end
         placementTouch=input
         updatePreview(x,touchAimY(y))
         return
     end
     if selectedUnit then
+        if placementTouch then return end
         local hit = raycastGround(x, y)
         if hit and hit.Instance.Name == "VillageMeadow" then
             request:FireServer("Place", selectedUnit, Vector3.new(hit.Position.X, 0, hit.Position.Z))
@@ -737,12 +749,20 @@ local function resize()
         -(13 + 122 * factor + (if lab.Visible then 49 * factor else 0)
             + 10 * factor))
 end
+local cameraConnection: RBXScriptConnection?=nil
 local function bindCamera()
+    if cameraConnection then cameraConnection:Disconnect();cameraConnection=nil end
     local cam = Workspace.CurrentCamera
-    if cam then cam:GetPropertyChangedSignal("ViewportSize"):Connect(resize) end
+    if cam then cameraConnection=cam:GetPropertyChangedSignal("ViewportSize"):Connect(resize) end
     resize()
 end
 Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+UserInputService.WindowFocusReleased:Connect(function()
+    if placementTouch then
+        placementTouch=nil
+        removePreview()
+    end
+end)
 bindCamera()
 
 updateSlots()
