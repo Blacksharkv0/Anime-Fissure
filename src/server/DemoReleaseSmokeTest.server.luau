@@ -68,6 +68,15 @@ local babylonRemotes=RS:WaitForChild("BabylonRemotes",30)
 assert(babylonRemotes:FindFirstChild("OpenRelicCatalog"))
 assert(#babylonRemotes:GetChildren()==1)
 
+local postMatch=RS:WaitForChild("PostMatchRemotes",30)
+assert(postMatch:FindFirstChild("ShowResult")
+    and postMatch.ShowResult:IsA("RemoteEvent"))
+assert(postMatch:FindFirstChild("ReturnLobby")
+    and postMatch.ReturnLobby:IsA("RemoteEvent"))
+assert(not postMatch:FindFirstChild("ClaimRewards")
+    and not postMatch:FindFirstChild("Replay"),
+    "Post-match must not expose fake replay or rewards")
+
 print("[Anime Fissure] DEMO RELEASE SMOKE OK: playable Story OVL_01, "..
     "7 permanent NPCs, 1 inactive event hub, protected inventories, "..
     "5 relic rings, 8 Index units")
