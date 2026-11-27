@@ -158,7 +158,9 @@ local function resolveTarget(id: string): BasePart?
     local result: Instance?
     if id=="Story" then result=path({"ArenaPortal"})
     elseif id=="Virgil" then result=path({"VirgilSummonStand","VirgilNPC","Head"})
+        or path({"VirgilSummonStand","VirgilNPC","HumanoidRootPart"})
     elseif id=="Alchemy" then result=path({"AlchemyWorkshop","AlchemistNPC","Head"})
+        or path({"AlchemyWorkshop","AlchemistNPC","HumanoidRootPart"})
     elseif id=="Relics" then result=path({"BabylonHall","GilgameshNPC","RelicMasterInteraction"})
     elseif id=="EventHub" then result=path({"LobbyServiceStations","SeasonalEventHub","InteractionPoint"})
     else result=path({"LobbyServiceStations",id.."Station","InteractionPoint"})
@@ -302,7 +304,7 @@ task.spawn(function()
             if not target or not target.Parent then
                 target=resolveTarget(selected.id)
                 selectedAnchor=target
-                if target then markerFor(target,selected) end
+                if target then markerFor(target,selected) else clearMarker() end
             end
             local character=player.Character
             local root=if character then character:FindFirstChild("HumanoidRootPart") else nil
