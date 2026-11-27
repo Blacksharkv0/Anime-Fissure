@@ -84,6 +84,30 @@ assert(prompt.ActionText=="VER RELIQUIAS")
 assert(king:GetAttribute("RelicScope")=="AllWorlds")
 assert(king:GetAttribute("Prototype")=="DecorativeStaticNpc",
     "Gilgamesh must not impersonate a finished rig")
+assert(king:GetAttribute("CharacterReborn")=="Gilgamesh-v1",
+    "Gilgamesh Reborn appearance not applied")
+local head=king:FindFirstChild("RegalHead")
+assert(head and head:IsA("BasePart") and head:FindFirstChild("Reborn_RoyalFace"))
+assert(king.PrimaryPart==head,"Gilgamesh pivot changed")
+for _,name in ipairs({"Reborn_SweptHair_0","Reborn_Pectoral_1",
+    "ImperialPauldron_1","Reborn_ShoulderLame_1_3","Reborn_AbdominalPlate_1_4",
+    "Reborn_Gauntlet_1","Reborn_Knuckle_1_4","Reborn_Greave_1",
+    "Reborn_RedCloth_1","RoyalChestSigil"}) do
+    local part=king:FindFirstChild(name)
+    assert(part and part:IsA("BasePart"),"Missing Gilgamesh detail: "..name)
+    assert(part.Anchored and not part.CanCollide and not part.CanTouch and not part.CanQuery)
+end
+local rebornParts=0
+for _,part in ipairs(king:GetChildren()) do
+    if part:IsA("BasePart") and string.sub(part.Name,1,7)=="Reborn_" then
+        rebornParts+=1
+        assert(part.Anchored and not part.CanCollide and not part.CanTouch and not part.CanQuery)
+    end
+end
+assert(rebornParts>=70 and rebornParts<=140,"Gilgamesh Reborn part budget: "..rebornParts)
+assert(king:FindFirstChild("GoldBreastplate").Transparency==1,
+    "Old armor overlaps new Reborn geometry")
+print("[Anime Fissure] GILGAMESH REBORN SMOKE OK: "..rebornParts.." new static cosmetic parts")
 local bridge=architecture:FindFirstChild("BridgeFoundation")
 assert(bridge and bridge:IsA("BasePart") and bridge.CanCollide,
     "The annex must have a walkable bridge connected to the plaza")
