@@ -7,6 +7,7 @@ local Players=game:GetService("Players")
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local TweenService=game:GetService("TweenService")
 local Workspace=game:GetService("Workspace")
+local UserInputService=game:GetService("UserInputService")
 local player=Players.LocalPlayer
 local playerGui=player:WaitForChild("PlayerGui")
 local remotes=ReplicatedStorage:WaitForChild("AlchemyRemotes")
@@ -179,6 +180,11 @@ local function closeHud()
     hideLobby(false)
 end
 close.Activated:Connect(closeHud)
+UserInputService.InputBegan:Connect(function(input: InputObject,processed: boolean)
+    if processed or not gui.Enabled then return end
+    if input.KeyCode==Enum.KeyCode.Escape
+        or input.KeyCode==Enum.KeyCode.ButtonB then closeHud() end
+end)
 player:GetAttributeChangedSignal("InArena"):Connect(function()
     if player:GetAttribute("InArena")==true then closeHud() end
 end)
