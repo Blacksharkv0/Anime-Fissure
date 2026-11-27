@@ -102,7 +102,6 @@ end
 function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
     if npc:GetAttribute("ArtFinish") then return end
     local accent=station.Accent
-    if kind=="EventHub" then basicFace(npc,cf,kind) end
     if kind=="Evolution" then
         -- Character Reborn: Whis. Replace blockout, preserve head pivot
         -- and station-owned interaction. All cosmetics are static and safe.
@@ -592,19 +591,136 @@ function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
         sword("SwordPommel",Vector3.new(.43,.31,.38),0,2.43,0,steel,"Ball",Enum.Material.Metal)
         npc:SetAttribute("CharacterReborn","Dante-v1")
     elseif kind=="EventHub" then
-        -- Escanor Studio ONLY: giant golden sun imagery; no event enabled.
-        armorTrim(npc,cf,C.Gold)
-        for side=-1,1,2 do
-            add(npc,"SunArmor_"..side,Vector3.new(1.22,1.15,1.46),
-                cf,side*1.60,6.53,0,C.Gold,Enum.Material.Metal,nil,"Wedge")
+        -- Character Reborn: Escanor, Studio seasonal concept only.
+        -- Static native parts, no combat Tool, reward or event activation.
+        local gold=Color3.fromRGB(220,160,48)
+        local bright=Color3.fromRGB(255,224,137)
+        local bronze=Color3.fromRGB(139,84,29)
+        local amber=Color3.fromRGB(255,149,42)
+        local skin=Color3.fromRGB(242,190,145)
+        local skinShade=Color3.fromRGB(196,134,91)
+        local hair=Color3.fromRGB(202,132,44)
+        local hairLight=Color3.fromRGB(246,185,81)
+        local wine=Color3.fromRGB(117,27,40)
+        local ink=Color3.fromRGB(46,30,31)
+        local ivory=Color3.fromRGB(240,229,200)
+        local function p(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?,alpha: number?)
+            return add(npc,n,s,cf,x,y,z,col,mat or Enum.Material.SmoothPlastic,
+                Vector3.new(rx or 0,ry or 0,rz or 0),shape,alpha)
         end
-        add(npc,"SunChest",Vector3.new(1.23,1.23,.26),
-            cf,0,5.88,-.77,C.Champagne,Enum.Material.Neon,
-            Vector3.new(0,0,45))
-        add(npc,"SolarMoustache",Vector3.new(1.04,.16,.16),
-            cf,0,7.77,-.88,Color3.fromRGB(160,100,47))
-        halo(npc,"SolarCrown",cf,Vector3.new(0,9.4,.76),
-            1.56,C.Gold,16,.12)
+        for _,obj in ipairs(npc:GetChildren()) do
+            if obj:IsA("BasePart") and obj.Name~="Head" then obj.Transparency=1 end
+        end
+        local head=npc:FindFirstChild("Head")
+        if head and head:IsA("BasePart") then
+            head.Size=Vector3.new(1.64,1.73,1.44);head.Color=skin
+            head.CFrame=cf*CFrame.new(0,8.65,0)
+            local mesh=Instance.new("SpecialMesh")
+            mesh.Name="Reborn_EscanorHead";mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+            local face=Instance.new("SurfaceGui")
+            face.Name="Reborn_EscanorFace";face.Face=Enum.NormalId.Front
+            face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud;face.PixelsPerStud=160
+            face.LightInfluence=.17;face.Parent=head
+            local canvas=Instance.new("Frame")
+            canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+            local function mark(n: string,x: number,y: number,w: number,h: number,col: Color3,rot: number)
+                local f=Instance.new("Frame")
+                f.Name=n;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,h)
+                f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot;f.Parent=canvas
+                local corner=Instance.new("UICorner");corner.CornerRadius=UDim.new(.22,0);corner.Parent=f
+            end
+            for side=-1,1,2 do
+                local x=if side==-1 then .17 else .57
+                local tilt=if side==-1 then 9 else -9
+                mark("EyeOutline_"..side,x,.37,.25,.12,ink,tilt)
+                mark("EyeWhite_"..side,x+.015,.397,.22,.074,ivory,tilt)
+                mark("AmberIris_"..side,x+.09,.382,.077,.109,amber,0)
+                mark("Pupil_"..side,x+.118,.393,.025,.088,ink,0)
+                mark("EyeGlint_"..side,x+.092,.394,.023,.023,ivory,0)
+                mark("Brow_"..side,x-.007,.286,.26,.063,hair,tilt)
+            end
+            mark("NoseShadow",.487,.50,.043,.14,skinShade,-8)
+            mark("ProudSmile",.408,.783,.19,.025,Color3.fromRGB(113,65,48),-5)
+        end
+        p("Reborn_SolarHairBase",Vector3.new(1.76,.73,1.49),0,9.31,.04,hair,0,0,0,"Ball")
+        p("Reborn_SolarHairCrown",Vector3.new(1.70,.64,1.44),0,9.49,.06,hairLight,0,0,0,"Ball")
+        for i=-3,3 do
+            p("Reborn_SolarHairLock_"..i,Vector3.new(.33,.78,.65),i*.22,9.64-math.abs(i)*.055,.02,
+                if i%2==0 then hairLight else hair,-25,0,-i*9,"Wedge")
+        end
+        p("SolarMoustache",Vector3.new(.54,.19,.20),0,8.30,-.76,hair,0,0,0,"Ball")
+        for side=-1,1,2 do
+            p("Reborn_MoustacheWing_"..side,Vector3.new(.56,.22,.22),side*.34,8.29,-.76,hair,0,0,side*13,"Ball")
+            p("Reborn_MoustacheTip_"..side,Vector3.new(.28,.16,.16),side*.61,8.35,-.74,hairLight,0,0,side*24,"Wedge")
+            p("Reborn_SolarTemple_"..side,Vector3.new(.30,.63,.53),side*.79,9.02,.02,hair,0,0,side*12,"Wedge")
+            p("Reborn_SolarEar_"..side,Vector3.new(.20,.36,.30),side*.82,8.53,.02,skin,0,0,0,"Ball")
+        end
+        -- Broad physique: broad upper torso, tapered waist, strong arms
+        -- and visibly segmented golden armor.
+        p("Reborn_SolarNeck",Vector3.new(1.03,.88,.95),0,7.56,0,skin,0,0,0,"Ball")
+        p("Reborn_SolarTorso",Vector3.new(3.02,2.80,1.52),0,5.91,0,skinShade,0,0,0,"Ball")
+        p("Reborn_SolarWaist",Vector3.new(2.13,1.04,1.23),0,4.28,0,ink,0,0,0,"Ball",Enum.Material.Fabric)
+        p("Reborn_SolarChestCore",Vector3.new(2.94,1.65,1.56),0,6.35,-.02,gold,0,0,0,"Ball",Enum.Material.Metal)
+        for side=-1,1,2 do
+            p("Reborn_SolarPectoral_"..side,Vector3.new(1.45,.86,.43),side*.71,6.48,-.68,bright,0,side*10,side*9,"Ball",Enum.Material.Metal)
+            for i=1,3 do
+                p("Reborn_SolarAbPlate_"..side.."_"..i,Vector3.new(1.10-i*.13,.35,.27),side*(.57-i*.06),5.92-i*.37,-.63,
+                    if i==1 then bright else gold,0,side*9,side*7,"Wedge",Enum.Material.Metal)
+            end
+            p("SunArmor_"..side,Vector3.new(1.55,.92,1.57),side*1.78,6.82,.04,bright,0,0,side*-13,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarShoulderTrim_"..side,Vector3.new(1.46,.27,1.62),side*1.81,6.48,.05,bronze,0,0,side*-10,nil,Enum.Material.Metal)
+            p("Reborn_SolarBicep_"..side,Vector3.new(1.04,1.60,1.13),side*1.89,5.84,0,skin,0,0,side*7,"Ball")
+            p("Reborn_SolarBicepShade_"..side,Vector3.new(.62,.93,.26),side*1.93,5.62,-.50,skinShade,0,0,side*7,"Ball")
+            p("Reborn_SolarElbow_"..side,Vector3.new(.78,.46,.83),side*2.01,5.00,0,skinShade,0,0,0,"Ball")
+            p("Reborn_SolarBracer_"..side,Vector3.new(.99,1.18,1.03),side*2.06,4.45,-.02,gold,0,0,side*5,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarBracerRidge_"..side,Vector3.new(.47,.84,.20),side*2.06,4.47,-.49,bright,0,0,0,"Wedge",Enum.Material.Metal)
+            p("Reborn_SolarHand_"..side,Vector3.new(.77,.64,.82),side*2.10,3.76,-.10,skin,0,0,0,"Ball")
+            for i=1,4 do
+                p("Reborn_SolarFinger_"..side.."_"..i,Vector3.new(.15,.25,.19),side*2.10+(i-2.5)*.16,3.56,-.38,skinShade,0,0,0,"Ball")
+            end
+            p("Reborn_SolarHip_"..side,Vector3.new(1.14,.89,1.20),side*.85,4.00,0,gold,0,0,side*10,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarThigh_"..side,Vector3.new(1.13,1.73,1.11),side*.77,3.03,0,ink,0,0,side*4,"Ball",Enum.Material.Fabric)
+            p("Reborn_SolarThighPlate_"..side,Vector3.new(.99,1.13,.43),side*.78,3.01,-.45,gold,0,0,side*4,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarKnee_"..side,Vector3.new(.95,.57,.88),side*.78,2.27,-.12,bright,0,0,0,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarGreave_"..side,Vector3.new(1.00,1.55,1.02),side*.80,1.47,0,gold,0,0,0,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarGreaveRidge_"..side,Vector3.new(.34,1.28,.20),side*.80,1.48,-.49,bright,0,0,0,"Wedge",Enum.Material.Metal)
+            p("Reborn_SolarBoot_"..side,Vector3.new(1.10,.56,1.39),side*.80,.61,-.20,gold,0,0,0,"Ball",Enum.Material.Metal)
+            p("Reborn_SolarSole_"..side,Vector3.new(1.13,.14,1.36),side*.80,.35,-.20,bronze)
+            p("Reborn_SolarCape_"..side,Vector3.new(1.30,3.81,.23),side*.82,3.65,.77,wine,-9,0,side*10,nil,Enum.Material.Fabric)
+            p("Reborn_SolarCapeTrim_"..side,Vector3.new(.085,3.67,.09),side*1.31,3.65,.93,bright,-9,0,side*10)
+        end
+        p("Reborn_SolarBelt",Vector3.new(2.34,.34,1.39),0,4.28,0,bronze,0,0,0,nil,Enum.Material.Metal)
+        p("Reborn_SolarBuckle",Vector3.new(.61,.55,.20),0,4.28,-.77,bright,0,0,45,nil,Enum.Material.Metal)
+        local sun=p("SunChest",Vector3.new(.60,.60,.20),0,6.41,-.91,amber,0,0,0,"Ball",Enum.Material.Neon)
+        for i=0,7 do
+            local a=i*math.pi/4
+            p("Reborn_SolarChestRay_"..i,Vector3.new(.12,.28,.10),math.sin(a)*.42,6.41+math.cos(a)*.42,-.92,bright,0,0,-math.deg(a))
+        end
+        local lamp=Instance.new("PointLight")
+        lamp.Name="SolarPreviewLight";lamp.Color=amber;lamp.Range=8;lamp.Brightness=.45;lamp.Shadows=false;lamp.Parent=sun
+        -- Rhitta-inspired ornamental axe. One common frame, grip at hand
+        -- level, wide crescent-like head; never a player weapon.
+        local axeCF=cf*CFrame.new(2.57,4.02,-.12)*CFrame.Angles(0,0,math.rad(-8))
+        local function axe(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            shape: string?,angle: number?,mat: Enum.Material?)
+            return add(npc,"Reborn_Rhitta_"..n,s,axeCF,x,y,z,col,mat or Enum.Material.Metal,Vector3.new(0,0,angle or 0),shape)
+        end
+        axe("Shaft",Vector3.new(.24,7.0,.24),0,.48,0,bronze)
+        axe("Grip",Vector3.new(.32,1.04,.32),0,0,0,ink,nil,0,Enum.Material.Leather)
+        for i=1,6 do axe("GripWrap_"..i,Vector3.new(.35,.07,.35),0,-.47+i*.14,0,bright,nil,0) end
+        axe("Pommel",Vector3.new(.38,.34,.38),0,-3.08,0,gold,"Ball")
+        axe("HeadCore",Vector3.new(.72,.90,.60),0,3.80,0,gold,"Ball")
+        axe("BladeMain",Vector3.new(1.63,2.21,.35),-.78,3.76,0,gold,"Ball")
+        axe("BladeUpper",Vector3.new(1.25,.80,.30),-.92,4.66,0,bright,"Wedge",-18)
+        axe("BladeLower",Vector3.new(1.12,.72,.31),-.97,2.91,0,bright,"Wedge",162)
+        axe("BladeEdge",Vector3.new(.29,1.85,.31),-1.52,3.76,0,bright,"Ball")
+        axe("RearCounterweight",Vector3.new(.69,1.01,.38),.61,3.76,0,bronze,"Wedge",0)
+        axe("SolarGem",Vector3.new(.41,.41,.19),0,3.81,-.31,amber,"Ball",0,Enum.Material.Neon)
+        halo(npc,"SolarCrown",cf,Vector3.new(0,9.39,1.36),2.18,amber,24,.075)
+        halo(npc,"Reborn_SolarGround",cf,Vector3.new(0,.29,0),3.15,gold,20,.06,"Horizontal")
+        npc:SetAttribute("CharacterReborn","Escanor-v1")
+        npc:SetAttribute("SeasonalPreviewOnly",true)
     end
     npc:SetAttribute("ArtFinish",Art.Version)
 end
