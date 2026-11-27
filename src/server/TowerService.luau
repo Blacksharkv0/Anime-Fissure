@@ -23,6 +23,7 @@ local OverlordCombat = require(script.Parent:WaitForChild("OverlordCombatPrototy
 local AbilityDesign = require(Shared:WaitForChild("OverlordAbilityDesign"))
 local Pair = require(Shared:WaitForChild("OverlordPairSynergy"))
 local AttackInfo = require(Shared:WaitForChild("TowerAttackInfo"))
+local Rings = require(Shared:WaitForChild("RelicRingConfig"))
 
 local TowerService = {}
 local MATCH_ID = "MainMatch"
@@ -79,8 +80,15 @@ local function teamAuraMultiplier(owners: {[number]: any}): number
     return 1
 end
 
+local function towerStats(t: any)
+    local stats=Config.GetStats(t.Id,t.Level)
+    local def=Config.Get(t.Id)
+    if not stats or not def then return stats end
+    return Rings.ApplyStats(stats,t.Id,def.Element,t.RelicId)
+end
+
 local function publicTower(t: any, pairActive: boolean, aura: number)
-    local stats = Config.GetStats(t.Id, t.Level)
+    local stats = towerStats(t)
     local def = Config.Get(t.Id)
     local nextLevel = t.Level + 1
     local stage = Config.GetVisualStage(t.Id, t.Level)
@@ -97,6 +105,10 @@ local function publicTower(t: any, pairActive: boolean, aura: number)
         Rarity = def.Rarity,
         Damage = stats.Damage, EffectiveDamage = currentDamage,
         SPA = stats.SPA, Range = stats.Range,
+        RelicId = t.RelicId,
+        RelicName = if t.RelicId then Rings.Get(t.RelicId).Name else nil,
+        RelicStatus = Rings.GetStatus(t.RelicId,t.Id,def.Element),
+        RelicActive = Rings.IsBonusActive(t.RelicId,t.Id,def.Element),
         AttackName = attack.Name, AttackType = attack.Type,
         Income = stats.Income, MaxUpgrades = def.MaxUpgrades,
         UpgradeCost = Config.GetCost(t.Id, nextLevel),
@@ -290,6 +302,7 @@ local function place(player: Player, unitId: any, pos: any)
         Serial = id, Id = def.Id, Level = 0, OwnerId = player.UserId,
         Position = final, Model = model, Invested = cost,
         NextAttack = 0,
+        RelicId = nil, -- Tower-local Studio trial, never item inventory.
         AttackCount = 0,
         Blood = 0,
         AuraNext = os.clock() + 2,
@@ -335,6 +348,25 @@ local function changeTower(player: Player, serialId: any, sell: boolean): string
     return nil
 end
 
+-- Equipment trial is server-authoritative but intentionally Studio-only.
+-- No item is minted; no inventory, persistence, drop or evolution happens.
+local function equipRelic(player: Player, serial: any, relicId: any): string?
+    if not RunService:IsStudio() then return "Relíquias aguardam inventário real." end
+    if typeof(serial)~="number" or serial%1~=0 then return "Torre inválida." end
+    if typeof(relicId)~="string" then return "Relíquia inválida." end
+    if relicId~="None" and not Rings.IsRing(relicId) then
+        return "Esse item não é um anel equipável."
+    end
+    local owner=getPlayerState(player)
+    local tower=if owner then owner.Towers[serial] else nil
+    if not tower then return "Essa Tower não pertence a você." end
+    if tower.Id=="Capsule" then return "Capsule não equipa anéis de combate." end
+    tower.RelicId=if relicId=="None" then nil else relicId
+    tower.Model:SetAttribute("EquippedRelicId",tower.RelicId)
+    -- The existing attack cooldown is NOT reset to prevent swap exploits.
+    return nil
+end
+
 request.OnServerEvent:Connect(function(player: Player, action: any, a: any, b: any)
     if typeof(action) ~= "string" then return end
     if action == "Sync" then
@@ -370,9 +402,12 @@ request.OnServerEvent:Connect(function(player: Player, action: any, a: any, b: a
     elseif action == "Place" then err = place(player, a, b)
     elseif action == "Upgrade" then err = changeTower(player, a, false)
     elseif action == "Sell" then err = changeTower(player, a, true)
+    elseif action == "EquipRelic" then err = equipRelic(player, a, b)
     else return end
     local resultMessage = err or (if action == "Place" then "Torre posicionada."
-        elseif action == "Upgrade" then "Upgrade realizado." else "Torre vendida.")
+        elseif action == "Upgrade" then "Upgrade realizado."
+        elseif action == "Sell" then "Torre vendida."
+        else "Relíquia alterada no Studio • nenhuma posse foi concedida.")
     if err then
         sendState(player, resultMessage)
     else
@@ -506,7 +541,7 @@ RunService.Heartbeat:Connect(function(dt)
     for _, owner in pairs(state.Owners) do
         if owner.Player.Parent ~= Players then continue end
         for _, t in pairs(owner.Towers) do
-            local stats = Config.GetStats(t.Id, t.Level)
+            local stats = towerStats(t)
             if stats and stats.Damage > 0 then
                 if OverlordCombat.IsPrototype(t.Id) then
                     OverlordCombat.TickAura(t, targets, now, EnemyService, MATCH_ID)
