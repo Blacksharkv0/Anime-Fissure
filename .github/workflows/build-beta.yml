@@ -364,6 +364,9 @@ jobs:
       - name: Validar resultado da partida e retorno seguro
         run: |
           grep -q 'POST_MATCH_SECONDS=30' src/server/Main.server.luau
+          grep -q 'Workspace:SetAttribute("DemoMatchFinished",true)' src/server/Main.server.luau
+          grep -q 'DemoMatchFinished' src/client/BetaLobby.client.luau
+          grep -q 'SESSÃO FINALIZADA' src/client/BetaLobby.client.luau
           grep -q 'requestReturn.OnServerEvent:Connect(returnPlayerToLobby)' src/server/Main.server.luau
           grep -q 'showResult:FireClient' src/server/Main.server.luau
           grep -q 'player:SetAttribute("InArena",false)' src/server/Main.server.luau
