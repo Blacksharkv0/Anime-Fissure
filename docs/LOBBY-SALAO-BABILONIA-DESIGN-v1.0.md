@@ -1,15 +1,15 @@
 # ANIME FISSURE — Salão da Babilônia
-## Documento de design do Lobby de Relíquias · Conceito v1.1 / primeiro protótipo 3D · 26/11/2026
+## Documento de design do Lobby de Relíquias · Conceito v1.2 / autoridade global de Gilgamesh · 26/11/2026
 
-**Estado atualizado:** o primeiro **Salão da Babilônia 3D foi publicado** como protótipo procedural no GitHub, com 11 portais de armas originais, 5 vitrines 3D dos anéis e Gilgamesh como **modelo decorativo estático** com ProximityPrompt abrindo um **catálogo somente leitura**. A build e a exibição no Roblox Studio ainda não foram verificadas. Não existem equipamento persistente, reroll, drops ou evoluções executáveis no salão.
+**Estado atualizado:** o primeiro Salão da Babilônia 3D foi publicado no GitHub, com 11 portais originais e 5 vitrines de anéis. **Gilgamesh é agora o único responsável por TODAS AS RELÍQUIAS DE TODOS OS ANIMES**, não apenas as do Ainz/Overlord. O catálogo mundial está conectado a um ProximityPrompt do NPC com validação no servidor e permanece somente leitura. **Edward foi separado completamente do sistema de relíquias: agora cuida exclusivamente de alquimia, orbes e transmutação.** A build e a execução no Roblox Studio ainda não foram verificadas; não há itens persistentes, drop, reroll nem evolução executável.
 
 ## Visão
 
-Uma joalheria imperial impossível, comandada por **Gilgamesh (Fate)**, o Rei dos Tesouros. O jogador entra por um corredor dourado saindo do lobby azul-neon de Anime Fissure, atravessa um arco de pedra negra com runas e se vê diante do mestre das relíquias, de cinco vitrines mágicas e de portais radiantes abertos como um leque. O salão deve comunicar três coisas de imediato: **valiosidade, poder e clareza de interação**.
+Um tesouro multiversal impossível, comandado por **Gilgamesh (Fate)**, o Rei dos Tesouros. Esse setor **não é uma sala de Overlord**: todo item classificado como relíquia, de qualquer mundo do Anime Fissure, pertence aqui. O jogador entra por um corredor dourado saindo do lobby azul-neon, atravessa um arco de pedra negra com runas e se vê diante do mestre das relíquias, de cinco vitrines mágicas e dos onze portais de armas de cultura geek. O salão comunica três coisas: **valor, escala multiversal e clareza de interação**.
 
 **Nome de exibição**: SALÃO DA BABILÔNIA  
 **NPC**: Gilgamesh — Mestre das Relíquias  
-**Fantasia principal**: o rei inspeciona, revela e autentica tesouros de vários animes; não é o dono literal dos equipamentos do jogador.  
+**Fantasia principal**: o rei inspeciona, revela e autentica tesouros de **todos os animes**; não é o dono literal dos equipamentos do jogador.  
 **Direção artística**: anime stylized / Roblox Studio 3D premium, ouro, ônix, rubi, púrpura e luzes azul-elétricas em pequenos detalhes para manter unidade com a marca Anime Fissure.
 
 ## 1. Referências de identidade — sem importar assets de terceiros
@@ -131,8 +131,9 @@ Painel em duas colunas, carrossel de anéis e visualizador 3D, escalável.
     |                 STATUS REAL DO JOGADOR                     |
     +-----------------------------------------------------------+
 
-### CATÁLOGO — fase 1
-- Lista dos cinco anéis + materiais de evolução exclusivos de Shalltear/Albedo.
+### CATÁLOGO UNIVERSAL — primeira fase funcional (somente leitura)
+- **Duas categorias hoje:** cinco anéis aprovados de Overlord com modelos 3D; e sete conceitos antigos (inclusive um de Dragon Ball) **arquivados como NÃO APROVADOS**, sem drops, receitas nem StageId oficial. Novas relíquias de futuros mundos serão cadastradas aqui.
+- O fluxo de evolução pode usar materiais específicos de Shalltear/Albedo, mas esses dois itens não são relíquias equipáveis e **não entram na categoria Anéis**.
 - Seleção gira o modelo 3D existente no ViewportFrame.
 - Detalhes: benefício, origem, elemento elegível, penalidade do Restrição, papel no Ainz.
 - Nunca declarar "Obtido" baseado no laboratório; usar "Posse ainda não conectada" enquanto não existir inventário persistente.
@@ -173,7 +174,7 @@ Quatro estados visuais para cada item:
 
 Código atual consultado:
 - `src/server/BetaLobby.server.luau`: gera `Workspace.FissureLobby`, respawn e Portal das Missões; **não modificar o fluxo do lobby/arena** para adicionar o salão.
-- `src/client/RelicRingGallery.client.luau`: **catálogo visual agora disponível no lobby** por botão ou ProximityPrompt de Gilgamesh; previews 3D são renderizados localmente. Não oferece ações de inventário.
+- `src/client/RelicRingGallery.client.luau`: **catálogo universal exclusivo de Gilgamesh**, aberto somente após `BabylonHall.server.luau` validar o ProximityPrompt e enviar `BabylonRemotes.OpenRelicCatalog`. A interface possui Catálogo, Equipar, Evoluir, Reroll e Informações; somente o catálogo consulta previews 3D, enquanto as demais abas explicam recursos ainda desativados.
 - `src/shared/RelicRingConfig.luau`: efeitos, elementos e regra Ainz imutáveis nesta etapa.
 - `src/shared/OverlordEvolutionLootConfig.luau`: seis fases, sete materiais, cinco anéis dual-use.
 - `src/server/TowerService.luau`: buffs e troca de anel Studio-only no combate.
@@ -181,13 +182,13 @@ Código atual consultado:
 **Integração entregue nesta revisão**:
 1. `BabylonHallBuilder.luau` cria arquitetura, ponte, NPC decorativo, 11 portais, armas estilo geek e vitrines das cinco relíquias, sem tocar no sistema de missão.
 2. `BabylonHall.server.luau` monta o salão depois de localizar `FissureLobby` e seus componentes.
-3. `RelicRingGallery.client.luau` abre catálogo 3D somente leitura pelo botão do lobby ou ProximityPrompt.
+3. `RelicRingGallery.client.luau` abre o catálogo universal 3D apenas pelo ProximityPrompt de Gilgamesh **validado no servidor**, sem botão global de relíquias. Os itens antigos do Edward agora entram no arquivo de conceitos de `UniversalRelicCatalog.luau`.
 4. `BabylonHallVFX.client.luau` faz cintilação local de portais, limitada a 4 superfícies no touch e 9 no PC; sem atualização constante por frame.
 5. `BabylonHallSmokeTest.server.luau` faz checagens de cena no Studio, sem alterar os sistemas já existentes.
 
 **Próximas etapas reais**:
 1. Transformar a versão decorativa estática de Gilgamesh em um rig animável com aparência premium, após playtest da silhueta.
-2. Transformar o catálogo em painel definitivo com outras abas; equipar/evoluir/reroll devem aguardar inventário e servidor.
+2. Refinar as abas universais de Gilgamesh (Catálogo, Equipar, Evoluir, Reroll, Informações) e conectá-las a inventário e serviços seguros. As abas já existem como placeholders, sem concessão ou consumo.
 3. Testar colisões, portal das missões, iluminação, FPS e UI no Roblox Studio/Android.
 4. Revisar licenças de referências geek antes de uma publicação pública.
 
@@ -209,7 +210,7 @@ Código atual consultado:
 - [ ] Ainz não recebe bônus normais dos anéis, em nenhum estado.
 - [ ] Restrição continua +100% dano e +100% SPA (multiplicadores 2×/2×).
 - [ ] Shalltear/Albedo têm materiais próprios, não anéis.
-- [ ] Equipar / Evoluir / Reroll aparecem bloqueados até serviço real ser implementado.
+- [x] Equipar / Evoluir / Reroll aparecem como explicações inativas no NPC de Gilgamesh, aguardando serviços reais.
 - [ ] Nenhuma modificação no Summon, ArenaRequested, Yen, drops/pity, DataStore ou combate é necessária para o **layout**.
 - [ ] Cliente mobile mantém FPS aceitável com o salão aberto.
 - [ ] Revisar direito de uso de Gilgamesh/Fate antes de publicar projeto comercial.
@@ -224,3 +225,16 @@ Código atual consultado:
 - Posicionamento definitivo do hall após revisão visual no Roblox Studio.
 
 **Próximo passo de execução recomendado:** fazer primeiro a área física decorativa e Gilgamesh de laboratório, seguida do NPC com CATÁLOGO 3D funcional (somente leitura). Só depois abrir ações que precisam de persistência ou consumo de itens.
+
+
+## 10. Transferência de autoridade: Edward → Gilgamesh (26/11/2026)
+
+**Regra global permanente de design:** o Salão da Babilônia centraliza **todas as relíquias** dos mundos de Anime Fissure. Relíquias usadas como materiais de evolução continuam sendo relíquias; relíquias independentes de Overlord têm a mesma casa.
+
+**Edward:** apenas orbes, componentes alquímicos, transmutação e receitas de alquimia. Foram removidas de `AlchemyHUD.client.luau` as antigas abas Relíquias, Evolução e Index de Relíquias. A fachada `AlchemyWorkshop.server.luau` e o letreiro `LobbyVisualPolish.server.luau` não anunciam mais relíquias. `AlchemyGateway.server.luau` não devolve `OwnedRelics`. `NPCDialogue.client.luau` explica o novo papel.
+
+**Gilgamesh:** `UniversalRelicCatalog.luau` organiza relíquias de qualquer mundo. Os cinco anéis aprovados continuam com seus efeitos originais. `RelicIndexConfig.luau` virou arquivo legado, com disponibilidade `Archived`. Suas seis relíquias antigas de Overlord e a cápsula de Dragon Ball não são automaticamente aprovadas, nem são os novos drops de Overlord. O cliente só recebe `OpenRelicCatalog` após proximidade validada no servidor, e o visualizador não exibe posse inventada.
+
+**Virgil:** summon inalterado. **TowerService:** o botão de troca de anel disponível no laboratório Studio permanece um *cheat de teste de combate*, não gerenciamento público de relíquias. Fora do Studio, jogador só poderá manipular relíquias pelo futuro fluxo autorizado de Gilgamesh, quando o inventário real estiver pronto.
+
+**Arquivo de teste:** `src/server/UniversalRelicAuthoritySmokeTest.server.luau`; a CI também verifica que o AlchemyHUD não importa RelicIndexConfig, que o AlchemyGateway não envia OwnedRelics e que o catálogo de Gilgamesh não tem botão global de abertura.
