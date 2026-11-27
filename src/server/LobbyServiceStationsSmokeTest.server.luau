@@ -22,7 +22,7 @@ assert(services:GetAttribute("Ready")==true)
 assert(services:GetAttribute("StationCount")==4)
 assert(services:GetAttribute("EventHubCount")==1)
 assert(services:GetAttribute("SystemsActive")==false)
-assert(#services:GetChildren()==5,"4 service NPCs + 1 seasonal hub")
+assert(#services:GetChildren()==6,"4 services + seasonal hub + twin hunters emblem")
 
 local assigned: {[string]: boolean}={}
 for _,id in ipairs(Config.Order) do
@@ -42,6 +42,9 @@ end
 
 assert(assigned.Whis and assigned["Kisuke Urahara"]
     and assigned["Sung Jinwoo"] and assigned.Dante)
+local emblem=services:FindFirstChild("TwinHuntersEmblem")
+assert(emblem and emblem:GetAttribute("Decorative")==true,
+    "Vergil/Dante should have a shared decorative crest")
 local dante=services:FindFirstChild("IndexStation")
 assert(dante and dante:GetAttribute("NPC")=="Dante")
 local eventStand=services:FindFirstChild("SeasonalEventHub")
