@@ -61,10 +61,10 @@ for _,name in ipairs({"ImperialPauldron_1","RoyalChestSigil",
 end
 assert(king:GetAttribute("Prototype")=="DecorativeStaticNpc")
 
-local old=lobby:FindFirstChild("VirgilSummonStand")
-local edward=lobby:FindFirstChild("AlchemyWorkshop")
-assert(old and edward and old:FindFirstChild("VirgilNPC")
-    and edward:FindFirstChild("AlchemistNPC"),
+local old=lobby:WaitForChild("VirgilSummonStand",40)
+local edward=lobby:WaitForChild("AlchemyWorkshop",40)
+assert(old and edward and old:WaitForChild("VirgilNPC",40)
+    and edward:WaitForChild("AlchemistNPC",40),
     "Old rigged Vergil/Edward must survive the mentor art pass")
 
 print("[Anime Fissure] PREMIUM LOBBY ART SMOKE OK: "..finished..
