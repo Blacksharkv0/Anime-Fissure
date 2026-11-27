@@ -79,7 +79,7 @@ label(root,"Subtitle","GILGAMESH • MESTRE DE TODAS AS RELÍQUIAS",
     UDim2.fromOffset(23,43),UDim2.fromOffset(690,22),12,C.Gold,true)
 local close=button(root,"Close","✕",UDim2.fromOffset(888,14),
     UDim2.fromOffset(42,39),C.Stone)
-local tabs={"CATÁLOGO","EQUIPAR","EVOLUIR","REROLL","INFORMAÇÕES"}
+local tabs={"CATÁLOGO","EQUIPAR","APRIMORAR","REROLL","INFORMAÇÕES"}
 local tabsByName: {[string]: TextButton}={}
 for i,name in ipairs(tabs) do
     tabsByName[name]=button(root,"Tab_"..i,name,
@@ -246,8 +246,8 @@ end
 local future={
     ["EQUIPAR"]={"EQUIPAMENTO DE RELÍQUIAS",
         "Gilgamesh será o único NPC com acesso ao sistema de equipar e remover relíquias. Será necessário conectar o inventário persistente e validar a posse da unidade e do item no servidor.\n\nPor enquanto, a troca de anéis existe somente como teste de combate no Roblox Studio."},
-    ["EVOLUIR"]={"EVOLUÇÃO COM RELÍQUIAS",
-        "Aqui serão feitas as evoluções que dependem de relíquias e seus materiais, inclusive as ligadas a Ainz, Shalltear e Albedo.\n\nAinda não existem receitas, quantidades de materiais, consumo real nem execução de evolução."},
+    ["APRIMORAR"]={"APRIMORAMENTO DE RELÍQUIAS",
+        "Gilgamesh será o responsável por aprimorar relíquias, quando existirem regras próprias para elas.\n\nA EVOLUÇÃO DOS PERSONAGENS, inclusive Ainz, Shalltear e Albedo, ficará exclusivamente com Whis. Os anéis poderão servir de materiais, mas quem evolui a unidade é Whis."},
     ["REROLL"]={"REROLL DE RELÍQUIAS",
         "O reroll de atributos de relíquias ficará exclusivamente sob a responsabilidade de Gilgamesh, separado do reroll de Traits das unidades.\n\nCustos, valores, chances e moeda ainda exigem configuração real."},
     ["INFORMAÇÕES"]={"O TESOURO DE TODOS OS UNIVERSOS",
