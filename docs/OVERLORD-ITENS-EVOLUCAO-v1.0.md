@@ -1,6 +1,6 @@
 # Anime Fissure — Distribuição dos itens de evolução de Overlord (v1.0)
 
-**Definições do criador registradas em 26/11/2026.** O catálogo está no GitHub; **a entrega real, rates, receitas e pity dos novos itens ainda não estão habilitados**.
+**Definições do criador registradas em 26/11/2026.** Os cinco anéis agora têm **dupla função: Relíquia + Material de Evolução**, com protótipo de equipamento no Studio. A entrega real, rates, receitas e pity ainda não estão habilitados. Consulte [ANEIS-RELIQUIAS-EVOLUCAO-v1.0.md](ANEIS-RELIQUIAS-EVOLUCAO-v1.0.md).
 
 ## Itens por fase
 
@@ -19,7 +19,7 @@
 
 - O **Anel de Magic Power** de Carne Village Hard está associado ao planejamento de farm da evolução do **Ainz**, mas **quantidades, receita completa e destino dos demais anéis não foram definidos**.
 - Item de evolução da **Shalltear** e da **Albedo** possuem vínculo explícito com essas unidades.
-- Anel de SPA, Anel de dano físico, Anel de range e Anel da restrição **não possuem efeitos, boosts numéricos ou personagens-alvo definidos ainda**. Não atribuir automaticamente +SPA, +dano, +range ou remover restrições.
+- **Efeitos dos anéis agora definidos:** Magic Power +20% dano mágico, Físico +20% dano físico, SPA ×0,80, Range ×1,20, Restrição Dano ×2 e SPA ×2. Esses bônus **somente valem quando a relíquia NÃO está equipada no Ainz**. Quando equipada no Ainz, vira apenas item de evolução, sem bônus comum.
 - Os materiais **não estão sendo entregues** por vitória; não há taxas de drop e pity configurados para os sete novos itens.
 - As chances e o Hard Pity já existentes para **Insígnia Solar** no protótipo de Carne Village são um sistema separado, ainda não conectado a entrega persistente. Não substituímos silenciosamente Insígnia Solar nem herdamos suas taxas e pity para o novo Anel de Magic Power.
 - **Somente o primeiro mapa foi explicitamente associado ao Hard** até o momento. Não presumir as dificuldades dos outros cinco antes da definição.
@@ -27,7 +27,8 @@
 
 ## Código publicado
 
-- `src/shared/OverlordEvolutionLootConfig.luau`: registro original por StageId, IDs estáveis, nomes, vínculos conhecidos; API `GetItem`, `GetStageItems`, `GetPlannedPreview` e `IsDropEnabled` (sempre false).
+- `src/shared/OverlordEvolutionLootConfig.luau`: registro original por StageId, IDs estáveis, nomes, vínculos conhecidos e dupla categoria EvolutionRelic para os cinco anéis; API `GetItem`, `GetStageItems`, `GetPlannedPreview` e `IsDropEnabled` (sempre false).
+- `src/shared/RelicRingConfig.luau` e `src/shared/RelicRingModelBuilder.luau`: bônus, bloqueio no Ainz e modelos 3D autorais.
 - `src/shared/StageInfoConfig.luau`: Carne Village Hard informa planejado o Anel de Magic Power; Classic não mostra esse item.
 - `src/client/StageIntelPanel.luau`: área separada "ITENS DE EVOLUCAO • PLANEJADOS", sem fingir chance, pity, marca de obtido ou entrega.
 - `src/server/OverlordEvolutionLootSmokeTest.server.luau`: valida catálogo de seis mapas/sete itens, dificuldade Hard do primeiro e ausência de drops ativos.
