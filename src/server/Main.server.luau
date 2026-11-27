@@ -76,6 +76,7 @@ local startWave: () -> ()
 -- O LOBBY CONTROLA O INICIO
 
 Workspace:SetAttribute("ArenaControllerReady", false)
+Workspace:SetAttribute("DemoMatchFinished",false)
 if Workspace:GetAttribute("ArenaRequested") ~= true then
     Workspace:SetAttribute("ArenaRequested", false)
 end
@@ -140,6 +141,7 @@ local function finishMatch()
     end
 
     matchFinished = true
+    Workspace:SetAttribute("DemoMatchFinished",true)
     EnemyService.StopWave(MATCH_ID)
     TowerService.EndMatch(MATCH_ID)
 
