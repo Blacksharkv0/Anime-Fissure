@@ -30,7 +30,7 @@ local COLORS = {
 }
 local active = 0
 local function effectPart(name: string, shape: Enum.PartType?, color: Color3): Part?
-    if active > 140 then return nil end
+    if active >= (if player:GetAttribute("ReducedVFX")==true then 48 else 140) then return nil end
     active += 1
     local part = Instance.new("Part")
     part.Name = name
@@ -78,7 +78,7 @@ end
 
 local function ring(name: string, at: Vector3, radius: number,
     color: Color3, count: number, lifetime: number, vertical: boolean?)
-    count = math.min(count, 12)
+    count = math.min(count,if player:GetAttribute("ReducedVFX")==true then 4 else 12)
     for i = 1, count do
         local a = (i - 1) * math.pi * 2 / count
         local b = i * math.pi * 2 / count
@@ -116,6 +116,7 @@ local function playUnit(id: string, from: Vector3, to: Vector3,
     local offset = Vector3.new(0, 2, 0)
     local count = if stage >= 3 then 5 elseif stage >= 2 then 3
         elseif stage >= 1 then 2 else 1
+    if player:GetAttribute("ReducedVFX")==true then count=math.min(count,2) end
     if id == "OVL_Climb" then
         line("Climb_BladeArc", from, to, c, 0.23, 0.19)
         spark("Climb_Hit", to, c, 0.64, 0.21)
@@ -162,6 +163,8 @@ local function playUnit(id: string, from: Vector3, to: Vector3,
                 0.62, 0.36)
         end
     end
+    -- Keep essential attacks visible but omit extra flourishes in low-FX.
+    if player:GetAttribute("ReducedVFX")==true then return end
     -- Three upgrade-specific visual transformations (Lv 3 / 6 / 9).
     -- Stage flourishes are spatial only; they never change damage or stun.
     if stage >= 1 then
