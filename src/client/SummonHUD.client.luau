@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
 local SummonReveal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SummonRevealClient"))
 
 local player = Players.LocalPlayer
@@ -292,6 +293,16 @@ local function close()
     restoreOtherUI()
 end
 closeButton.Activated:Connect(close)
+-- Close consistently with ESC on PC or B on gamepad; never interrupt
+-- an in-flight server Summon just to hide its confirmation.
+UserInputService.InputBegan:Connect(function(input: InputObject,processed: boolean)
+    if processed or not gui.Enabled or purchasing then return end
+    if input.KeyCode==Enum.KeyCode.Escape
+        or input.KeyCode==Enum.KeyCode.ButtonB then
+        if resultsPanel.Visible then resultsPanel.Visible=false
+        else close() end
+    end
+end)
 resultClose.Activated:Connect(function()
     resultsPanel.Visible = false
 end)
