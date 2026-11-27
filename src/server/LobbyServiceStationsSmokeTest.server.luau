@@ -19,10 +19,10 @@ while services:GetAttribute("Ready")~=true and os.clock()-t<12 do
     task.wait(.1)
 end
 assert(services:GetAttribute("Ready")==true)
-assert(services:GetAttribute("StationCount")==3)
+assert(services:GetAttribute("StationCount")==4)
 assert(services:GetAttribute("EventHubCount")==1)
 assert(services:GetAttribute("SystemsActive")==false)
-assert(#services:GetChildren()==4,"3 permanent NPCs + 1 seasonal hub")
+assert(#services:GetChildren()==5,"4 service NPCs + 1 seasonal hub")
 
 local assigned: {[string]: boolean}={}
 for _,id in ipairs(Config.Order) do
@@ -41,7 +41,9 @@ for _,id in ipairs(Config.Order) do
 end
 
 assert(assigned.Whis and assigned["Kisuke Urahara"]
-    and assigned["Sung Jinwoo"])
+    and assigned["Sung Jinwoo"] and assigned.Dante)
+local dante=services:FindFirstChild("IndexStation")
+assert(dante and dante:GetAttribute("NPC")=="Dante")
 local eventStand=services:FindFirstChild("SeasonalEventHub")
 assert(eventStand and eventStand:GetAttribute("RotatingSlot")==true)
 assert(eventStand:GetAttribute("GameplayActive")==false)
@@ -67,6 +69,13 @@ local edward=lobby:WaitForChild("AlchemyWorkshop",70)
 local virgil=lobby:WaitForChild("VirgilSummonStand",70)
 assert(babylon and edward and virgil,
     "Other NPC stations must remain")
+-- The standalone Index booth must fit precisely between Vergil's stand
+-- (east edge x237.5) and central 10.5-stud walkway (west edge x254.75).
+local dantePos=Config.GetStation("Index").Position
+assert(dantePos.X-7>237.5 and dantePos.X+7<254.75,
+    "Dante's station overlaps Vergil or center walkway")
+assert(math.abs(dantePos.Z-(-6))<=5,
+    "Dante should remain immediately beside Vergil")
 -- Both the central 10-stud event plinth and the mandatory 10.5-stud
 -- walking aisle must not overlap in X.
 local walkRight=265.25
@@ -80,4 +89,4 @@ assert(folder:FindFirstChild("OpenServiceInfo")
     and folder.OpenServiceInfo:IsA("RemoteEvent"))
 
 print("[Anime Fissure] LOBBY SERVICE NETWORK SMOKE OK: Whis evolution, "..
-    "Urahara Traits, Jinwoo raids and safe central Escanor STUDIO preview")
+    "Urahara Traits, Jinwoo raids, Dante Index and safe central event preview")
