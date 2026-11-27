@@ -102,7 +102,7 @@ end
 function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
     if npc:GetAttribute("ArtFinish") then return end
     local accent=station.Accent
-    if kind~="Raids" and kind~="Index" and kind~="Evolution" then basicFace(npc,cf,kind) end
+    if kind=="EventHub" then basicFace(npc,cf,kind) end
     if kind=="Evolution" then
         -- Character Reborn: Whis. Replace blockout, preserve head pivot
         -- and station-owned interaction. All cosmetics are static and safe.
@@ -222,26 +222,144 @@ function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
         lamp.Shadows=false;lamp.Parent=core
         npc:SetAttribute("CharacterReborn","Whis-v1")
     elseif kind=="Traits" then
-        -- Urahara: green striped bucket hat, sandy hair poking out
-        -- from under the rim, long dark green kimono and folding fan.
-        armorTrim(npc,cf,C.Emerald)
+        -- Character Reborn: Urahara. The station owns the prompt and
+        -- its Trait system; this pass changes appearance only.
+        local green=Color3.fromRGB(49,91,65)
+        local pale=Color3.fromRGB(222,230,194)
+        local moss=Color3.fromRGB(31,66,48)
+        local sage=Color3.fromRGB(102,138,85)
+        local ink=Color3.fromRGB(21,27,29)
+        local lining=Color3.fromRGB(40,47,42)
+        local skin=Color3.fromRGB(234,202,174)
+        local blond=Color3.fromRGB(214,187,116)
+        local hairShade=Color3.fromRGB(153,129,78)
+        local ivory=Color3.fromRGB(247,239,213)
+        local wood=Color3.fromRGB(115,74,42)
+        local steel=Color3.fromRGB(135,149,140)
+        local function p(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?,alpha: number?)
+            return add(npc,n,s,cf,x,y,z,col,mat or Enum.Material.SmoothPlastic,
+                Vector3.new(rx or 0,ry or 0,rz or 0),shape,alpha)
+        end
+        for _,obj in ipairs(npc:GetChildren()) do
+            if obj:IsA("BasePart") and obj.Name~="Head"
+                and not string.find(obj.Name,"TraitRuneHalo",1,true) and obj.Name~="TraitFocus" then
+                obj.Transparency=1
+            end
+        end
+        local head=npc:FindFirstChild("Head")
+        if head and head:IsA("BasePart") then
+            head.Size=Vector3.new(1.51,1.64,1.34);head.Color=skin
+            local mesh=Instance.new("SpecialMesh")
+            mesh.Name="Reborn_UraharaHead";mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+            local face=Instance.new("SurfaceGui")
+            face.Name="Reborn_UraharaFace";face.Face=Enum.NormalId.Front
+            face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud;face.PixelsPerStud=160
+            face.LightInfluence=.24;face.Parent=head
+            local canvas=Instance.new("Frame")
+            canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+            local function mark(n: string,x: number,y: number,w: number,h: number,col: Color3,rot: number)
+                local f=Instance.new("Frame")
+                f.Name=n;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,h)
+                f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot;f.Parent=canvas
+                local corner=Instance.new("UICorner")
+                corner.CornerRadius=UDim.new(.25,0);corner.Parent=f
+            end
+            for side=-1,1,2 do
+                local x=if side==-1 then .17 else .57
+                local tilt=if side==-1 then -5 else 5
+                mark("EyeLine_"..side,x,.405,.25,.10,ink,tilt)
+                mark("EyeWhite_"..side,x+.025,.427,.20,.051,ivory,tilt)
+                mark("GreyGreenIris_"..side,x+.09,.416,.076,.072,Color3.fromRGB(109,129,112),0)
+                mark("Pupil_"..side,x+.116,.421,.025,.064,ink,0)
+                mark("Brow_"..side,x,.329,.24,.039,hairShade,tilt)
+            end
+            mark("NoseShadow",.487,.53,.032,.13,Color3.fromRGB(179,138,119),-8)
+            mark("MysteriousSmile",.405,.73,.20,.027,Color3.fromRGB(100,62,57),-8)
+            mark("SmileCorner",.584,.71,.028,.038,Color3.fromRGB(100,62,57),-12)
+            for i=1,6 do
+                mark("Stubble_"..i,.33+i*.05,.817,.012,.020,Color3.fromRGB(165,144,123),0)
+            end
+        end
+        -- Sandy, shaggy hair beneath the iconic striped bucket hat.
+        p("Reborn_UraharaHairBase",Vector3.new(1.61,.73,1.45),0,8.66,.04,hairShade,0,0,0,"Ball")
+        for i=-3,3 do
+            p("Reborn_UraharaFringe_"..i,Vector3.new(.31,.72,.47),i*.22,8.46,-.55,
+                if i%2==0 then blond else pale,-10,0,18-i*8,"Wedge")
+            p("Reborn_UraharaBackHair_"..i,Vector3.new(.32,.88,.50),i*.22,8.15,.55,blond,10,0,-i*8,"Wedge")
+        end
         for side=-1,1,2 do
-            add(npc,"HatDroop_"..side,Vector3.new(.59,.18,2.43),
-                cf,side*1.42,8.94,.02,C.White,nil,Vector3.new(0,0,side*16))
-            add(npc,"SandySideHair_"..side,Vector3.new(.28,.63,.37),
-                cf,side*.82,8.47,-.10,C.Champagne,nil,Vector3.new(0,0,side*15))
-            add(npc,"KimonoLapels_"..side,Vector3.new(.40,2.20,.19),
-                cf,side*.44,5.35,-.84,C.White,Enum.Material.Fabric,
-                Vector3.new(0,0,side*-12))
+            p("SandySideHair_"..side,Vector3.new(.39,.88,.56),side*.69,8.08,.03,blond,0,0,side*13,"Wedge")
+            p("Reborn_UraharaTemple_"..side,Vector3.new(.23,.58,.40),side*.76,7.94,-.13,hairShade,0,0,side*7,"Wedge")
+            p("Reborn_UraharaEar_"..side,Vector3.new(.18,.32,.27),side*.76,7.96,.04,skin,0,0,0,"Ball")
         end
-        add(npc,"FanHandle",Vector3.new(.17,1.02,.20),
-            cf,2.25,3.47,-.43,C.Onyx,Enum.Material.Metal)
-        for i=1,6 do
-            add(npc,"FoldedFanLeaf_"..i,Vector3.new(.35,1.06,.10),
-                cf,2.27+(i-3.5)*.19,4.30,-.51,
-                if i%2==0 then C.Forest else C.Champagne,
-                Enum.Material.Fabric,Vector3.new(0,0,(i-3.5)*7))
+        -- Bucket hat: curved crown made of concentric sections, radial
+        -- alternating stripes and a gently sloped brim.
+        p("Reborn_UraharaHatTop",Vector3.new(.18,1.84,1.84),0,9.80,.02,green,0,0,90,"Cylinder",Enum.Material.Fabric)
+        p("Reborn_UraharaHatCrown",Vector3.new(.83,2.10,2.10),0,9.34,.02,green,0,0,90,"Cylinder",Enum.Material.Fabric)
+        p("Reborn_UraharaHatBand",Vector3.new(.13,2.24,2.24),0,8.92,.02,moss,0,0,90,"Cylinder",Enum.Material.Fabric)
+        for i=0,15 do
+            local angle=i*math.pi/8
+            local x,z=math.sin(angle),math.cos(angle)
+            local color=if i%2==0 then pale else green
+            p("Reborn_UraharaHatStripe_"..i,Vector3.new(.39,.79,.08),
+                x*1.035,9.34,.02+z*1.035,color,0,math.deg(angle),0,nil,Enum.Material.Fabric)
+            p("Reborn_UraharaBrimPanel_"..i,Vector3.new(.56,.15,.66),
+                x*1.31,8.82,.02+z*1.31,color,13,math.deg(angle),0,nil,Enum.Material.Fabric)
         end
+        p("Reborn_UraharaBrimCore",Vector3.new(.12,2.95,2.95),0,8.82,.02,moss,0,0,90,"Cylinder",Enum.Material.Fabric)
+        for side=-1,1,2 do
+            p("HatDroop_"..side,Vector3.new(.53,.14,.72),side*1.41,8.72,-.11,pale,0,0,side*-13,nil,Enum.Material.Fabric)
+        end
+        p("Reborn_UraharaNeck",Vector3.new(.68,.74,.73),0,7.03,0,skin,0,0,0,"Ball")
+        -- Green kimono under an open dark haori, cream diamond hem.
+        p("Reborn_UraharaTorso",Vector3.new(2.13,2.72,1.20),0,5.37,0,green,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_UraharaUnderRobe",Vector3.new(1.35,2.24,.16),0,5.31,-.64,sage,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_UraharaHaoriBack",Vector3.new(2.32,3.52,.23),0,4.68,.55,ink,0,0,0,nil,Enum.Material.Fabric)
+        for side=-1,1,2 do
+            p("KimonoLapels_"..side,Vector3.new(.26,1.90,.16),side*.39,5.70,-.76,ivory,0,0,side*-19,nil,Enum.Material.Fabric)
+            p("Reborn_UraharaHaoriFront_"..side,Vector3.new(.53,3.07,.24),side*.87,4.93,-.52,ink,0,side*7,side*5,nil,Enum.Material.Fabric)
+            p("Reborn_UraharaHaoriSide_"..side,Vector3.new(.23,2.94,1.06),side*1.02,4.80,.05,lining,0,0,side*5,nil,Enum.Material.Fabric)
+            p("Reborn_UraharaShoulder_"..side,Vector3.new(1.06,.78,1.19),side*1.42,6.36,0,ink,0,0,side*-10,"Ball",Enum.Material.Fabric)
+            local handX=if side==1 then 1.77 else -1.65
+            p("Reborn_UraharaUpperSleeve_"..side,Vector3.new(.98,1.57,1.04),side*1.55,5.65,.03,ink,0,0,side*8,"Ball",Enum.Material.Fabric)
+            p("Reborn_UraharaSleeve_"..side,Vector3.new(1.02,1.31,1.09),handX,4.56,-.05,lining,if side==1 then -16 else 0,0,side*5,"Ball",Enum.Material.Fabric)
+            p("Reborn_UraharaSleeveEdge_"..side,Vector3.new(.87,.22,.97),handX,3.99,-.13,green)
+            p("Reborn_UraharaHand_"..side,Vector3.new(.65,.65,.70),handX,3.59,-.17,skin,0,0,side*6,"Ball")
+            p("Reborn_UraharaThumb_"..side,Vector3.new(.19,.31,.22),handX-side*.29,3.59,-.26,skin,0,0,side*22,"Ball")
+            p("Reborn_UraharaHaoriTail_"..side,Vector3.new(1.04,2.44,.24),side*.63,3.62,.65,ink,-8,0,side*7,nil,Enum.Material.Fabric)
+            for i=1,3 do
+                p("Reborn_UraharaHemDiamond_"..side.."_"..i,Vector3.new(.24,.24,.09),
+                    side*(.27+i*.24),2.54,.82,pale,0,0,45,nil,Enum.Material.Fabric)
+            end
+            p("Reborn_UraharaTrouser_"..side,Vector3.new(.93,1.86,.94),side*.57,2.66,0,green,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_UraharaLowerLeg_"..side,Vector3.new(.79,1.44,.81),side*.60,1.33,0,moss,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_UraharaTabi_"..side,Vector3.new(.82,.46,1.13),side*.60,.58,-.19,ivory,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_UraharaGeta_"..side,Vector3.new(.91,.18,1.36),side*.60,.35,-.18,wood)
+            for j=1,2 do
+                p("Reborn_UraharaGetaTooth_"..side.."_"..j,Vector3.new(.80,.14,.22),
+                    side*.60,.19,-.18+(j-1.5)*.64,wood)
+            end
+            p("Reborn_UraharaSandalStrap_"..side,Vector3.new(.74,.09,.24),side*.60,.80,-.34,ink,0,0,0)
+        end
+        p("Reborn_UraharaObi",Vector3.new(1.91,.29,1.12),0,4.01,0,pale,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_UraharaObiKnot",Vector3.new(.49,.34,.25),0,4.01,-.67,green,0,0,0,"Ball",Enum.Material.Fabric)
+        -- Open folding fan: leaves and ribs share the same radial pivot.
+        local fanCF=cf*CFrame.new(1.80,3.73,-.44)*CFrame.Angles(math.rad(-12),0,math.rad(-18))
+        local function fan(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,angle: number,mat: Enum.Material?)
+            return add(npc,n,s,fanCF,x,y,z,col,mat,Vector3.new(0,0,angle))
+        end
+        fan("FanHandle",Vector3.new(.19,.77,.22),0,.08,0,wood,0,Enum.Material.Wood)
+        for i=1,9 do
+            local angle=(i-5)*13
+            local rad=math.rad(angle)
+            fan("FoldedFanLeaf_"..i,Vector3.new(.36,1.11,.09),-math.sin(rad)*.89,.89*math.cos(rad),-.055,
+                if i%2==0 then pale else ivory,angle,Enum.Material.Fabric)
+            fan("Reborn_UraharaFanRib_"..i,Vector3.new(.065,1.44,.075),-math.sin(rad)*.70,.70*math.cos(rad),-.125,
+                wood,angle,Enum.Material.Wood)
+        end
+        fan("Reborn_UraharaFanPin",Vector3.new(.21,.21,.11),0,.01,-.15,steel,0,Enum.Material.Metal)
+        npc:SetAttribute("CharacterReborn","Urahara-v1")
     elseif kind=="Raids" then
         -- Character Reborn: shadow monarch. Keep the station's static model
         -- contract and head pivot; replace blockout visuals with fitted forms.
