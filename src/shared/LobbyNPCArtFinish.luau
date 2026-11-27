@@ -102,30 +102,125 @@ end
 function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
     if npc:GetAttribute("ArtFinish") then return end
     local accent=station.Accent
-    if kind~="Raids" and kind~="Index" then basicFace(npc,cf,kind) end
+    if kind~="Raids" and kind~="Index" and kind~="Evolution" then basicFace(npc,cf,kind) end
     if kind=="Evolution" then
-        -- Whis: elongated coiffure, blue-violet robe with geometric
-        -- orange diamond ornaments, dual pale sleeves and neck torus.
-        armorTrim(npc,cf,C.Champagne)
-        add(npc,"AngelicSash",Vector3.new(2.6,.22,1.48),
-            cf,0,4.17,-.04,C.Gold,Enum.Material.Metal)
-        for i=1,5 do
-            local offset=i-3
-            add(npc,"DiamondRobe_"..i,Vector3.new(.32,.52,.14),
-                cf,0,6.45-i*.51,-.845,
-                if i%2==0 then C.Champagne else C.Ruby,
-                Enum.Material.Neon,Vector3.new(0,0,45))
+        -- Character Reborn: Whis. Replace blockout, preserve head pivot
+        -- and station-owned interaction. All cosmetics are static and safe.
+        local skin=Color3.fromRGB(137,199,222)
+        local skinShadow=Color3.fromRGB(94,151,188)
+        local hair=Color3.fromRGB(240,247,255)
+        local hairShade=Color3.fromRGB(171,190,219)
+        local burgundy=Color3.fromRGB(113,31,73)
+        local wine=Color3.fromRGB(74,23,54)
+        local rose=Color3.fromRGB(153,45,92)
+        local black=Color3.fromRGB(20,26,47)
+        local ivory=Color3.fromRGB(244,245,232)
+        local orange=Color3.fromRGB(236,151,56)
+        local cyan=Color3.fromRGB(118,224,249)
+        local blue=Color3.fromRGB(54,122,181)
+        local violet=Color3.fromRGB(128,100,205)
+        local function p(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,
+            rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?,alpha: number?)
+            return add(npc,n,s,cf,x,y,z,col,mat or Enum.Material.SmoothPlastic,
+                Vector3.new(rx or 0,ry or 0,rz or 0),shape,alpha)
         end
+        for _,obj in ipairs(npc:GetChildren()) do
+            if obj:IsA("BasePart") and obj.Name~="Head" then obj.Transparency=1 end
+        end
+        local head=npc:FindFirstChild("Head")
+        if head and head:IsA("BasePart") then
+            head.Size=Vector3.new(1.37,1.74,1.26);head.Color=skin
+            local mesh=Instance.new("SpecialMesh")
+            mesh.Name="Reborn_WhisHead";mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+            local face=Instance.new("SurfaceGui")
+            face.Name="Reborn_WhisFace";face.Face=Enum.NormalId.Front
+            face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud;face.PixelsPerStud=160
+            face.LightInfluence=.12;face.Parent=head
+            local canvas=Instance.new("Frame")
+            canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+            local function mark(n: string,x: number,y: number,w: number,h: number,col: Color3,rot: number)
+                local f=Instance.new("Frame")
+                f.Name=n;f.Position=UDim2.fromScale(x,y);f.Size=UDim2.fromScale(w,h)
+                f.BackgroundColor3=col;f.BorderSizePixel=0;f.Rotation=rot;f.Parent=canvas
+                local corner=Instance.new("UICorner");corner.CornerRadius=UDim.new(.28,0);corner.Parent=f
+            end
+            for side=-1,1,2 do
+                local x=if side==-1 then .17 else .57
+                local tilt=if side==-1 then -4 else 4
+                mark("EyeOutline_"..side,x,.40,.25,.12,black,tilt)
+                mark("EyeWhite_"..side,x+.017,.423,.216,.075,ivory,tilt)
+                mark("LavenderIris_"..side,x+.09,.407,.077,.101,violet,0)
+                mark("Pupil_"..side,x+.117,.415,.024,.084,black,0)
+                mark("EyeGlint_"..side,x+.095,.42,.023,.022,hair,0)
+                mark("WhiteBrow_"..side,x-.006,.31,.26,.045,hair,tilt)
+            end
+            mark("NoseShadow",.487,.53,.034,.13,skinShadow,-7)
+            mark("CalmSmile",.41,.735,.18,.025,Color3.fromRGB(85,99,151),-3)
+            mark("LipHighlight",.45,.767,.10,.012,Color3.fromRGB(179,220,232),0)
+        end
+        -- Whis's high swept silver coiffure, sculpted with overlapping
+        -- tapered locks and separate highlights instead of a crown.
+        p("Reborn_WhisHairBase",Vector3.new(1.43,.75,1.40),0,8.69,.03,hairShade,0,0,0,"Ball")
+        p("Reborn_WhisHairVolume",Vector3.new(1.39,1.77,1.27),0,9.48,.09,hair,8,0,0,"Ball")
+        for i=-3,3 do
+            p("Reborn_WhisHairLock_"..i,Vector3.new(.31,1.76-math.abs(i)*.15,.65),
+                i*.17,9.62-math.abs(i)*.08,-.22,if i%2==0 then hair else hairShade,
+                -11,0,-i*8,"Wedge")
+            p("Reborn_WhisHairHighlight_"..i,Vector3.new(.11,1.29,.30),
+                i*.17,9.70,-.43,hair,-11,0,-i*8,"Wedge")
+        end
+        p("Reborn_WhisHairTip",Vector3.new(.66,.96,.70),0,10.63,.14,hair,-15,0,-7,"Wedge")
         for side=-1,1,2 do
-            add(npc,"AngelCuff_"..side,Vector3.new(1.02,.65,1.0),
-                cf,side*1.63,3.70,0,C.Champagne,Enum.Material.Metal)
-            add(npc,"SilverHairFang_"..side,Vector3.new(.40,.95,.56),
-                cf,side*.83,9.24,.02,C.Silver,nil,Vector3.new(0,0,side*28),"Wedge")
+            p("SilverHairFang_"..side,Vector3.new(.24,.70,.43),side*.62,8.65,.03,hair,0,0,side*12,"Wedge")
+            p("Reborn_WhisEar_"..side,Vector3.new(.16,.38,.29),side*.69,7.99,.03,skin,0,0,side*-10,"Ball")
         end
-        halo(npc,"NeckRingPremium",cf,Vector3.new(0,7.24,0),
-            1.98,C.Cyan,20,.19,"Horizontal")
-        add(npc,"StaffSunCore",Vector3.new(.40,.40,.40),
-            cf,-2.0,10.5,-.30,C.Champagne,Enum.Material.Neon,nil,"Ball")
+        p("Reborn_WhisNeck",Vector3.new(.58,.85,.65),0,7.06,0,skin,0,0,0,"Ball")
+        p("Reborn_WhisTorso",Vector3.new(1.96,2.75,1.17),0,5.47,0,burgundy,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_WhisCollar",Vector3.new(1.30,.34,.91),0,6.83,0,black,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_WhisTabard",Vector3.new(.99,4.80,.17),0,4.25,-.64,black,0,0,0,nil,Enum.Material.Fabric)
+        for side=-1,1,2 do
+            p("Reborn_WhisTabardEdge_"..side,Vector3.new(.08,4.80,.075),side*.51,4.25,-.76,ivory)
+            p("Reborn_WhisShoulder_"..side,Vector3.new(.95,.78,1.08),side*1.15,6.37,0,burgundy,0,0,side*-11,"Ball",Enum.Material.Fabric)
+            local armX=if side==-1 then -1.55 else 1.42
+            p("Reborn_WhisUpperSleeve_"..side,Vector3.new(.70,1.48,.80),side*1.24,5.73,0,rose,0,0,side*9,"Ball",Enum.Material.Fabric)
+            p("Reborn_WhisLowerSleeve_"..side,Vector3.new(.65,1.35,.75),armX,4.50,-.05,burgundy,0,0,side*11,"Ball",Enum.Material.Fabric)
+            p("AngelCuff_"..side,Vector3.new(.77,.40,.87),armX,3.99,-.05,ivory,0,0,side*11,nil,Enum.Material.Fabric)
+            p("Reborn_WhisCuffTrim_"..side,Vector3.new(.80,.10,.89),armX,3.81,-.05,orange,0,0,side*11)
+            p("Reborn_WhisHand_"..side,Vector3.new(.52,.55,.59),armX,3.57,-.08,skin,0,0,side*8,"Ball")
+            p("Reborn_WhisThumb_"..side,Vector3.new(.15,.29,.20),armX-side*.25,3.60,-.15,skin,0,0,side*22,"Ball")
+            p("Reborn_WhisRobeSide_"..side,Vector3.new(.28,3.18,1.05),side*.91,2.88,.05,wine,0,0,-side*10,nil,Enum.Material.Fabric)
+            p("Reborn_WhisRobePanel_"..side,Vector3.new(1.03,3.26,.27),side*.65,2.68,.47,burgundy,-3,0,side*10,nil,Enum.Material.Fabric)
+            p("Reborn_WhisRobeFront_"..side,Vector3.new(.55,3.16,.23),side*.80,2.69,-.41,rose,0,0,-side*8,nil,Enum.Material.Fabric)
+            p("Reborn_WhisHem_"..side,Vector3.new(.95,.17,.24),side*.86,1.11,.49,ivory,0,0,side*10)
+            p("Reborn_WhisTrouser_"..side,Vector3.new(.79,1.53,.82),side*.46,1.20,0,black,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_WhisShoe_"..side,Vector3.new(.87,.51,1.23),side*.46,.65,-.20,ivory,0,0,0,"Ball")
+            p("Reborn_WhisSole_"..side,Vector3.new(.87,.13,1.21),side*.46,.42,-.18,black)
+        end
+        p("AngelicSash",Vector3.new(2.16,.30,1.28),0,4.18,0,orange,0,0,0,nil,Enum.Material.Fabric)
+        -- Signature diamond pattern: crisp geometric embroidery, not neon.
+        for i=1,5 do
+            p("DiamondRobe_"..i,Vector3.new(.37,.37,.075),0,6.39-i*.54,-.77,
+                if i%2==0 then orange else ivory,0,0,45,nil,Enum.Material.Fabric)
+            if i%2==1 then
+                p("Reborn_WhisDiamondInset_"..i,Vector3.new(.17,.17,.08),0,6.39-i*.54,-.815,orange,0,0,45)
+            end
+        end
+        -- Neck ring: smooth circular cyan band and restrained bright rim.
+        halo(npc,"NeckRingPremium",cf,Vector3.new(0,7.04,0),1.64,blue,32,.24,"Horizontal")
+        halo(npc,"Reborn_WhisRingRim",cf,Vector3.new(0,7.11,0),1.64,cyan,32,.085,"Horizontal")
+        -- Angel staff with dark floating orb, pale rings, metallic handle.
+        local sx,sz=-2.29,-.17
+        p("Reborn_WhisStaffShaft",Vector3.new(.18,8.05,.18),sx,4.47,sz,C.Steel,0,0,0,nil,Enum.Material.Metal)
+        p("Reborn_WhisStaffGrip",Vector3.new(.24,.81,.24),sx,3.62,sz,black,0,0,0,nil,Enum.Material.Leather)
+        p("Reborn_WhisStaffFoot",Vector3.new(.27,.29,.27),sx,.49,sz,orange,0,0,0,"Ball",Enum.Material.Metal)
+        p("Reborn_WhisStaffCrown",Vector3.new(.33,.54,.33),sx,8.67,sz,orange,0,0,0,nil,Enum.Material.Metal)
+        p("Reborn_WhisStaffOrb",Vector3.new(.83,.83,.83),sx,9.51,sz,black,0,0,0,"Ball",Enum.Material.Glass)
+        local core=p("StaffSunCore",Vector3.new(.24,.24,.24),sx,9.51,sz-.40,cyan,0,0,0,"Ball",Enum.Material.Neon)
+        halo(npc,"Reborn_WhisStaffOrbit",cf,Vector3.new(sx,9.51,sz),.77,ivory,20,.105)
+        local lamp=Instance.new("PointLight")
+        lamp.Name="Reborn_WhisSoftLight";lamp.Color=cyan;lamp.Range=6;lamp.Brightness=.22
+        lamp.Shadows=false;lamp.Parent=core
+        npc:SetAttribute("CharacterReborn","Whis-v1")
     elseif kind=="Traits" then
         -- Urahara: green striped bucket hat, sandy hair poking out
         -- from under the rim, long dark green kimono and folding fan.
