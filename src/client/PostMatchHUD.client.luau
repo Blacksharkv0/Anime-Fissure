@@ -76,6 +76,7 @@ local btnCorner=Instance.new("UICorner")
 btnCorner.CornerRadius=UDim.new(0,10);btnCorner.Parent=btn
 local visibleToken=0
 local sent=false
+local cameraResizeConnection: RBXScriptConnection?=nil
 local function close()
     visibleToken+=1
     gui.Enabled=false
@@ -87,6 +88,16 @@ local function request()
     btn.Text="RETORNANDO..."
     btn.Active=false
     returnLobby:FireServer()
+    -- Allow a manual retry if the server could not complete the return.
+    -- The token prevents a delayed callback affecting another result.
+    local token=visibleToken
+    task.delay(3,function()
+        if gui.Enabled and token==visibleToken and player:GetAttribute("InArena")==true then
+            sent=false
+            btn.Text="TENTAR VOLTAR AO LOBBY"
+            btn.Active=true
+        end
+    end)
 end
 btn.Activated:Connect(request)
 UserInputService.InputBegan:Connect(function(input: InputObject,processed: boolean)
@@ -100,10 +111,19 @@ local function resize()
     local v=camera.ViewportSize
     scaler.Scale=math.clamp(math.min((v.X-26)/680,(v.Y-22)/438,1),.41,1)
 end
-if Workspace.CurrentCamera then
-    Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+local function bindCamera()
+    if cameraResizeConnection then
+        cameraResizeConnection:Disconnect()
+        cameraResizeConnection=nil
+    end
+    local camera=Workspace.CurrentCamera
+    if camera then
+        cameraResizeConnection=camera:GetPropertyChangedSignal("ViewportSize"):Connect(resize)
+    end
+    resize()
 end
-Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(resize)
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+bindCamera()
 player:GetAttributeChangedSignal("InArena"):Connect(function()
     if player:GetAttribute("InArena")~=true then close() end
 end)
@@ -116,7 +136,7 @@ show.OnClientEvent:Connect(function(data: any)
         then math.clamp(math.floor(data.AutoReturnSeconds),5,30) else 30
     local victory=state=="Victory"
     heading.Text=if victory then "✦ VITÓRIA! ✦"
-        elseif state=="Defeat" then "DERROTA • TENTE NOVAMENTE"
+        elseif state=="Defeat" then "DERROTA"
         else "PARTIDA ENCERRADA"
     heading.TextColor3=if victory then gold else Color3.fromRGB(251,139,154)
     subtitle.Text=string.format("WAVES %02d / %02d",wave,maxWaves)
@@ -127,12 +147,12 @@ show.OnClientEvent:Connect(function(data: any)
         else "A sessão de combate foi interrompida."
     description.Text=description.Text..
         "\n\nBETA: uma partida por servidor. Reinicie o Play para jogar de novo."
+    visibleToken+=1
+    local token=visibleToken
     gui.Enabled=true
     sent=false
     btn.Text="VOLTAR AO LOBBY";btn.Active=true
     resize()
-    visibleToken+=1
-    local token=visibleToken
     local deadline=os.clock()+seconds
     task.spawn(function()
         while gui.Enabled and token==visibleToken do
