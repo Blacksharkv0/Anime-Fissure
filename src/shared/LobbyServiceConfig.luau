@@ -5,7 +5,7 @@
 -- keep their existing, separate responsibilities.
 -- DATA ONLY: no evolution, reroll, raid or event is activated by this file.
 local Config={}
-Config.Version="1.0.0"
+Config.Version="1.1.0"
 Config.LobbyCenter=Vector3.new(260,0,0)
 Config.CurrentEventId=nil -- Change only when an actual supported event ships.
 Config.DevelopmentEventPreviewId="NANATSU_ESCANOR" -- STUDIO ONLY example, never live.
@@ -37,6 +37,19 @@ Config.Stations={
         DisabledReason="Reroll de Traits aguarda inventário, chances, moeda e serviço real.",
         Enabled=false,Prototype="StaticNPC",
     },
+    Index={
+        Id="Index",NPC="Dante",Universe="Devil May Cry",
+        Name="ARQUIVO DOS CAÇADORES",Title="MESTRE DO INDEX",
+        Action="ABRIR INDEX",
+        Subtitle="Conheça todas as unidades dos universos",
+        Description="Arquivo universal das unidades, raridades e formas de obtenção. Não se confunde com Summon nem com a coleção pessoal.",
+        Features={"Consultar personagens de todos os mundos","Ver raridades e formas de obtenção","Explorar unidades ainda não disponíveis","Coleção pessoal será integrada futuramente"},
+        Position=Vector3.new(247,0,-8),Yaw=0,
+        Accent=Color3.fromRGB(236,68,86),
+        Secondary=Color3.fromRGB(233,235,242),
+        DisabledReason="Index de leitura ativo; coleção de unidades ainda não conectada.",
+        Enabled=false,Prototype="StaticNPC",
+    },
     Raids={
         Id="Raids",NPC="Sung Jinwoo",Universe="Solo Leveling",
         Name="PORTÃO DOS CAÇADORES",Title="MESTRE DOS DESAFIOS E RAIDS",
@@ -51,7 +64,7 @@ Config.Stations={
         Enabled=false,Prototype="StaticNPC",
     },
 }
-Config.Order={"Evolution","Traits","Raids"}
+Config.Order={"Evolution","Traits","Raids","Index"}
 
 Config.EventHub={
     Id="EventHub",Name="PRAÇA DOS EVENTOS",Title="EVENTO SAZONAL",
