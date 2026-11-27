@@ -102,7 +102,7 @@ end
 function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
     if npc:GetAttribute("ArtFinish") then return end
     local accent=station.Accent
-    basicFace(npc,cf,kind)
+    if kind~="Raids" then basicFace(npc,cf,kind) end
     if kind=="Evolution" then
         -- Whis: elongated coiffure, blue-violet robe with geometric
         -- orange diamond ornaments, dual pale sleeves and neck torus.
@@ -148,23 +148,110 @@ function Art.ApplyService(npc: Model,kind: string,cf: CFrame,station: any)
                 Enum.Material.Fabric,Vector3.new(0,0,(i-3.5)*7))
         end
     elseif kind=="Raids" then
-        -- Jinwoo: dark layered hunter coat, purple eyes, rune
-        -- daggers and spectral shoulder blades (limited to few parts).
-        armorTrim(npc,cf,C.Violet)
-        add(npc,"ShadowChestClasp",Vector3.new(.56,.44,.15),
-            cf,0,6.11,-.77,C.Violet,Enum.Material.Neon,nil,"Ball")
-        for side=-1,1,2 do
-            add(npc,"HunterCoatEdge_"..side,Vector3.new(.19,3.23,.19),
-                cf,side*.96,3.34,-.83,C.Steel,Enum.Material.Metal)
-            add(npc,"ObsidianPauldron_"..side,Vector3.new(1.30,.55,1.35),
-                cf,side*1.57,6.39,0,C.Midnight,Enum.Material.Metal,
-                Vector3.new(0,0,side*12),"Wedge")
-            add(npc,"SpectralFlare_"..side,Vector3.new(.22,.95,.29),
-                cf,side*2.16,5.88,-.22,C.Violet,Enum.Material.Neon,
-                Vector3.new(0,0,side*21),"Wedge",.16)
+        -- Character Reborn: shadow monarch. Keep the station's static model
+        -- contract and head pivot; replace blockout visuals with fitted forms.
+        local ink=Color3.fromRGB(12,15,23)
+        local cloth=Color3.fromRGB(25,31,44)
+        local seam=Color3.fromRGB(49,57,78)
+        local violet=Color3.fromRGB(126,75,238)
+        local lilac=Color3.fromRGB(190,153,255)
+        local skin=Color3.fromRGB(232,201,181)
+        local hair=Color3.fromRGB(13,18,31)
+        local hairLight=Color3.fromRGB(34,43,65)
+        local function p(name: string,size: Vector3,x: number,y: number,z: number,
+            col: Color3,rx: number?,ry: number?,rz: number?,shape: string?,mat: Enum.Material?,alpha: number?)
+            return add(npc,name,size,cf,x,y,z,col,mat or Enum.Material.SmoothPlastic,
+                Vector3.new(rx or 0,ry or 0,rz or 0),shape,alpha)
         end
-        halo(npc,"HunterCircle",cf,Vector3.new(0,1.3,1.25),
-            3.25,C.Violet,16,.065,"Horizontal")
+        for _,obj in ipairs(npc:GetChildren()) do
+            if obj:IsA("BasePart") and obj.Name~="Head" then obj.Transparency=1 end
+        end
+        local head=npc:FindFirstChild("Head")
+        if head and head:IsA("BasePart") then
+            head.Size=Vector3.new(1.47,1.65,1.35);head.Color=skin
+            local mesh=Instance.new("SpecialMesh")
+            mesh.Name="Reborn_ShadowHead";mesh.MeshType=Enum.MeshType.Head;mesh.Parent=head
+            local face=Instance.new("SurfaceGui")
+            face.Name="Reborn_ShadowFace";face.Face=Enum.NormalId.Front
+            face.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud;face.PixelsPerStud=150
+            face.LightInfluence=.15;face.Parent=head
+            local canvas=Instance.new("Frame")
+            canvas.Size=UDim2.fromScale(1,1);canvas.BackgroundTransparency=1;canvas.Parent=face
+            local function mark(n: string,x: number,y: number,w: number,h: number,col: Color3,angle: number)
+                local f=Instance.new("Frame");f.Name=n;f.Position=UDim2.fromScale(x,y)
+                f.Size=UDim2.fromScale(w,h);f.BackgroundColor3=col;f.BorderSizePixel=0
+                f.Rotation=angle;f.Parent=canvas
+                local round=Instance.new("UICorner");round.CornerRadius=UDim.new(.22,0);round.Parent=f
+            end
+            for side=-1,1,2 do
+                local x=if side==-1 then .17 else .57
+                local tilt=if side==-1 then 11 else -11
+                mark("EyeOutline_"..side,x,.40,.25,.13,ink,tilt)
+                mark("EyeWhite_"..side,x+.018,.423,.214,.079,C.White,tilt)
+                mark("VioletIris_"..side,x+.087,.407,.08,.105,violet,0)
+                mark("Pupil_"..side,x+.113,.415,.027,.09,ink,0)
+                mark("EyeGlint_"..side,x+.091,.419,.025,.022,lilac,0)
+                mark("Brow_"..side,x-.008,.321,.26,.047,hair,tilt)
+            end
+            mark("Nose",.489,.54,.031,.12,Color3.fromRGB(190,146,129),-8)
+            mark("Mouth",.422,.735,.156,.023,Color3.fromRGB(96,63,63),0)
+        end
+        p("Reborn_HairBase",Vector3.new(1.60,.73,1.45),0,8.65,.06,hair,0,0,0,"Ball")
+        p("Reborn_HairCrown",Vector3.new(1.64,.72,1.40),0,8.86,.02,hair,0,0,0,"Ball")
+        for i=-3,3 do
+            p("Reborn_Fringe_"..i,Vector3.new(.34,.92-math.abs(i)*.05,.49),
+                i*.205,8.64+math.abs(i)*.045,-.56,if i%2==0 then hairLight else hair,
+                -12,0,-18-i*10,"Wedge")
+            p("Reborn_CrownLock_"..i,Vector3.new(.29,.66,.68),i*.21,9.01,.06,hairLight,-28,0,-i*12,"Wedge")
+        end
+        for side=-1,1,2 do
+            p("Reborn_Temple_"..side,Vector3.new(.28,.65,.59),side*.68,8.23,.03,hair,0,0,side*10,"Wedge")
+            p("Reborn_Ear_"..side,Vector3.new(.18,.34,.30),side*.73,7.95,.02,skin,0,0,0,"Ball")
+        end
+        p("Reborn_Neck",Vector3.new(.67,.73,.72),0,7.02,0,skin,0,0,0,"Ball")
+        p("Reborn_Torso",Vector3.new(2.13,2.85,1.20),0,5.35,0,ink,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_Shirt",Vector3.new(1.09,2.22,.16),0,5.40,-.65,cloth,0,0,0,nil,Enum.Material.Fabric)
+        p("Reborn_CollarBack",Vector3.new(1.39,.55,.30),0,6.72,.35,cloth,-10,0,0,nil,Enum.Material.Fabric)
+        for side=-1,1,2 do
+            p("Reborn_CoatFront_"..side,Vector3.new(.72,2.45,.24),side*.70,5.25,-.52,cloth,0,side*9,side*4,nil,Enum.Material.Fabric)
+            p("Reborn_Lapel_"..side,Vector3.new(.37,1.64,.20),side*.44,5.86,-.72,seam,0,0,side*16,nil,Enum.Material.Fabric)
+            p("ObsidianPauldron_"..side,Vector3.new(1.10,.66,1.20),side*1.42,6.36,0,cloth,0,0,side*-11,"Ball",Enum.Material.Fabric)
+            p("Reborn_SleeveUpper_"..side,Vector3.new(.76,1.53,.84),side*1.52,5.70,0,ink,0,0,side*7,"Ball",Enum.Material.Fabric)
+            p("Reborn_SleeveLower_"..side,Vector3.new(.69,1.37,.77),side*1.65,4.47,-.03,cloth,0,0,side*4,"Ball",Enum.Material.Fabric)
+            p("Reborn_Cuff_"..side,Vector3.new(.73,.18,.80),side*1.70,3.87,-.03,seam)
+            p("Reborn_Glove_"..side,Vector3.new(.65,.62,.72),side*1.72,3.48,-.10,ink,0,0,0,"Ball",Enum.Material.Leather)
+            for i=1,3 do
+                p("Reborn_GloveSeam_"..side.."_"..i,Vector3.new(.045,.23,.05),side*1.72+(i-2)*.14,3.48,-.45,seam)
+            end
+            p("Reborn_CoatSide_"..side,Vector3.new(.23,3.35,.99),side*.97,3.79,.03,ink,0,0,side*5,nil,Enum.Material.Fabric)
+            p("Reborn_CoatTail_"..side,Vector3.new(1.03,3.52,.23),side*.61,3.23,.67,cloth,-12,0,side*9,nil,Enum.Material.Fabric)
+            p("Reborn_TailLining_"..side,Vector3.new(.90,3.40,.12),side*.61,3.23,.51,ink,-12,0,side*9,nil,Enum.Material.Fabric)
+            p("HunterCoatEdge_"..side,Vector3.new(.07,3.42,.10),side*.99,3.23,.78,seam,-12,0,side*9)
+            p("Reborn_Thigh_"..side,Vector3.new(.89,1.65,.92),side*.58,2.88,0,ink,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_Shin_"..side,Vector3.new(.80,1.59,.85),side*.58,1.56,0,cloth,0,0,0,"Ball",Enum.Material.Fabric)
+            p("Reborn_Boot_"..side,Vector3.new(.88,.66,1.29),side*.58,.66,-.17,ink,0,0,0,"Ball",Enum.Material.Leather)
+            p("Reborn_BootSole_"..side,Vector3.new(.89,.14,1.26),side*.58,.37,-.16,seam)
+            -- Twin spectral daggers, purely cosmetic. Each blade has a
+            -- continuous silhouette with a contrasting luminous edge.
+            local daggerCF=cf*CFrame.new(side*1.77,3.25,-.31)*CFrame.Angles(math.rad(-8),0,math.rad(side*15))
+            local function blade(name: string,size: Vector3,x: number,y: number,z: number,col: Color3,shape: string?,mat: Enum.Material?,angle: number?)
+                return add(npc,"Reborn_Dagger_"..side.."_"..name,size,daggerCF,x,y,z,col,mat,Vector3.new(0,0,angle or 0),shape)
+            end
+            blade("Grip",Vector3.new(.24,.61,.25),0,.18,0,ink,nil,Enum.Material.Leather)
+            blade("Pommel",Vector3.new(.32,.18,.29),0,.52,0,seam,"Ball",Enum.Material.Metal)
+            blade("Guard",Vector3.new(.66,.14,.30),0,-.15,0,seam,nil,Enum.Material.Metal)
+            blade("Core",Vector3.new(.38,1.32,.19),0,-.85,0,Color3.fromRGB(49,27,96),"Wedge",Enum.Material.Metal,180)
+            blade("Edge",Vector3.new(.12,1.22,.12),side*.13,-.82,-.07,violet,"Wedge",Enum.Material.Neon,180)
+            blade("Tip",Vector3.new(.20,.48,.15),-side*.06,-1.55,0,lilac,"Wedge",Enum.Material.Neon,180)
+            -- Sparse shadow wisps, no physics or attack behavior.
+            p("SpectralFlare_"..side,Vector3.new(.21,1.17,.29),side*2.34,5.95,.32,violet,0,0,side*24,"Wedge",Enum.Material.Neon,.27)
+            p("Reborn_ShadowWisp_"..side,Vector3.new(.38,1.46,.37),side*2.05,2.17,.63,violet,0,0,side*19,"Wedge",Enum.Material.Neon,.54)
+        end
+        p("Reborn_Belt",Vector3.new(1.83,.21,1.08),0,4.03,0,ink,0,0,0,nil,Enum.Material.Leather)
+        p("Reborn_Buckle",Vector3.new(.35,.26,.13),0,4.03,-.62,C.Steel,0,0,0,nil,Enum.Material.Metal)
+        p("ShadowChestClasp",Vector3.new(.22,.25,.12),0,5.92,-.78,violet,0,0,45,nil,Enum.Material.Neon)
+        halo(npc,"HunterCircle",cf,Vector3.new(0,.27,0),2.79,violet,20,.055,"Horizontal")
+        npc:SetAttribute("CharacterReborn","Jinwoo-v1")
     elseif kind=="Index" then
         -- Dante: strong crimson shoulder silhouette, white hair swept
         -- across forehead, silver belts, dark undersuit, broad sword.
