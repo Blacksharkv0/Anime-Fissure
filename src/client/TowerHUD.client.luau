@@ -121,7 +121,7 @@ local yen = text(bar, "Yen", "¥ 700",
     UDim2.fromOffset(382, 3), UDim2.fromOffset(158, 23), 15, C.Gold)
 yen.TextXAlignment = Enum.TextXAlignment.Right
 local hint = text(bar, "PlaceHint", if UserInputService.TouchEnabled
-    then "Toque no slot e depois na grama para colocar"
+    then "Escolha uma Tower; arraste e solte na grama para posicionar"
     else "1–6: slots  •  Q: cancelar  •  U: upgrade  •  ESC: sair",
     UDim2.fromOffset(12, 98), UDim2.fromOffset(520, 20), 11, C.Muted)
 
@@ -277,6 +277,7 @@ local studioDeckMode = "Legacy"
 local currentYen = 700
 local preview: Part? = nil
 local previewPosition: Vector3? = nil
+local placementTouch: InputObject? = nil
 local recentFeedback = ""
 
 local function setHint(value: string, color: Color3?)
@@ -291,6 +292,7 @@ end
 
 local function cancelPlacement()
     selectedUnit = nil
+    placementTouch = nil
     removePreview()
 end
 
@@ -544,11 +546,34 @@ local function towerSerialAt(x: number, y: number): number?
     return if typeof(serial) == "number" then serial else nil
 end
 
+local function touchAimY(y: number): number
+    -- Lift the target above the finger to avoid occlusion on landscape touch.
+    return math.max(18,y-56)
+end
 UserInputService.InputChanged:Connect(function(input: InputObject)
     if not selectedUnit then return end
-    if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
-        updatePreview(input.Position.X, input.Position.Y)
+    if input.UserInputType==Enum.UserInputType.Touch then
+        if placementTouch==input then
+            updatePreview(input.Position.X,touchAimY(input.Position.Y))
+        end
+    elseif input.UserInputType==Enum.UserInputType.MouseMovement then
+        updatePreview(input.Position.X,input.Position.Y)
+    end
+end)
+-- On touch, commit only when the player RELEASES the finger, not on
+-- InputBegan; dragging shows the offset preview before placement.
+UserInputService.InputEnded:Connect(function(input: InputObject)
+    if placementTouch~=input then return end
+    placementTouch=nil
+    if not selectedUnit or not gui.Enabled
+        or player:GetAttribute("InArena")~=true or sellShade.Visible then return end
+    local hit=raycastGround(input.Position.X,touchAimY(input.Position.Y))
+    if hit and hit.Instance.Name=="VillageMeadow" then
+        request:FireServer("Place",selectedUnit,
+            Vector3.new(hit.Position.X,0,hit.Position.Z))
+        setHint("Posição enviada ao servidor. Aguarde confirmação.",C.Cyan)
+    else
+        setHint("Arraste e solte sobre uma área livre de grama.",C.Gold)
     end
 end)
 
@@ -583,6 +608,11 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
     if input.UserInputType ~= Enum.UserInputType.MouseButton1
         and input.UserInputType ~= Enum.UserInputType.Touch then return end
     local x, y = input.Position.X, input.Position.Y
+    if selectedUnit and input.UserInputType==Enum.UserInputType.Touch then
+        placementTouch=input
+        updatePreview(x,touchAimY(y))
+        return
+    end
     if selectedUnit then
         local hit = raycastGround(x, y)
         if hit and hit.Instance.Name == "VillageMeadow" then
@@ -717,4 +747,4 @@ bindCamera()
 
 updateSlots()
 updateVisibility()
-print("[Anime Fissure] TowerHUD v1.5 | sell confirmation + PC hotkeys + safe Studio relic cycle")
+print("[Anime Fissure] TowerHUD v1.6 | touch drag-release offset + sale confirmation + PC hotkeys")
