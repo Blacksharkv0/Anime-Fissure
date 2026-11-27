@@ -1,5 +1,5 @@
 --!strict
--- ANIME FISSURE | TowerHUD v1.3
+-- ANIME FISSURE | TowerHUD v1.5 • QoL
 -- Deck beta de 6 slots e card de info detalhado ao selecionar Tower.
 -- Clique/toque no slot e depois na grama para colocar, em PC e mobile.
 -- Upgrade/venda so por serial de torre propria (server verifica tudo).
@@ -120,7 +120,9 @@ local deckTitle = text(bar, "DeckTitle", "DECK DE COMBATE  •  BETA",
 local yen = text(bar, "Yen", "¥ 700",
     UDim2.fromOffset(382, 3), UDim2.fromOffset(158, 23), 15, C.Gold)
 yen.TextXAlignment = Enum.TextXAlignment.Right
-local hint = text(bar, "PlaceHint", "Selecione uma Tower e toque no terreno livre",
+local hint = text(bar, "PlaceHint", if UserInputService.TouchEnabled
+    then "Toque no slot e depois na grama para colocar"
+    else "1–6: slots  •  Q: cancelar  •  U: upgrade  •  ESC: sair",
     UDim2.fromOffset(12, 98), UDim2.fromOffset(520, 20), 11, C.Muted)
 
 -- Tower info card: name / rarity / damage-range-SPA /
@@ -202,6 +204,39 @@ local sellButton = button(management, "Sell", "VENDER",
     UDim2.fromOffset(259, 285), UDim2.fromOffset(153, 30), C.Purple)
 local closeManage = button(management, "CloseSelection", "X",
     UDim2.fromOffset(423, 285), UDim2.fromOffset(86, 30), C.Dark)
+
+-- Confirmation dialog: selling is destructive even in a temporary match.
+-- Only the owner may ask the server, and the server revalidates the sale.
+local sellShade = frame(gui, "SellConfirmBackdrop", UDim2.fromScale(0,0),
+    UDim2.fromScale(1,1), C.Dark)
+sellShade.BackgroundTransparency=0.20
+sellShade.Active=true
+sellShade.ZIndex=80
+sellShade.Visible=false
+local sellDialog = frame(sellShade, "ConfirmDialog", UDim2.fromScale(.5,.5),
+    UDim2.fromOffset(476,196),C.Panel)
+sellDialog.AnchorPoint=Vector2.new(.5,.5)
+sellDialog.ZIndex=81
+round(sellDialog,13)
+local sellScale=Instance.new("UIScale")
+sellScale.Parent=sellDialog
+local sellTitle=text(sellDialog,"ConfirmTitle","CONFIRMAR VENDA?",
+    UDim2.fromOffset(15,14),UDim2.fromOffset(448,36),20,C.Gold)
+sellTitle.ZIndex=82
+local sellDescription=text(sellDialog,"ConfirmDescription","",
+    UDim2.fromOffset(16,53),UDim2.fromOffset(443,63),14,C.White)
+sellDescription.ZIndex=82
+local cancelSell=button(sellDialog,"CancelSell","CANCELAR",
+    UDim2.fromOffset(19,133),UDim2.fromOffset(209,45),C.Inner)
+cancelSell.ZIndex=82
+local acceptSell=button(sellDialog,"AcceptSell","SIM, VENDER",
+    UDim2.fromOffset(247,133),UDim2.fromOffset(209,45),C.Red)
+acceptSell.ZIndex=82
+local sellCandidate: number?=nil
+local function closeSell()
+    sellCandidate=nil
+    sellShade.Visible=false
+end
 
 local slotButtons: {[number]: TextButton} = {}
 for i = 1, 6 do
@@ -297,6 +332,7 @@ end
 local function updateManagement()
     local t = findSelectedTower()
     if not t then
+        closeSell()
         selectedTower = nil
         management.Visible = false
         return
@@ -387,26 +423,57 @@ local function updateManagement()
     sellButton.BackgroundColor3 = if canManage then C.Purple else C.Dark
 end
 
-for i, b in pairs(slotButtons) do
-    b.Activated:Connect(function()
-        if not ready then return end
-        local item = deck[i]
-        if not item or item.Available ~= true then
-            setHint("Slot ainda nao liberado.", C.Gold)
-            return
-        end
-        selectedTower = nil
-        management.Visible = false
-        if selectedUnit == item.UnitId then
-            cancelPlacement()
-            setHint("Colocacao cancelada.")
-        else
-            selectedUnit = item.UnitId
-            setHint("Toque na GRAMA perto do trajeto para posicionar " .. item.Name .. ".")
-        end
-        updateSlots()
-    end)
+local function chooseSlot(i: number)
+    if not ready or not gui.Enabled or sellShade.Visible then return end
+    local item=deck[i]
+    if not item or item.Available~=true then
+        setHint("Slot ainda não liberado.",C.Gold)
+        return
+    end
+    closeSell()
+    selectedTower=nil
+    management.Visible=false
+    if selectedUnit==item.UnitId then
+        cancelPlacement()
+        setHint("Posicionamento cancelado.")
+    else
+        selectedUnit=item.UnitId
+        setHint("Posicione "..item.Name.." em uma área de grama livre.")
+    end
+    updateSlots()
 end
+for i,b in pairs(slotButtons) do
+    b.Activated:Connect(function() chooseSlot(i) end)
+end
+
+local function requestSale()
+    local t=findSelectedTower()
+    if not t or not gui.Enabled or t.OwnerId~=player.UserId
+        or sellShade.Visible or selectedUnit then return end
+    sellCandidate=t.Serial
+    sellTitle.Text="CONFIRMAR VENDA?"
+    sellDescription.Text=(t.Name or "UNIDADE")..
+        "\nRetorno estimado: ¥ "..tostring(t.SellValue or 0)..
+        "\nA unidade será removida desta partida."
+    sellShade.Visible=true
+    local camera=Workspace.CurrentCamera
+    if camera then
+        local v=camera.ViewportSize
+        sellScale.Scale=math.clamp(math.min((v.X-20)/500,
+            (v.Y-30)/224,1),.45,1)
+    end
+end
+cancelSell.Activated:Connect(closeSell)
+acceptSell.Activated:Connect(function()
+    local serial=sellCandidate
+    local t=findSelectedTower()
+    closeSell()
+    if serial and t and t.Serial==serial
+        and t.OwnerId==player.UserId and gui.Enabled then
+        request:FireServer("Sell",serial)
+        setHint("Venda enviada ao servidor; aguardando confirmação.",C.Gold)
+    end
+end)
 
 local function cameraRay(x: number, y: number): Ray
     local camera = Workspace.CurrentCamera
@@ -487,7 +554,28 @@ end)
 
 UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
     if processed or player:GetAttribute("InArena") ~= true then return end
-    if input.KeyCode == Enum.KeyCode.Escape or input.KeyCode == Enum.KeyCode.Backspace then
+    if sellShade.Visible then
+        if input.KeyCode==Enum.KeyCode.Escape
+            or input.KeyCode==Enum.KeyCode.Backspace
+            or input.KeyCode==Enum.KeyCode.ButtonB then closeSell() end
+        return
+    end
+    local hotkeys={
+        [Enum.KeyCode.One]=1,[Enum.KeyCode.Two]=2,
+        [Enum.KeyCode.Three]=3,[Enum.KeyCode.Four]=4,
+        [Enum.KeyCode.Five]=5,[Enum.KeyCode.Six]=6,
+    }
+    local slot=hotkeys[input.KeyCode]
+    if slot then chooseSlot(slot);return end
+    if input.KeyCode==Enum.KeyCode.U then
+        local t=findSelectedTower()
+        if t and t.OwnerId==player.UserId and upgradeButton.Active then
+            request:FireServer("Upgrade",t.Serial)
+        end
+        return
+    end
+    if input.KeyCode==Enum.KeyCode.Escape or input.KeyCode==Enum.KeyCode.Backspace
+        or input.KeyCode==Enum.KeyCode.Q or input.KeyCode==Enum.KeyCode.ButtonB then
         cancelPlacement()
         updateSlots()
         return
@@ -552,12 +640,10 @@ upgradeButton.Activated:Connect(function()
     end
 end)
 sellButton.Activated:Connect(function()
-    local t = findSelectedTower()
-    if t and t.OwnerId == player.UserId and sellButton.Active then
-        request:FireServer("Sell", t.Serial)
-    end
+    if sellButton.Active then requestSale() end
 end)
 closeManage.Activated:Connect(function()
+    closeSell()
     selectedTower = nil
     management.Visible = false
 end)
@@ -595,6 +681,7 @@ local function updateVisibility()
         cancelPlacement()
         selectedTower = nil
         management.Visible = false
+        closeSell()
     else
         request:FireServer("Sync")
     end
@@ -613,6 +700,8 @@ local function resize()
     barScale.Scale = factor
     managementScale.Scale = factor
     labScale.Scale = factor
+    sellScale.Scale=math.clamp(math.min((v.X-20)/500,
+        (v.Y-30)/224,1),.45,1)
     lab.Position = UDim2.new(0.5, 0, 1, -(13 + 122 * factor + 8))
     management.Position = UDim2.new(0.5, 0, 1,
         -(13 + 122 * factor + (if lab.Visible then 49 * factor else 0)
@@ -628,4 +717,4 @@ bindCamera()
 
 updateSlots()
 updateVisibility()
-print("[Anime Fissure] TowerHUD v1.4 | server-side relic stats + Studio-only equip cycle")
+print("[Anime Fissure] TowerHUD v1.5 | sell confirmation + PC hotkeys + safe Studio relic cycle")
