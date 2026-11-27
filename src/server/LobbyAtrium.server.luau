@@ -193,7 +193,7 @@ local function build(): Model
             local x=d.X+side*d.W*.5
             p(m,"Base",Vector3.new(2,.52,2),at(x,.26,back),C.Ink,Enum.Material.Marble)
             p(m,"Column",Vector3.new(1.35,d.H,1.5),at(x,d.H*.5,back),C.Stone,Enum.Material.Metal)
-            local glow=p(m,"Accent",Vector3.new(.18,d.H-1.2,.19),at(x,d.H*.5,back),d.Color,Enum.Material.Neon)
+            local glow=p(m,"Accent",Vector3.new(.18,d.H-1.2,.19),at(x,d.H*.5,back+(if orientation==0 then -.82 else .82)),d.Color,Enum.Material.Neon)
             p(m,"ColumnCrown",Vector3.new(2.10,.45,2.1),at(x,d.H,back),C.Metal,Enum.Material.Metal)
             if side==1 then lamp(glow,d.Color,12,.32) end
         end
@@ -201,6 +201,62 @@ local function build(): Model
         p(m,"CorniceEdge",Vector3.new(d.W+1,.10,.13),at(d.X,d.H+.94,back+(if orientation==0 then -1.29 else 1.29)),d.Color,Enum.Material.Neon)
         sign(m,"DistrictSign",at(d.X,d.H+1.84,back)*CFrame.Angles(0,orientation,0),
             math.min(d.W,17),1.95,d.Label,d.Sub,d.Color)
+    end
+
+    -- Individual visual language for each district, behind or beside its
+    -- existing functional stand. These are display-only, not fake systems.
+    local summon=sectors:FindFirstChild("Summon") :: Model
+    ring(summon,"SummonArch",Vector3.new(-32,7.8,-13.1),4.6,24,.14,C.Blue,true)
+    ring(summon,"SummonInner",Vector3.new(-32,7.8,-13.0),3.6,20,.07,C.Cyan,true)
+    for side=-1,1,2 do
+        local x=-32+side*5.6
+        p(summon,"CapsuleBase",Vector3.new(2.6,.38,2.6),at(x,.35,-11.9),C.Ink,Enum.Material.Metal)
+        p(summon,"CapsuleGlass",Vector3.new(1.6,3.25,1.6),at(x,2.15,-11.9),C.Blue,Enum.Material.Glass,nil,.63)
+        p(summon,"CapsuleCore",Vector3.new(.59,1.48,.59),at(x,2.15,-11.9)*CFrame.Angles(0,0,.25),C.Cyan,Enum.Material.Neon)
+    end
+    local alchemy=sectors:FindFirstChild("Alchemy") :: Model
+    for side=-1,1,2 do
+        local x=33+side*10.7
+        for level=1,3 do
+            p(alchemy,"ArchiveShelf",Vector3.new(3.4,.15,1.05),at(x,1.4+level*1.55,-13.7),C.Ink,Enum.Material.Wood)
+            for j=1,3 do
+                local col=if j%2==0 then C.Gold else C.Cyan
+                p(alchemy,"ReagentBottle",Vector3.new(.47,.71+(j%2)*.25,.47),at(x+(j-2)*.82,1.9+level*1.55,-13.6),col,Enum.Material.Glass,"Ball",.18)
+                p(alchemy,"BottleStopper",Vector3.new(.26,.18,.26),at(x+(j-2)*.82,2.32+level*1.55+(j%2)*.12,-13.6),C.Metal,Enum.Material.Metal)
+            end
+        end
+    end
+    local index=sectors:FindFirstChild("Index") :: Model
+    for side=-1,1,2 do
+        local x=-13+side*4.9
+        p(index,"ArchivePillar",Vector3.new(1.9,5.0,.50),at(x,3.2,-15.0),C.Ink,Enum.Material.Metal)
+        for j=1,4 do
+            p(index,"ArchiveDataBar",Vector3.new(1.52,.29,.07),at(x,1.6+j*.8,-14.69),if j%2==0 then C.Red else C.Metal,Enum.Material.Neon)
+        end
+    end
+    local evolution=sectors:FindFirstChild("Evolution") :: Model
+    ring(evolution,"CelestialOrbit",Vector3.new(30,8,40.1),4.5,24,.10,C.Cyan,true)
+    ring(evolution,"CelestialInnerOrbit",Vector3.new(30,8,40.0),3.8,20,.075,C.Purple,true)
+    for side=-1,1,2 do
+        p(evolution,"AscensionCrystal",Vector3.new(.95,2.25,.95),
+            at(30+side*4.8,5.5,39.5)*CFrame.Angles(0,0,side*.25),C.Cyan,Enum.Material.Glass,nil,.16)
+    end
+    local traits=sectors:FindFirstChild("Traits") :: Model
+    for side=-1,1,2 do
+        local x=-30+side*4.9
+        p(traits,"WorkshopScreen",Vector3.new(2.3,3.2,.23),at(x,4.3,40.0),C.Ink,Enum.Material.Metal)
+        for j=1,3 do
+            p(traits,"TraitSigil",Vector3.new(.32,.32,.10),
+                at(x,3.3+j*.54,39.82)*CFrame.Angles(0,0,math.pi/4),C.Green,Enum.Material.Neon)
+        end
+    end
+    local raids=sectors:FindFirstChild("Raids") :: Model
+    ring(raids,"ShadowRiftArch",Vector3.new(21,7,-37.0),4.6,24,.19,C.Purple,true)
+    for side=-1,1,2 do
+        for i=1,3 do
+            p(raids,"ShadowShard",Vector3.new(.58,1.8+i*.5,.61),
+                at(21+side*(4+i*.45),1.2+i*.35,-36.8)*CFrame.Angles(0,0,side*.32),C.Ink,Enum.Material.Slate)
+        end
     end
 
     -- Rotating seasonal plaza. Its actual event host remains in its own
