@@ -109,7 +109,8 @@ local function stationaryCharacter(parent: Model,station: any,kind: string)
         col: Color3,material: Enum.Material?)
         return part(npc,name,size,frame*CFrame.new(x,y,z),col,material,false)
     end
-    local main=if kind=="Evolution" then Color3.fromRGB(95,45,126)
+    local main=if kind=="Index" then Color3.fromRGB(130,29,49)
+        elseif kind=="Evolution" then Color3.fromRGB(95,45,126)
         elseif kind=="Traits" then Color3.fromRGB(41,75,59)
         elseif kind=="Raids" then Color3.fromRGB(30,30,58)
         else Color3.fromRGB(181,93,29)
@@ -131,7 +132,34 @@ local function stationaryCharacter(parent: Model,station: any,kind: string)
         bodyPart("Eye"..side,Vector3.new(.23,.18,.10),
             side*.35,8.19,-.76,station.Secondary,Enum.Material.Neon)
     end
-    if kind=="Evolution" then
+    if kind=="Index" then
+        -- Dante's red coat, silver hair, black undershirt, broad sword.
+        -- 3D PARTS prototype only, NOT a finished animated character.
+        bodyPart("CrimsonLongCoat",Vector3.new(2.77,3.68,1.50),
+            0,4.57,.23,Color3.fromRGB(170,31,57),Enum.Material.Fabric)
+        bodyPart("DarkInnerVest",Vector3.new(1.36,2.05,.16),
+            0,5.31,-.79,P.Ink,Enum.Material.SmoothPlastic)
+        for _,side in ipairs({-1,1}) do
+            bodyPart("RedCoatTail"..side,Vector3.new(.83,3.09,.19),
+                side*.77,2.76,.76,Color3.fromRGB(148,23,48),Enum.Material.Fabric)
+            bodyPart("SilverHairLock"..side,Vector3.new(.35,.88,.39),
+                side*.69,8.91,-.42,Color3.fromRGB(216,224,234))
+        end
+        bodyPart("SilverHairCrown",Vector3.new(1.88,.48,1.50),
+            0,8.98,0,Color3.fromRGB(214,226,236))
+        for i=1,5 do
+            bodyPart("SweptHair"..i,Vector3.new(.31,.76,.40),
+                -.73+i*.24,9.37+(i%2)*.1,.03,Color3.fromRGB(232,234,237))
+        end
+        bodyPart("SwordOverShoulder",Vector3.new(.44,4.1,.33),
+            1.91,5.27,.90,P.Steel,Enum.Material.Metal)
+        bodyPart("SwordCrossguard",Vector3.new(1.68,.28,.50),
+            1.91,3.89,.90,P.Gold,Enum.Material.Metal)
+        bodyPart("RedGloveL",Vector3.new(.9,.72,1.00),
+            -1.63,3.51,0,Color3.fromRGB(39,42,50))
+        bodyPart("RedGloveR",Vector3.new(.9,.72,1.00),
+            1.63,3.51,0,Color3.fromRGB(39,42,50))
+    elseif kind=="Evolution" then
         -- Whis silhouette: silver vertical hair, blue neck halo and staff.
         for i=1,6 do
             bodyPart("SilverTowerHair"..i,Vector3.new(.24,1.7+0.15*i,.42),
@@ -214,7 +242,20 @@ local function station(root: Model,info: any,kind: string)
         info.Accent)
     local prompt=validatePrompt(m,info)
     prompt:SetAttribute("ServiceId",kind)
-    if kind=="Raids" then
+    if kind=="Index" then
+        -- Floating crimson codex; the Archive is not a personal Collection.
+        local book=part(m,"HunterUnitIndex",Vector3.new(2.15,2.85,.33),
+            CFrame.new(pos+Vector3.new(0,7.2,5.0)),P.Ink,
+            Enum.Material.Metal,false)
+        part(m,"IndexCover",Vector3.new(1.76,2.51,.13),
+            CFrame.new(pos+Vector3.new(0,7.2,4.79)),
+            info.Accent,Enum.Material.Glass,false,.12)
+        circle(m,"IndexRune",pos+Vector3.new(0,7.2,4.61),1.36,
+            info.Secondary,.09,12,"front")
+        local light=Instance.new("PointLight")
+        light.Color=info.Accent;light.Brightness=.46;light.Range=9
+        light.Shadows=false;light.Parent=book
+    elseif kind=="Raids" then
         -- Shadow gate: vertical split at rear of booth, decorative.
         circle(m,"ShadowGateway",pos+Vector3.new(0,7,5),4.0,
             info.Accent,.18,24,"front")
