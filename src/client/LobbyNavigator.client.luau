@@ -21,7 +21,8 @@ local old=playerGui:FindFirstChild("AnimeFissureLobbyNavigator")
 if old then old:Destroy() end
 local gui=Instance.new("ScreenGui")
 gui.Name="AnimeFissureLobbyNavigator"
-gui.DisplayOrder=48
+-- Keep directory below Story/Guide/loading overlays of the main lobby.
+gui.DisplayOrder=39
 gui.ResetOnSpawn=false
 gui.IgnoreGuiInset=false
 gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
@@ -64,7 +65,9 @@ trigStroke.Color=C.Electric;trigStroke.Thickness=1.3;trigStroke.Parent=trigger
 -- Local cosmetic preference. Touch defaults to reduced effects.
 -- This attribute affects only client particles and ambient VFX; the
 -- SERVER still owns all combat, damage and reward calculations.
-player:SetAttribute("ReducedVFX",UserInputService.TouchEnabled)
+if player:GetAttribute("ReducedVFX")==nil then
+    player:SetAttribute("ReducedVFX",UserInputService.TouchEnabled)
+end
 local fxButton=button(gui,"FXQualityToggle","FX: PADRÃO",
     UDim2.fromOffset(183,90),UDim2.fromOffset(141,38),C.Panel)
 local function refreshFx()
@@ -102,7 +105,7 @@ scroll.Parent=panel
 local list=Instance.new("UIListLayout")
 list.SortOrder=Enum.SortOrder.LayoutOrder;list.Padding=UDim.new(0,5)
 list.Parent=scroll
-label(panel,"Tip","M: abrir/fechar  •  ESC: fechar  •  Sem teleporte.",
+local tip=label(panel,"Tip","M: abrir/fechar  •  ESC: fechar  •  Sem teleporte.",
     UDim2.fromOffset(13,457),UDim2.fromOffset(333,35),11,C.Muted)
 local scale=Instance.new("UIScale")
 scale.Parent=panel
@@ -196,9 +199,26 @@ end
 local function refreshScale()
     local camera=Workspace.CurrentCamera
     if not camera then return end
-    local v=camera.ViewportSize
-    scale.Scale=math.clamp(math.min((v.X-22)/387,(v.Y-154)/512,1),.48,1)
-    miniScale.Scale=math.clamp(math.min((v.X-18)/360,1),.60,1)
+    -- Use actual ScreenGui bounds, which exclude the Roblox top inset.
+    local v=gui.AbsoluteSize
+    if v.X<=0 or v.Y<=0 then v=camera.ViewportSize end
+    local wide=v.X>=690
+    local buttonWidth=math.min(158,math.max(86,math.floor((v.X-38)/2)))
+    trigger.Size=UDim2.fromOffset(buttonWidth,38)
+    fxButton.Position=UDim2.fromOffset(24+buttonWidth,90)
+    fxButton.Size=UDim2.fromOffset(math.min(141,buttonWidth),38)
+    local top=137
+    local available=math.max(1,v.Y-top-10)
+    local factor=math.min(1,math.max(1,v.X-28)/365,available/150)
+    local height=math.min(500,math.floor(available/factor))
+    scale.Scale=factor
+    panel.Size=UDim2.fromOffset(365,height)
+    tip.Visible=height>=210
+    tip.Position=UDim2.fromOffset(13,height-43)
+    scroll.Size=UDim2.fromOffset(344,math.max(44,height-(if tip.Visible then 130 else 88)))
+    miniScale.Scale=math.min(1,math.max(1,v.X-28)/345)
+    mini.AnchorPoint=if wide then Vector2.new(1,0) else Vector2.new(0,0)
+    mini.Position=if wide then UDim2.new(1,-14,0,90) else UDim2.fromOffset(14,137)
 end
 local function clearDestination()
     selected=nil;selectedAnchor=nil
@@ -214,6 +234,7 @@ local function select(entry: Entry)
     for id,row in pairs(rows) do
         row.BackgroundColor3=if id==entry.id then C.Electric else C.Inner
     end
+    clearMarker()
     if selectedAnchor then markerFor(selectedAnchor,entry) end
 end
 for i,entry in ipairs(entries) do
@@ -226,18 +247,31 @@ for i,entry in ipairs(entries) do
     rows[entry.id]=row
     row.Activated:Connect(function() select(entry) end)
 end
+local function setDirectoryVisible(visible: boolean)
+    panel.Visible=visible
+    mini.Visible=not visible and selected~=nil
+end
 local function openDirectory()
     if player:GetAttribute("InArena")==true then return end
-    panel.Visible=not panel.Visible
+    local lobbyGui=playerGui:FindFirstChild("AnimeFissureLobbyUI")
+    if lobbyGui then
+        for _,name in ipairs({"Loading","MissionScrim","GuideScrim"}) do
+            local overlay=lobbyGui:FindFirstChild(name)
+            if overlay and overlay:IsA("GuiObject") and overlay.Visible then return end
+        end
+    end
+    setDirectoryVisible(not panel.Visible)
     refreshScale()
 end
 trigger.Activated:Connect(openDirectory)
-close.Activated:Connect(function() panel.Visible=false end)
+close.Activated:Connect(function() setDirectoryVisible(false) end)
 clear.Activated:Connect(clearDestination)
 UserInputService.InputBegan:Connect(function(input: InputObject,processed: boolean)
     if processed then return end
     if input.KeyCode==Enum.KeyCode.M and gui.Enabled then openDirectory() end
-    if input.KeyCode==Enum.KeyCode.Escape then panel.Visible=false end
+    if input.KeyCode==Enum.KeyCode.Escape or input.KeyCode==Enum.KeyCode.ButtonB then
+        setDirectoryVisible(false)
+    end
 end)
 local function inLobby(): boolean
     return player:GetAttribute("InArena")~=true
@@ -251,10 +285,16 @@ local function updateVisibility()
 end
 player:GetAttributeChangedSignal("InArena"):Connect(updateVisibility)
 updateVisibility()
-Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(refreshScale)
-if Workspace.CurrentCamera then
-    Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(refreshScale)
+local cameraConnection: RBXScriptConnection?=nil
+local function bindCamera()
+    if cameraConnection then cameraConnection:Disconnect();cameraConnection=nil end
+    local camera=Workspace.CurrentCamera
+    if camera then cameraConnection=camera:GetPropertyChangedSignal("ViewportSize"):Connect(refreshScale) end
+    refreshScale()
 end
+Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refreshScale)
+bindCamera()
 task.spawn(function()
     while gui.Parent do
         if selected and inLobby() then
