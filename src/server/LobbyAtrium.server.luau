@@ -25,7 +25,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.2")
+    root:SetAttribute("Version","0.3.3")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -345,17 +345,7 @@ local function build(): Model
         p(skyline,"WestTowerCap_"..i,Vector3.new(6.8,2.1,6.8),at(x,h-12.9,z),C.Ink,Enum.Material.Metal)
         p(skyline,"WestTowerLight_"..i,Vector3.new(.15,.28,5.6),at(x+4.08,h-18,z),C.Blue,Enum.Material.Neon)
     end
-    -- A pair of dark floating islands behind the horizon, never playable.
-    for i=1,2 do
-        local x=if i==1 then -35 else 38
-        local z=if i==1 then -100 else -110
-        local island=p(skyline,"FarIsland_"..i,Vector3.new(30,8,21),
-            at(x,-8,z)*CFrame.Angles(0,i*.45,.08),C.Ink,Enum.Material.Slate,"Ball")
-        island.CastShadow=false
-        local crest=p(skyline,"FarIslandSpire_"..i,Vector3.new(3.2,12,3.2),
-            at(x,-1,z)*CFrame.Angles(0,i*.35,.15),C.Stone,Enum.Material.Slate)
-        crest.CastShadow=false
-    end
+    -- The new GroundedWorld landscape replaces floating-island scenery.
     -- IMMERSION: architectural depth, restrained accent panels, rest
     -- pockets and lighting. Keep all visual objects outside prompt paths.
     local immersion=group(root,"Immersion")
