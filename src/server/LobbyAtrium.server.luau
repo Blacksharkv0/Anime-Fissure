@@ -186,19 +186,18 @@ local function build(): Model
     end
     emblem:SetAttribute("SoulVersion","1.0.0")
 
-    -- Spawn frontage: immediately visible from the initial camera facing
-    -- the mission portal. Gateway and sign stay above avatar head height.
+    -- Low entry markers keep the Story portal visible from the spawn.
     local arrival=group(root,"ArrivalGate")
     for side=-1,1,2 do
-        p(arrival,"ColumnFoot",Vector3.new(3.5,.60,3.7),at(side*10,.30,17),C.Ink,Enum.Material.Marble)
-        p(arrival,"Column",Vector3.new(1.9,11.5,2.2),at(side*10,6.05,17),C.Stone,Enum.Material.Metal)
-        p(arrival,"ColumnInset",Vector3.new(.28,9.8,.15),at(side*10,6.1,18.18),C.Blue,Enum.Material.Neon)
-        p(arrival,"ColumnCrown",Vector3.new(3.0,.55,3.1),at(side*10,11.9,17),C.Metal,Enum.Material.Metal)
+        local x=side*11
+        p(arrival,"ColumnFoot",Vector3.new(2.6,.48,2.9),at(x,.24,17),C.Ink,Enum.Material.Marble)
+        p(arrival,"Column",Vector3.new(1.5,3.15,1.7),at(x,2.05,17),C.Stone,Enum.Material.Metal)
+        p(arrival,"ColumnCrown",Vector3.new(1.75,.18,1.95),at(x,3.69,17),C.Metal,Enum.Material.Metal)
+        p(arrival,"ColumnInset",Vector3.new(.22,1.9,.08),at(x,2.24,17.87),C.Blue,Enum.Material.Neon)
+        for _,z in ipairs({16,12}) do
+            line(arrival,"StoryDirection",Vector3.new(side*1.18,.94,z+1),Vector3.new(0,.94,z),.17,C.Cyan,Enum.Material.SmoothPlastic,.06)
+        end
     end
-    p(arrival,"GateBeam",Vector3.new(23,1.1,2.8),at(0,13.0,17),C.Ink,Enum.Material.Metal)
-    p(arrival,"GateEdge",Vector3.new(22,.13,.12),at(0,13.58,18.44),C.Cyan,Enum.Material.Neon)
-    sign(arrival,"WelcomeSign",at(0,14.65,18.55)*CFrame.Angles(0,math.pi,0),19,2.0,
-        "ANIME FISSURE","ASCENSION  /  MULTIVERSE CITY",C.Cyan)
     -- Spawn medallion lies visually on the existing platform.
     ring(arrival,"SpawnRing",Vector3.new(0,1.04,25),4.3,16,.09,C.Blue)
 
@@ -212,7 +211,7 @@ local function build(): Model
         p(story,"CitadelCap",Vector3.new(4.2,1,4.7),at(side*11,20.4,-39.2),C.Metal,Enum.Material.Metal)
     end
     p(story,"CitadelLintel",Vector3.new(26,2.0,4.2),at(0,22,-39.2),C.Ink,Enum.Material.Metal)
-    sign(story,"StoryTitle",at(0,22,-36.9)*CFrame.Angles(0,math.pi,0),19,1.55,"STORY","PORTAL DAS FISSURAS",C.Cyan)
+    sign(story,"StoryTitle",at(0,22,-36.9)*CFrame.Angles(0,math.pi,0),20,2.3,"STORY","CARNE VILLAGE",C.Cyan)
 
     -- Four themed service pavilions and two shop backdrops. Open on all
     -- sides, no walls at the prompt, preserve original station footprints.
