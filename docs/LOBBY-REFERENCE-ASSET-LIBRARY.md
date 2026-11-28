@@ -36,3 +36,19 @@ A: natureza Synty; B: arquitetura Synty City/Dungeon; C: identidade sci-fi (some
 - Para importar: abrir Baseplate separado em modo Edit; Toolbox > Creator Store > Synty Nature Pack (6933438443); selecionar individualmente uma árvore com as permissões adequadas. Executar tools/StudioAssetIntake.luau na Command Bar depois de preencher SLOT, SOURCE, CREATOR, LICENSE e confirmar direitos. Conferir visual e malhas/texturas no Studio; exportar a seleção preparada como GardenTree.rbxmx ou SakuraTree.rbxmx e entregar para integração em assets/lobby. Não executar Play com pacote bruto.
 - Não confundir validação estrutural com garantia de segurança, licença ou desempenho; testar aparência e permissões em experiência de teste. Exportar apenas se a licença permite armazenar/compartilhar no repositório; caso contrário manter importação na experiência autorizada. Não publicar modelos de personagens sem direitos.
 - Próxima fase: piloto arquitetônico Vergil + Dante após receber modelos revisados. Não substituir fachadas por assets ainda não escolhidos ou disponíveis.
+
+## Premium modular shortlist — 0.3.7 (27/11/2026)
+| Asset | Official source | Approval (catalog snapshot) | MeshParts | Intended use |
+|---|---|---|---|---|
+| Synty City | https://create.roblox.com/store/asset/6933556508 | 96%, 1K votes | 332 | Summon, Index, Alchemy, Traits, skyline |
+| Synty Dungeon | https://create.roblox.com/store/asset/6934021345 | 97%, 700+ votes | 271 | Evolution, Raids, Babylon visual research |
+| Synty Nature | https://create.roblox.com/store/asset/6933438443 | 96%, 800+ votes | 200 | Garden and landscape |
+| City Props | https://create.roblox.com/store/asset/6370681139 | 96%, 600+ votes | 94 | benches and props; contains 2 scripts, reject all scripts |
+| Low Poly Fountain | https://create.roblox.com/store/asset/8466452406 | 98%, 100+ votes | not verified | optional fountain; check rights and inspect |
+Catalog votes are not a guarantee of quality or safety. Total 897 MeshParts across four official packs, not distinct models. None acquired or downloaded into repo.
+
+### Slots and geometry
+- SummonFacade, IndexFacade, AlchemyFacade, EvolutionFacade, TraitsFacade, RaidsFacade: one each, <=24 parts, thin backdrop maximum 5 studs deep, 13–16 studs target height, width per existing district. Reject models too short after fitting. Only replace procedural structural facade after accepted placement; retain thematic props and prompts.
+- SkylineTower: nine copies, <=5 parts each. CityBench: four copies, <=4 parts each. GardenFountain: two optional copies, <=12 parts each, outer terraces only. GardenTree and SakuraTree unchanged.
+- StudioAssetIntake now stages all slots with Reviewed=false. Check visual geometry, asset permission, actual license and scale; set Reviewed=true only after final review. Export .rbxmx only if allowed by license. Keep original map if none accepted.
+- Studio run and visual comparison are still required. No full external map or third-party NPC has been imported. No purchase authorized or made.
