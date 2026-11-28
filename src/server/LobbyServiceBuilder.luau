@@ -132,7 +132,7 @@ local function stationaryCharacter(parent: Model,station: any,kind: string)
     local head=bodyPart("Head",Vector3.new(1.61,1.70,1.44),0,8.03,0,skin)
     for _,side in ipairs({-1,1}) do
         bodyPart("Eye"..side,Vector3.new(.23,.18,.10),
-            side*.35,8.19,-.76,station.Secondary,Enum.Material.Neon)
+            side*.35,8.19,-.76,station.Secondary or station.Accent or P.Gold,Enum.Material.Neon)
     end
     if kind=="Index" then
         -- Dante's red coat, silver hair, black undershirt, broad sword.
@@ -355,9 +355,11 @@ function Builder.Build(lobby: Model): Model
     for _,kind in ipairs(Config.Order) do
         local info=Config.Get(kind)
         assert(info and info.Enabled==false,"Do not activate unfinished systems")
-        station(root,info,kind)
+        local ok,err=xpcall(function() station(root,info,kind) end,debug.traceback)
+        if not ok then error("Station "..kind..": "..tostring(err),0) end
     end
-    eventHub(root)
+    local eventOK,eventErr=xpcall(function() eventHub(root) end,debug.traceback)
+    if not eventOK then error("Station EventHub: "..tostring(eventErr),0) end
     twinHunterEmblem(root)
     root:SetAttribute("StationCount",#Config.Order)
     root:SetAttribute("EventHubCount",1)
