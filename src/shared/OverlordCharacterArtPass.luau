@@ -77,26 +77,26 @@ local function climb(m: Model,f: Instance)
     local rl=m:FindFirstChild("Right Leg")::BasePart
     -- Pure white royal guard armor; avoid upgrading Climb into plate-heavy Gazef.
     add(f,t,"WhiteGuardsmanCollar",Vector3.new(1.48,0.26,1.08),
-        CFrame.new(0,0.83,0),C.white,Enum.Material.Metal)
+        CFrame.new(0,0.83,0),C.pale,Enum.Material.SmoothPlastic,"Ball")
     add(f,t,"WhiteChestInnerPlate",Vector3.new(1.76,1.18,0.48),
         CFrame.new(0,0.18,-0.62),C.white,Enum.Material.SmoothPlastic,"Ball")
     for side=-1,1,2 do
         add(f,t,"BreastplateSeam",Vector3.new(0.11,0.63,0.08),
             CFrame.new(side*0.53,0.34,-0.79)*CFrame.Angles(0,0,-side*0.71),
             C.silver,Enum.Material.Metal)
-        add(f,t,"HipPlate",Vector3.new(0.45,0.66,0.91),
-            CFrame.new(side*0.80,-0.94,0)*CFrame.Angles(0,0,side*0.17),
-            C.pale,Enum.Material.SmoothPlastic)
+        add(f,t,"HipPlate",Vector3.new(0.51,0.82,0.85),
+            CFrame.new(side*0.65,-0.90,0)*CFrame.Angles(0,0,side*0.17),
+            C.pale,Enum.Material.SmoothPlastic,"Ball")
     end
     add(f,t,"BlueRoyalInsignia",Vector3.new(0.38,0.54,0.16),
         CFrame.new(0,0.27,-0.84)*CFrame.Angles(0,0,math.rad(45)),
         C.blue,Enum.Material.Metal)
     add(f,t,"CloakFastener",Vector3.new(0.52,0.15,0.13),
         CFrame.new(0,0.63,-0.74),C.gold,Enum.Material.Metal)
-    leftRight(f,la,ra,"WhiteGauntlet",Vector3.new(0.79,0.68,0.83),
-        CFrame.new(0,-0.51,0),C.white,Enum.Material.SmoothPlastic)
-    leftRight(f,ll,rl,"WhiteGreave",Vector3.new(0.90,0.94,0.89),
-        CFrame.new(0,0.12,-0.04),C.white,Enum.Material.SmoothPlastic)
+    leftRight(f,la,ra,"WhiteGauntlet",Vector3.new(0.76,0.90,0.80),
+        CFrame.new(0,-0.51,0),C.white,Enum.Material.SmoothPlastic,"Ball")
+    leftRight(f,ll,rl,"WhiteGreave",Vector3.new(0.71,1.16,0.75),
+        CFrame.new(0,-0.29,-0.09),C.white,Enum.Material.SmoothPlastic,"Ball")
     add(f,h,"ThinFrontHairLock",Vector3.new(0.21,0.58,0.25),
         CFrame.new(0.30,0.38,-0.53)*CFrame.Angles(0,0,math.rad(-19)),
         Color3.fromRGB(245,220,132),Enum.Material.SmoothPlastic,"Wedge")
