@@ -77,6 +77,11 @@ for i=1,8 do
     tree(x,-70,-2.55,i)
     tree(x,70,-2.55,8+i)
 end
+-- Optional approved fountain models on the outside terraces; never on routes.
+local fountains=group("GardenFountains")
+for _,z in ipairs({-64,64}) do
+    Assets.Place("GardenFountain",fountains,at(260,-2.55,z),3.4,7.0)
+end
 -- Four landmark Japanese gates along the outside embankment, not portals.
 local gates=group("HeritageGates")
 for i,loc in ipairs({{210,-84},{310,-84},{210,84},{310,84}}) do
