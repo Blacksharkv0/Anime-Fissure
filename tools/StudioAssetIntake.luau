@@ -1,14 +1,15 @@
 -- Studio Command Bar only; use in Edit mode, in a separate inspection place.
--- Select ONE authorized tree Model in Explorer before running. Edit fields
+-- Select ONE authorized static Model in Explorer before running. Edit fields
 -- to match the actual source and slot. Never run a third-party script.
-local SLOT="GardenTree" -- GardenTree or SakuraTree
+local SLOT="GardenTree" -- see budgets below
 local SOURCE="https://create.roblox.com/store/asset/6933438443"
 local CREATOR="Synty Studios"
 local LICENSE="Roblox-authorized Synty asset pack; reviewed for use in this experience"
 local CONFIRM_RIGHTS=false -- set true ONLY after verifying source and usage rights
 assert(not game:GetService("RunService"):IsRunning(),"Use Edit mode, not Play")
 assert(CONFIRM_RIGHTS,"Review license and source, then set CONFIRM_RIGHTS=true")
-assert(SLOT=="GardenTree" or SLOT=="SakuraTree","Unknown slot")
+local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5}
+assert(budgets[SLOT],"Unknown slot")
 local selection=game:GetService("Selection")
 local selected=selection:Get()
 assert(#selected==1 and selected[1]:IsA("Model"),"Select one Model, not entire pack")
@@ -30,10 +31,10 @@ for _,obj in ipairs(copy:GetDescendants()) do
         meshes+=1
     end
 end
-assert(parts>=1 and parts<=24 and meshes>=1 and #copy:GetDescendants()<=140,
+assert(parts>=1 and parts<=budgets[SLOT] and meshes>=1 and #copy:GetDescendants()<=140,
     "Select a single lightweight reusable mesh model")
 copy.Name=SLOT
-copy:SetAttribute("Reviewed",true)
+copy:SetAttribute("Reviewed",false) -- set true only after visual and permission inspection
 copy:SetAttribute("SourceURL",SOURCE)
 copy:SetAttribute("Creator",CREATOR)
 copy:SetAttribute("License",LICENSE)
