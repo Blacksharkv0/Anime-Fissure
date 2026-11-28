@@ -84,7 +84,8 @@ local function billboard(parent: Instance,content: string,subtitle: string,
     end
 end
 local function validatePrompt(m: Model,station: any): ProximityPrompt
-    local at=station.Position+Vector3.new(0,4,-4.25)
+    local facing=CFrame.new(station.Position)*CFrame.Angles(0,station.Yaw or 0,0)
+    local at=facing:PointToWorldSpace(Vector3.new(0,4,-4.25))
     local anchor=part(m,"InteractionPoint",Vector3.new(1,2,1),
         CFrame.new(at),station.Accent,nil,false,1)
     local prompt=Instance.new("ProximityPrompt")
