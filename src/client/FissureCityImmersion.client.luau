@@ -61,6 +61,17 @@ if world then
         end
     end
 end
+-- Slow energy pulse on the central fissure only. No flashing, particle
+-- spam, forced camera movement, or server-replicated animation.
+local pulses: {{Part: BasePart, Base: Color3, Alpha: number, Tween: Tween?}}={}
+local monument=city:FindFirstChild("FissureMonument",true)
+if monument then
+    for _,obj in ipairs(monument:GetDescendants()) do
+        if obj:IsA("BasePart") and obj:GetAttribute("SoulPulse")==true then
+            table.insert(pulses,{Part=obj,Base=obj.Color,Alpha=obj.Transparency,Tween=nil})
+        end
+    end
+end
 local function inCity(): boolean
     local camera=Workspace.CurrentCamera
     return camera~=nil and player:GetAttribute("InArena")~=true
@@ -85,6 +96,19 @@ local function update()
     table.sort(nearby,function(a,b) return a.Distance<b.Distance end)
     local cap=if reduced or UIS.TouchEnabled then 2 else 4
     for i=1,math.min(cap,#nearby) do nearby[i].Light.Enabled=true end
+    for i,item in ipairs(pulses) do
+        local near=active and not reduced and camera~=nil and item.Part.Parent~=nil
+            and (camera.CFrame.Position-item.Part.Position).Magnitude<80
+        if near and not item.Tween then
+            local goalColor=item.Base:Lerp(Color3.fromRGB(174,221,255),.35)
+            local t=TweenService:Create(item.Part,TweenInfo.new(2.3+(i%3)*.25,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),
+                {Color=goalColor,Transparency=math.max(0,item.Alpha-.14)})
+            item.Tween=t;t:Play()
+        elseif not near and item.Tween then
+            item.Tween:Cancel();item.Tween=nil
+            if item.Part.Parent then item.Part.Color=item.Base;item.Part.Transparency=item.Alpha end
+        end
+    end
     for i,item in ipairs(petals) do
         local near=active and not reduced and camera~=nil
             and (camera.CFrame.Position-item.Base.Position).Magnitude<45
@@ -139,6 +163,10 @@ for _,item in ipairs(petals) do if item.Tween then item.Tween:Cancel() end end
 for _,item in ipairs(waterGlints) do
     if item.Tween then item.Tween:Cancel() end
     if item.Part.Parent then item.Part.Transparency=item.Alpha end
+end
+for _,item in ipairs(pulses) do
+    if item.Tween then item.Tween:Cancel() end
+    if item.Part.Parent then item.Part.Color=item.Base;item.Part.Transparency=item.Alpha end
 end
 petalFolder:Destroy()
 tint:Destroy();bloom:Destroy()
