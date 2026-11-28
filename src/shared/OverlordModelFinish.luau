@@ -25,6 +25,13 @@ local function mount(folder: Instance,anchor: BasePart,name: string,
     end
     item.Name=name
     item.Size=size
+    -- The rounded guard head recedes at the cheeks and chin.
+    if folder.Name=="ExpressionParts" and anchor:IsA("Part") and anchor.Shape==Enum.PartType.Ball then
+        local pos=offset.Position
+        local depth=anchor.Size.Z*0.5*math.sqrt(math.max(0,
+            1-(2*pos.X/anchor.Size.X)^2-(2*pos.Y/anchor.Size.Y)^2))
+        offset=CFrame.new(0,0,0.72-depth)*offset
+    end
     item.CFrame=anchor.CFrame*offset
     item.Material=mat or Enum.Material.SmoothPlastic
     item.Color=color
