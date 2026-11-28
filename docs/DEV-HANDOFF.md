@@ -46,3 +46,9 @@ Atualizar após cada lote de trabalho. Este é o ponto de passagem entre ChatGPT
 - Base de continuidade f56e1a6. Backup local pré-chegada verificado por SHA-256. LobbyAtrium (6651b5c): entrada baixa e aberta, duas setas no piso em direção ao portal Story e placa da cidadela ajustada. LobbyStudioAudit (fb9e46d): botão acima da mensagem de entrada, painel reposicionado. Ambos relidos na main. Nenhum asset externo novo.
 - Play no desktop, capturas locais EntradaOriginal.png e EntradaNova.png da mesma câmera. Depois: 5 px livres entre botão e mensagem, painel 13/13. FISSURE CITY SMOKE OK: 853 peças decorativas, nove rotas, spawn e portal preservados. Play encerrado, arquivo local salvo. Sem publicação Roblox.
 - Pendentes: ergonomia em tela pequena, CI desta revisão e desempenho em dispositivo real. Rollback pelos dois commits ou pelo backup local pré-chegada.
+
+### 28/11/2026 — Piloto de personagem: Climb
+- Base de continuidade cbf65ad; backup local antes da edição conferido por SHA-256. Mudança procedural autoral apenas no construtor de Climb em src/shared/OverlordTowerModelBuilder.luau, commit bd68586c53aa7452ddc399048b9df36c15d0be78, conteúdo verificado na main. Nenhuma importação de terceiros, alteração de mecânica ou publicação Roblox.
+- Franja e mechas laterais loiras, ombreiras arredondadas, tecido azul profundo sob as placas, tabardo com debrum e fivela de latão. Comparação local ClimbOriginal.png / ClimbGuarda.png com mesma câmera e estágio base. Objetos temporários de inspeção removidos.
+- Play: 59 BaseParts no modelo base, seis Motor6D, WeaponFocus presente, quatro estágios aplicados com sucesso. Testes internos de modelos (24 variantes), animações (24 estágios), combate (42 acertos simulados) e balanceamento (60 níveis) passaram. Play encerrado e arquivo salvo.
+- Pendente: aprovação visual do piloto, custo mobile, CI do commit e remodelagem dos cinco restantes. Rollback: reverter bd68586 ou restaurar backup local pré-Climb.
