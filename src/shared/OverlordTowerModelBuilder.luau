@@ -206,7 +206,7 @@ local function characterClimb(r: any)
     r.RA.Color = midnight
     r.LL.Color = midnight
     r.RL.Color = midnight
-    boots(r, C.Steel)
+    boots(r, pearl)
     for _, arm in ipairs({r.LA, r.RA}) do
         mount(r.Base, arm, "ShoulderLining", Vector3.new(1.08, 0.58, 1.13),
             CFrame.new(0, 0.70, 0), royal, Enum.Material.Fabric, "Ball")
@@ -226,17 +226,16 @@ local function characterClimb(r: any)
     local flax = Color3.fromRGB(229, 194, 123)
     mount(r.Base, r.Head, "BlondeHair", Vector3.new(1.61, 0.95, 1.60),
         CFrame.new(0, 0.47, 0.04), flax, Enum.Material.SmoothPlastic, "Ball")
-    for i, x in ipairs({-0.45, -0.11, 0.26, 0.51}) do
-        local length = if i == 1 then 0.65 else 0.44
-        mount(r.Base, r.Head, "BlondeFringe", Vector3.new(0.39, length, 0.33),
-            CFrame.new(x, 0.53, -0.68) * CFrame.Angles(math.rad(12), 0, math.rad(-21)),
-            if i == 2 then C.Blonde else flax, Enum.Material.SmoothPlastic, "Wedge")
-    end
-    for side = -1, 1, 2 do
-        mount(r.Base, r.Head, "TempleLock", Vector3.new(0.22, 0.65, 0.57),
-            CFrame.new(side*0.67, 0.31, -0.37) * CFrame.Angles(math.rad(8), 0, side*0.08),
-            flax, Enum.Material.SmoothPlastic, "Wedge")
-    end
+    -- Creator Store 377071938 (EM_EarlyMorning); mesh by Roblox.
+    -- Keep the blonde cap beneath the accessory while its textures stream.
+    local hair = mount(r.Base, r.Head, "GuardHair", Vector3.new(1.2, 0.8, 1.4),
+        CFrame.new(0, 0.47, 0), flax, Enum.Material.SmoothPlastic)
+    local mesh = Instance.new("SpecialMesh")
+    mesh.MeshType = Enum.MeshType.FileMesh
+    mesh.MeshId = "rbxassetid://375815502"
+    mesh.TextureId = "rbxassetid://377071700"
+    mesh.Scale = Vector3.new(1.18, 1.15, 1.12)
+    mesh.Parent = hair
     for _, x in ipairs({-0.30, 0.30}) do eye(r.Base, r.Head, x, 0.07, C.White, C.EyeBlue) end
     sword(r, "GuardSword", C.Silver, 2.3, 0.33, C.Brown)
 end
