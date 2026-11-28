@@ -73,17 +73,18 @@ local function sign(parent: Instance,name: string,at: Vector3,
         CFrame.new(at),col,nil,false,1)
     local board=Instance.new("BillboardGui")
     board.Name=name;board.Adornee=root
-    board.Size=UDim2.fromOffset(width or 240,67)
+    board.Size=UDim2.new(math.clamp((width or 240)/58,3.4,6),0,1.15,0)
     board.StudsOffsetWorldSpace=Vector3.new(0,0,0)
-    board.MaxDistance=70;board.AlwaysOnTop=false
+    board.MaxDistance=24;board.AlwaysOnTop=false
+    board:SetAttribute("CityLocalSign",true)
     board.Parent=root
     local bg=Instance.new("Frame")
     bg.Size=UDim2.fromScale(1,1)
-    bg.BackgroundColor3=COLOR.Onyx;bg.BackgroundTransparency=0.15
+    bg.BackgroundColor3=COLOR.Onyx;bg.BackgroundTransparency=0.48
     bg.BorderSizePixel=0;bg.Parent=board
     local ui=Instance.new("UICorner");ui.CornerRadius=UDim.new(0,7);ui.Parent=bg
     local border=Instance.new("UIStroke")
-    border.Color=col;border.Thickness=1.2;border.Parent=bg
+    border.Color=col;border.Thickness=.8;border.Transparency=.6;border.Parent=bg
     local title=Instance.new("TextLabel")
     title.Name="Title";title.Text=headline
     title.Size=UDim2.new(1,-8,0.55,0);title.Position=UDim2.fromOffset(4,2)
