@@ -223,6 +223,7 @@ local function station(root: Model,info: any,kind: string)
     m:SetAttribute("NPC",info.NPC)
     m:SetAttribute("GameplayActive",false)
     local pos=info.Position
+    local rear=if math.cos(info.Yaw or 0)<0 then -1 else 1
     -- Station bases span max 14 studs; all are offset from center walkway.
     part(m,"Footprint",Vector3.new(14,.45,14),
         CFrame.new(pos+Vector3.new(0,.21,0)),P.Stone,
@@ -233,7 +234,7 @@ local function station(root: Model,info: any,kind: string)
     circle(m,"PedestalSigil",pos+Vector3.new(0,.55,0),5.2,
         info.Accent,.14,22)
     for _,side in ipairs({-1,1}) do
-        local corner=pos+Vector3.new(side*5,4.5,4)
+        local corner=pos+Vector3.new(side*5,4.5,4*rear)
         part(m,"StationPillar",Vector3.new(.9,8.3,.9),
             CFrame.new(corner),P.Ink,Enum.Material.Metal)
         sphere(m,"StationGem",Vector3.new(.84,1.25,.84),
@@ -248,27 +249,27 @@ local function station(root: Model,info: any,kind: string)
     if kind=="Index" then
         -- Floating crimson codex; the Archive is not a personal Collection.
         local book=part(m,"HunterUnitIndex",Vector3.new(2.15,2.85,.33),
-            CFrame.new(pos+Vector3.new(0,7.2,5.0)),P.Ink,
+            CFrame.new(pos+Vector3.new(0,7.2,5.0*rear)),P.Ink,
             Enum.Material.Metal,false)
         part(m,"IndexCover",Vector3.new(1.76,2.51,.13),
-            CFrame.new(pos+Vector3.new(0,7.2,4.79)),
+            CFrame.new(pos+Vector3.new(0,7.2,4.79*rear)),
             info.Accent,Enum.Material.Glass,false,.12)
-        circle(m,"IndexRune",pos+Vector3.new(0,7.2,4.61),1.36,
+        circle(m,"IndexRune",pos+Vector3.new(0,7.2,4.61*rear),1.36,
             info.Secondary,.09,12,"front")
         local light=Instance.new("PointLight")
         light.Color=info.Accent;light.Brightness=.46;light.Range=9
         light.Shadows=false;light.Parent=book
     elseif kind=="Raids" then
         -- Shadow gate: vertical split at rear of booth, decorative.
-        circle(m,"ShadowGateway",pos+Vector3.new(0,7,5),4.0,
+        circle(m,"ShadowGateway",pos+Vector3.new(0,7,5*rear),4.0,
             info.Accent,.18,24,"front")
-        circle(m,"HunterGateInner",pos+Vector3.new(0,7,5),2.7,
+        circle(m,"HunterGateInner",pos+Vector3.new(0,7,5*rear),2.7,
             info.Secondary,.1,20,"front")
     elseif kind=="Evolution" then
-        circle(m,"AstralChamber",pos+Vector3.new(0,11,4.4),3.25,
+        circle(m,"AstralChamber",pos+Vector3.new(0,11,4.4*rear),3.25,
             info.Secondary,.13,20,"front")
     elseif kind=="Traits" then
-        circle(m,"AptitudeSeal",pos+Vector3.new(0,10,4.4),3.0,
+        circle(m,"AptitudeSeal",pos+Vector3.new(0,10,4.4*rear),3.0,
             info.Accent,.1,16,"front")
     end
     return m
