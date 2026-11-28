@@ -6,6 +6,10 @@
       "$className": "ReplicatedStorage",
       "Shared": {
         "$path": "src/shared"
+      },
+      "OverlordArtLibrary": {
+        "$className": "Folder",
+        "$path": "assets/overlord"
       }
     },
     "ServerScriptService": {
