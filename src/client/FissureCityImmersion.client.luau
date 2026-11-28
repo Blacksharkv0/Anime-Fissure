@@ -20,7 +20,7 @@ tint.Contrast=.075;tint.Brightness=.025;tint.Saturation=.04
 tint.Enabled=false;tint.Parent=Lighting
 local bloom=Instance.new("BloomEffect")
 bloom.Name="LocalFissureCityBloom"
-bloom.Intensity=.18;bloom.Size=16;bloom.Threshold=1.8
+bloom.Intensity=.075;bloom.Size=12;bloom.Threshold=2.4
 bloom.Enabled=false;bloom.Parent=Lighting
 -- Apply only a local grade; baseline global atmosphere remains untouched.
 -- This prevents the Carne Village match from inheriting a dark lobby sky.
@@ -31,7 +31,7 @@ for _,obj in ipairs(immersion:GetDescendants()) do
     if obj:GetAttribute("CityLocalLight")==true then
         local l=Instance.new("PointLight")
         l.Name="LocalCityLantern";l.Color=Color3.fromRGB(145,219,255)
-        l.Range=13;l.Brightness=.42;l.Shadows=false;l.Enabled=false;l.Parent=obj
+        l.Range=10;l.Brightness=.28;l.Shadows=false;l.Enabled=false;l.Parent=obj
         table.insert(lights,l)
     elseif obj:GetAttribute("CityFloat")==true then
         table.insert(floats,{Part=obj,Base=obj.CFrame,Tween=nil})
