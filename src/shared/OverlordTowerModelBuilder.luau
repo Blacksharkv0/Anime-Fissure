@@ -11,6 +11,7 @@ local Roster = require(script.Parent:WaitForChild("OverlordUnitRoster"))
 local Progression = require(script.Parent:WaitForChild("OverlordModelProgression"))
 local CharacterArt = require(script.Parent:WaitForChild("OverlordCharacterArtPass"))
 local ModelFinish = require(script.Parent:WaitForChild("OverlordModelFinish"))
+local ImportedArt=require(script.Parent:WaitForChild("OverlordImportedArt"))
 local Builder = {}
 Builder.Version = "0.9.0"
 
@@ -554,6 +555,7 @@ function Builder.Build(id: string): Model?
     buildCharacter(parts)
     assert(CharacterArt.Apply(model), "Art pass nao foi aplicado: " .. id)
     assert(ModelFinish.Apply(model), "Rosto e arma nao foram finalizados: " .. id)
+    ImportedArt.ApplyWeapon(model,id)
     model:SetAttribute("DisplayName", unit.FullName)
     model:SetAttribute("Rarity", unit.Rarity)
     model:SetAttribute("PassivePlanned", unit.PassivePlanned == true)
