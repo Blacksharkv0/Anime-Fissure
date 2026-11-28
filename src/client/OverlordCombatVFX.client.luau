@@ -104,6 +104,41 @@ local function bolt(from: Vector3, to: Vector3, color: Color3, lifetime: number)
     fade(projectile, lifetime)
 end
 
+-- Imported particle appearance only. Native combat, trails and timings
+-- continue even if no external template is installed or accessible.
+local RunService=game:GetService("RunService")
+local ImportedArt=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("OverlordImportedArt"))
+local function importedBurst(id: string,stage: number,at: Vector3,color: Color3)
+    if not RunService:IsStudio() then return end
+    local art=ReplicatedStorage:FindFirstChild("OverlordArtLibrary")
+    local effects=if art then art:FindFirstChild("Particles") else nil
+    local template=if effects then effects:FindFirstChild(id.."_"..stage) or effects:FindFirstChild(id.."_0") else nil
+    if not template or not template:IsA("ParticleEmitter") or #template:GetChildren()>0 or not ImportedArt.Reviewed(template) then return end
+    local low=player:GetAttribute("ReducedVFX")==true
+    if low and stage<2 then return end
+    local host=effectPart("ImportedParticleBurst",nil,color)
+    if not host then return end
+    host.Size=Vector3.new(.15,.15,.15);host.Position=at;host.Transparency=1
+    local ok=pcall(function()
+        local emitter=template:Clone()
+        emitter.Enabled=false;emitter.Rate=0
+        emitter.Color=ColorSequence.new(color)
+        emitter.Lifetime=NumberRange.new(math.clamp(emitter.Lifetime.Min,.08,.65),math.clamp(emitter.Lifetime.Max,.08,.65))
+        emitter.Speed=NumberRange.new(math.clamp(emitter.Speed.Min,0,16),math.clamp(emitter.Speed.Max,0,16))
+        emitter.LightEmission=math.min(emitter.LightEmission,.7)
+        emitter.TimeScale=1
+        local keys={}
+        for _,k in ipairs(emitter.Size.Keypoints) do
+            table.insert(keys,NumberSequenceKeypoint.new(k.Time,math.clamp(k.Value,0,4),0))
+        end
+        emitter.Size=NumberSequence.new(keys)
+        emitter.Parent=host
+        emitter:Emit(if low then 3 else 6+stage*2)
+    end)
+    if not ok then host:Destroy();return end
+    Debris:AddItem(host,.85)
+end
+
 local function normalizeStage(stage: any): number
     if typeof(stage) ~= "number" then return 0 end
     return math.clamp(math.floor(stage), 0, 3)
@@ -113,6 +148,7 @@ local function playUnit(id: string, from: Vector3, to: Vector3,
     stage: number, critical: boolean)
     local c = COLORS[id]
     if not c then return end
+    importedBurst(id,stage,to,c)
     local offset = Vector3.new(0, 2, 0)
     local count = if stage >= 3 then 5 elseif stage >= 2 then 3
         elseif stage >= 1 then 2 else 1
@@ -230,7 +266,7 @@ end
 fx.OnClientEvent:Connect(function(data: any)
     if typeof(data) ~= "table" then return end
     if data.Kind == "Guard" then
-        if typeof(data.To) == "Vector3" then
+        if player:GetAttribute("InArena")==true and typeof(data.To) == "Vector3" then
             ring("Albedo_HermesGuard", data.To, 2.0,
                 Color3.fromRGB(255, 218, 133), 12, 0.5, true)
             spark("Albedo_LeakBlocked", data.To,
