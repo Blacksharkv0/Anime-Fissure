@@ -505,4 +505,5 @@ bindCamera()
 syncSelection()
 syncVisibility()
 
+player:SetAttribute("FissureLobbyUIReady",true)
 print("[Anime Fissure] Lobby v1.0 pronto: catalogo Overlord + modos Classic/Hard")
