@@ -568,6 +568,11 @@ local function setOpen(value: boolean)
         world:ClearAllChildren()
     end
 end
+toggle.Visible = player:GetAttribute("StudioLabsVisible") == true
+player:GetAttributeChangedSignal("StudioLabsVisible"):Connect(function()
+    toggle.Visible = player:GetAttribute("StudioLabsVisible") == true
+    if not toggle.Visible then setOpen(false) end
+end)
 toggle.Activated:Connect(function()
     setOpen(not overlay.Visible)
 end)
