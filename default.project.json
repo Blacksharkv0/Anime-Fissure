@@ -1,4 +1,3 @@
-
 {
   "name": "AnimeFissure",
   "tree": {
@@ -23,6 +22,10 @@
           "$path": "src/client"
         }
       }
+    },
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst",
+      "$path": "src/first"
     }
   }
 }
