@@ -3,6 +3,7 @@
 -- The original floor/spawn/mission portal, station models and remotes remain
 -- authoritative. All city overlays are anchored non-colliding cosmetics.
 local Workspace=game:GetService("Workspace")
+local Assets=require(script.Parent:WaitForChild("LobbyAssetLibrary"))
 local lobby=Workspace:WaitForChild("FissureLobby",60)
 if not lobby or not lobby:IsA("Model") then return end
 local floor=lobby:WaitForChild("LobbyFloor",20)
@@ -25,7 +26,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.5")
+    root:SetAttribute("Version","0.3.6")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -335,10 +336,12 @@ local function build(): Model
         for i=1,3 do
             local a=i*2*math.pi/3
             local tx,tz=x+math.cos(a)*2.25,z+math.sin(a)*2.25
+            if not Assets.Place("GardenTree",gardens,at(tx,.86,tz)*CFrame.Angles(0,a,0),4.6,3.6) then
             p(gardens,"TreeTrunk",Vector3.new(.32,3.15,.32),at(tx,2.40,tz),Color3.fromRGB(93,80,71),Enum.Material.Wood)
             for j=1,2 do
                 p(gardens,"LeafLayer",Vector3.new(2.05-j*.19,1.4,2.15-j*.17),
                     at(tx,3.5+j*.47,tz)*CFrame.Angles(0,j*.47,.22),if j%2==0 then C.Green else C.Soil,Enum.Material.SmoothPlastic,"Ball")
+            end
             end
         end
         local g=p(gardens,"GardenBeacon",Vector3.new(.55,1.25,.55),at(x,1.45,z)*CFrame.Angles(0,0,.25),C.Cyan,Enum.Material.Neon)
