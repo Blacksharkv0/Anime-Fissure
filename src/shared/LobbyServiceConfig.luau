@@ -71,6 +71,7 @@ Config.EventHub={
     Action="VER EVENTOS",NPC="A definir",
     Position=Vector3.new(270.6,0,8),
     Accent=Color3.fromRGB(250,186,98),
+    Secondary=Color3.fromRGB(255,224,145), -- Required by stationaryCharacter eye and preview art.
     Subtitle="O anfitrião muda conforme o evento ativo",
     Description="Um personagem temporário de anime ocupa o centro e apresenta sua Raid ou missão sazonal.",
     DisabledReason="Nenhum evento oficial ativo nesta beta.",
