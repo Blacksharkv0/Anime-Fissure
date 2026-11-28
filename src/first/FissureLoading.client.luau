@@ -88,7 +88,7 @@ local function check()
         {readyFlag(summon,"InteractionReady") and readyFlag(edward,"InteractionReady"),"Preparando os mercadores..."},
         {readyFlag(services,"Ready") and Workspace:GetAttribute("FoundationMentors")=="Ready","Conectando os mentores..."},
         {readyFlag(hall,"Ready") and Workspace:GetAttribute("FoundationBabylon")=="Ready","Abrindo a Babilônia..."},
-        {child(child(RS,"LobbyRemotes"),"EnterArena")~=nil and child(child(RS,"NPCDialogueRemotes"),"OpenDialogue")~=nil,"Sincronizando interfaces..."},
+        {child(child(RS,"LobbyRemotes"),"EnterArena")~=nil and child(child(RS,"NPCDialogueRemotes"),"OpenDialogue")~=nil and player:GetAttribute("FissureLobbyUIReady")==true,"Sincronizando interfaces..."},
         {root~=nil and root:IsA("BasePart") and (root.Position-Vector3.new(260,5,25)).Magnitude<30,"Preparando sua chegada..."},
     }
     local n=0
@@ -129,7 +129,7 @@ while gui.Parent do
 end
 -- No forced 100% or timer bypass. Fade the screen only when checks pass.
 if gui.Parent then
-    if currentTween then currentTween.Completed:Wait() end
+    if currentTween and currentTween.PlaybackState==Enum.PlaybackState.Playing then currentTween.Completed:Wait() end
     local flash=frame(gui,"RiftReveal",UDim2.fromScale(0,.5),UDim2.fromScale(1,0),cyan)
     flash.AnchorPoint=Vector2.new(0,.5);flash.ZIndex=50
     local reveal=TweenService:Create(flash,TweenInfo.new(.30,Enum.EasingStyle.Quart),{Size=UDim2.fromScale(1,1)})
