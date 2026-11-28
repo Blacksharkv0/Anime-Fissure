@@ -26,7 +26,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.6")
+    root:SetAttribute("Version","0.3.7")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -231,6 +231,11 @@ local function build(): Model
         -- Rear-only architecture: keep front and sides open for mobile.
         local back=d.Z+(if d.Name=="Evolution" or d.Name=="Traits" then 8 else -8)
         local orientation=if back>d.Z then 0 else math.pi
+        local rear=if back>d.Z then 1 else -1
+        local imported=Assets.Place(d.Name.."Facade",m,
+            at(d.X,0,back+rear*4.5)*CFrame.Angles(0,orientation,0),d.H,d.W+1,5)
+        m:SetAttribute("ImportedFacade",imported~=nil)
+        if not imported then
         for side=-1,1,2 do
             local x=d.X+side*d.W*.5
             p(m,"Base",Vector3.new(2,.52,2),at(x,.26,back),C.Ink,Enum.Material.Marble)
@@ -241,7 +246,14 @@ local function build(): Model
         end
         p(m,"Cornice",Vector3.new(d.W+2,.78,2.5),at(d.X,d.H+.5,back),C.Ink,Enum.Material.Metal)
         p(m,"CorniceEdge",Vector3.new(d.W+1,.10,.13),at(d.X,d.H+.94,back+(if orientation==0 then -1.29 else 1.29)),d.Color,Enum.Material.Neon)
-        sign(m,"DistrictSign",at(d.X,d.H+1.84,back)*CFrame.Angles(0,orientation,0),
+        end
+        local signY,signZ=d.H+1.84,back
+        if imported then
+            local bounds,size=imported:GetBoundingBox()
+            signY=bounds.Position.Y+size.Y*.5+.85
+            signZ=back+rear*2.0
+        end
+        sign(m,"DistrictSign",at(d.X,signY,signZ)*CFrame.Angles(0,orientation,0),
             math.min(d.W,17),1.95,d.Label,d.Sub,d.Color)
     end
 
@@ -368,6 +380,7 @@ local function build(): Model
         local h=18+(i*13)%24
         local z=-70-(i%2)*6
         local w=if i%3==0 then 9 else 6.6
+        if Assets.Place("SkylineTower",skyline,at(x,-14,z),h,w+1) then continue end
         p(skyline,"Tower_"..i,Vector3.new(w,h,8),at(x,h*.5-14,z),C.Stone,Enum.Material.Metal)
         p(skyline,"TowerCrown_"..i,Vector3.new(w*.72,2.5,6.2),at(x,h-12.8,z),C.Ink,Enum.Material.Metal)
         if i%3==0 then
@@ -396,6 +409,11 @@ local function build(): Model
     local facades=group(immersion,"FacadeDetails")
     for _,d in ipairs(districts) do
         local m=group(facades,d.Name)
+        local district=sectors:FindFirstChild(d.Name)
+        if district and district:GetAttribute("ImportedFacade")==true then
+            m:SetAttribute("ImportedFacade",true)
+            continue
+        end
         local back=d.Z+(if d.Name=="Evolution" or d.Name=="Traits" then 8 else -8)
         local front=if back>d.Z then -1 else 1
         local cf=CFrame.new(O+Vector3.new(d.X,0,back))*CFrame.Angles(0,if front==1 then math.pi else 0,0)
@@ -435,6 +453,7 @@ local function build(): Model
     for i,loc in ipairs({{-43,-36},{43,-36},{-43,37},{43,37}}) do
         local x,z=loc[1],loc[2]
         local cf=at(x,0,z)*CFrame.Angles(0,if z>0 then math.pi else 0,0)
+        if Assets.Place("CityBench",streets,cf,1.75,4.5) then continue end
         for side=-1,1,2 do
             p(streets,"BenchLeg_"..i,Vector3.new(.45,.76,.9),cf*CFrame.new(side*1.72,.38,0),C.Metal,Enum.Material.Metal)
         end
