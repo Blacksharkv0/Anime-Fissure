@@ -42,6 +42,13 @@ function Library.Place(slot: string,parent: Instance,ground: CFrame,height: numb
         warn("[LobbyAssetLibrary] "..slot..": "..why.."; using procedural fallback")
         return nil
     end
+    local partCount=0
+    for _,obj in ipairs(source:GetDescendants()) do if obj:IsA("BasePart") then partCount+=1 end end
+    local budget=if slot=="GardenTree" then 3 elseif slot=="SakuraTree" then 8 else 24
+    if partCount>budget then
+        warn("[LobbyAssetLibrary] "..slot.." exceeds per-instance budget "..budget)
+        return nil
+    end
     local clone=(source :: Model):Clone()
     if not clone then return nil end
     local ok,err=pcall(function()
