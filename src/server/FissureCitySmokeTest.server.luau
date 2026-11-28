@@ -33,6 +33,23 @@ for _,spec in ipairs({{"Summon","CapsuleCore"},{"Alchemy","ReagentBottle"},{"Ind
     local district=districts:FindFirstChild(spec[1])
     assert(district and district:FindFirstChild(spec[2]),"Missing unique district detail "..spec[1])
 end
+local immersion=city:FindFirstChild("Immersion")
+assert(immersion and immersion:GetAttribute("Ready")==true)
+assert(city:GetAttribute("ImmersionVersion")=="1.0.0")
+local facades=immersion:FindFirstChild("FacadeDetails")
+assert(facades and #facades:GetChildren()==6)
+for _,d in ipairs(facades:GetChildren()) do
+    assert(d:FindFirstChild("RecessedWing") and d:FindFirstChild("FloatingCanopy"))
+end
+local lights,floats=0,0
+for _,obj in ipairs(immersion:GetDescendants()) do
+    if obj:IsA("BasePart") then
+        if obj:GetAttribute("CityLocalLight")==true then lights+=1 end
+        if obj:GetAttribute("CityFloat")==true then floats+=1 end
+    end
+end
+assert(lights==8 and floats==6,"Immersion anchors mismatch")
+assert(immersion:FindFirstChild("Wayfinding") and immersion:FindFirstChild("StreetFurniture"))
 local count=0
 for _,obj in ipairs(city:GetDescendants()) do
     if obj:IsA("BasePart") then
@@ -41,6 +58,7 @@ for _,obj in ipairs(city:GetDescendants()) do
             "City decorative part obstructs gameplay: "..obj:GetFullName())
     end
 end
+assert(city:GetAttribute("DecorativePartCount")==count)
 assert(count<900,"City decorative part budget exceeded: "..count)
 -- Confirm that the original east border does not cut through the bridge.
 for _,obj in ipairs(lobby:GetChildren()) do
