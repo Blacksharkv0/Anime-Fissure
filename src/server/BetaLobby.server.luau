@@ -67,6 +67,39 @@ for _, z in ipairs({-54, 54}) do
     )
 end
 
+-- WORLD POLISH: physical perimeter rails separate from cosmetic geometry.
+-- Main lobby remains the same floor and opens only onto the royal bridge.
+local safety=Instance.new("Model")
+safety.Name="CitySafety"
+safety.Parent=lobby
+local function guard(name: string,size: Vector3,position: Vector3)
+    local rail=Instance.new("Part")
+    rail.Name=name;rail.Size=size;rail.Position=position
+    rail.Material=Enum.Material.Metal;rail.Color=DARK
+    rail.Anchored=true;rail.CanCollide=true;rail.CanTouch=false;rail.CanQuery=true
+    rail.Parent=safety
+    local trim=Instance.new("Part")
+    trim.Name="RailTrim";trim.Size=Vector3.new(size.X,.12,size.Z)
+    trim.Position=position+Vector3.new(0,size.Y*.5+.06,0)
+    trim.Color=BLUE;trim.Material=Enum.Material.Neon
+    trim.Anchored=true;trim.CanCollide=false;trim.CanTouch=false;trim.CanQuery=false
+    trim.CastShadow=false;trim.Parent=safety
+end
+guard("WestGuard",Vector3.new(.70,4.2,109),CENTER+Vector3.new(-54.5,2.1,0))
+for _,z in ipairs({-54.5,54.5}) do
+    guard("NorthSouthGuard",Vector3.new(109,4.2,.70),CENTER+Vector3.new(0,2.1,z))
+end
+for _,span in ipairs({{-54.5,13},{27,54.5}}) do
+    guard("EastGuard",Vector3.new(.70,4.2,span[2]-span[1]),
+        CENTER+Vector3.new(54.5,2.1,(span[1]+span[2])*.5))
+end
+-- Rails continue along the exposed gap between the main floor and annex.
+-- They leave the central bridge channel (z=14.6..25.4) clear.
+for _,z in ipairs({14.30,25.70}) do
+    guard("BridgeGuard",Vector3.new(4.5,4.2,.52),Vector3.new(316.7,2.15,z))
+end
+safety:SetAttribute("Ready",true)
+
 local portal = createPart(
     "ArenaPortal",
     Vector3.new(15, 19, 2),
