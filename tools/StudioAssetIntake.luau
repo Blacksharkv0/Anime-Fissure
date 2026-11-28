@@ -8,11 +8,16 @@ local LICENSE="Roblox-authorized Synty asset pack; reviewed for use in this expe
 local CONFIRM_RIGHTS=false -- set true ONLY after verifying source and usage rights
 assert(not game:GetService("RunService"):IsRunning(),"Use Edit mode, not Play")
 assert(CONFIRM_RIGHTS,"Review license and source, then set CONFIRM_RIGHTS=true")
-local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5}
+local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5,NPC_Vergil=24,NPC_Edward=24,NPC_Dante=24,NPC_Whis=24,NPC_Urahara=24,NPC_Jinwoo=24,NPC_Gilgamesh=24,NPC_Escanor=24}
 assert(budgets[SLOT],"Unknown slot")
 local selection=game:GetService("Selection")
 local selected=selection:Get()
 assert(#selected==1 and selected[1]:IsA("Model"),"Select one Model, not entire pack")
+if string.sub(SLOT,1,4)=="NPC_" then
+    for _,obj in ipairs(selected[1]:GetDescendants()) do
+        assert(not obj:IsA("Bone") and not obj:IsA("WrapLayer") and not obj:IsA("WrapTarget") and not obj:IsA("Clothing"),"Bake static character mesh and texture first; rigged or layered characters require a separate pipeline")
+    end
+end
 local copy=selected[1]:Clone()
 assert(copy,"Cannot clone selected model")
 local allow={Model=true,Folder=true,Part=true,MeshPart=true,WedgePart=true,CornerWedgePart=true,
