@@ -11,13 +11,16 @@ local oldNames={PortalSign=true,VirgilLabel=true,WorkshopSign=true}
 local function add(obj: Instance)
     if not obj:IsA("BillboardGui") then return end
     if oldNames[obj.Name] then obj.Enabled=false;return end
-    if obj:GetAttribute("CityLocalSign")==true then
+    if obj:GetAttribute("CityLocalSign")==true and not signs[obj] then
         signs[obj]=true
         obj.AlwaysOnTop=false
         obj.Enabled=false
     end
 end
-local conn=lobby.DescendantAdded:Connect(add)
+local conn=lobby.DescendantAdded:Connect(function(obj)
+    -- Replication may deliver attributes immediately after parenting.
+    task.defer(add,obj)
+end)
 for _,obj in ipairs(lobby:GetDescendants()) do add(obj) end
 local function position(board: BillboardGui): Vector3?
     local adornee=board.Adornee or board.Parent
@@ -51,7 +54,12 @@ local function update()
     if candidates[1] then shown[candidates[1].Board]=true end
     for board in pairs(signs) do board.Enabled=shown[board]==true end
 end
+local ticks=0
 while lobby.Parent do
+    ticks+=1
+    if ticks%12==0 then
+        for _,obj in ipairs(lobby:GetDescendants()) do add(obj) end
+    end
     update()
     task.wait(.18)
 end
