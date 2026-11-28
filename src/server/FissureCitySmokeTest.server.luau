@@ -70,7 +70,20 @@ end
 -- WORLD POLISH: preserve physical edges, passage, and front-facing prompts.
 assert(city:GetAttribute("WorldPolishVersion")=="1.0.0")
 local skyline=city:FindFirstChild("Skyline")
-assert(skyline and skyline:FindFirstChild("WestTower_4") and skyline:FindFirstChild("FarIsland_2"))
+assert(skyline and skyline:FindFirstChild("WestTower_4") and not skyline:FindFirstChild("FarIsland_2"))
+local world=lobby:WaitForChild("GroundedWorld",60)
+assert(world and world:GetAttribute("Ready")==true and world:GetAttribute("SceneryOnly")==true)
+local land=world:FindFirstChild("ContinentalFoundation")
+local surface=if land then land:FindFirstChild("ContinentalSurface") else nil
+assert(surface and surface:IsA("BasePart") and surface.Position.X-surface.Size.X/2>=175)
+for _,name in ipairs({"MountainBackdrop","OuterCanals","SakuraGrove","HeritageGates"}) do
+    assert(world:FindFirstChild(name),"Missing grounded landscape feature "..name)
+end
+for _,obj in ipairs(world:GetDescendants()) do
+    if obj:IsA("BasePart") then
+        assert(obj.Anchored and not obj.CanCollide and not obj.CanQuery and not obj.CanTouch)
+    end
+end
 local safety=lobby:WaitForChild("CitySafety",20)
 assert(safety and safety:GetAttribute("Ready")==true)
 local guards=0
