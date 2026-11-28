@@ -26,7 +26,7 @@ local function node(parent: Instance,kind: string,name: string)
 end
 local toggle=node(gui,"TextButton","ToggleAudit") :: TextButton
 toggle.Size=UDim2.fromOffset(168,34)
-toggle.Position=UDim2.new(0,12,1,-48)
+toggle.Position=UDim2.new(0,12,1,-98)
 toggle.BackgroundColor3=Color3.fromRGB(34,57,100)
 toggle.BorderSizePixel=0
 toggle.TextColor3=Color3.fromRGB(236,244,255)
@@ -37,7 +37,7 @@ node(toggle,"UICorner","Round").CornerRadius=UDim.new(0,8)
 
 local panel=node(gui,"Frame","Report") :: Frame
 panel.AnchorPoint=Vector2.new(0,1)
-panel.Position=UDim2.new(0,12,1,-88)
+panel.Position=UDim2.new(0,12,1,-138)
 panel.Size=UDim2.fromOffset(338,486)
 panel.BackgroundColor3=Color3.fromRGB(14,19,35)
 panel.BorderSizePixel=0
@@ -176,7 +176,7 @@ local function resize()
     local camera=Workspace.CurrentCamera
     if not camera then return end
     local view=camera.ViewportSize
-    scale.Scale=math.clamp(math.min((view.X-24)/345,(view.Y-90)/498,1),.47,1)
+    scale.Scale=math.clamp(math.min((view.X-24)/345,(view.Y-142)/498,1),.47,1)
 end
 -- Developer galleries are opt-in; normal Play starts with a clean HUD.
 player:SetAttribute("StudioLabsVisible",false)
