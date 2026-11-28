@@ -3,6 +3,7 @@
 -- No InsertService, asset-id require, remote downloads or third-party scripts.
 local ServerStorage=game:GetService("ServerStorage")
 local Library={}
+local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5}
 local allowed={
     Model=true,Folder=true,Part=true,MeshPart=true,WedgePart=true,CornerWedgePart=true,
     SpecialMesh=true,BlockMesh=true,CylinderMesh=true,Decal=true,Texture=true,SurfaceAppearance=true,
@@ -33,7 +34,7 @@ function Library.Validate(template: Instance): (boolean,string)
     if parts<1 or parts>24 or meshes<1 then return false,"expected 1–24 parts and at least one reusable mesh" end
     return true,"ok"
 end
-function Library.Place(slot: string,parent: Instance,ground: CFrame,height: number,maxWidth: number): Model?
+function Library.Place(slot: string,parent: Instance,ground: CFrame,height: number,maxWidth: number,maxDepth: number?): Model?
     local folder=ServerStorage:FindFirstChild("LobbyAssetLibrary")
     local source=if folder then folder:FindFirstChild(slot) else nil
     if not source then return nil end
@@ -44,7 +45,8 @@ function Library.Place(slot: string,parent: Instance,ground: CFrame,height: numb
     end
     local partCount=0
     for _,obj in ipairs(source:GetDescendants()) do if obj:IsA("BasePart") then partCount+=1 end end
-    local budget=if slot=="GardenTree" then 3 elseif slot=="SakuraTree" then 8 else 24
+    local budget=budgets[slot]
+    if not budget then return nil end
     if partCount>budget then
         warn("[LobbyAssetLibrary] "..slot.." exceeds per-instance budget "..budget)
         return nil
@@ -61,7 +63,8 @@ function Library.Place(slot: string,parent: Instance,ground: CFrame,height: numb
         clone:PivotTo(CFrame.identity)
         local _,size=clone:GetBoundingBox()
         assert(size.Y>.01 and math.max(size.X,size.Z)>.01,"empty bounds")
-        local scale=math.min(height/size.Y,maxWidth/math.max(size.X,size.Z))
+        local scale=if maxDepth then math.min(height/size.Y,maxWidth/size.X,maxDepth/size.Z) else math.min(height/size.Y,maxWidth/math.max(size.X,size.Z))
+        if maxDepth then assert(size.Y*scale>=height*.55,"model too short for architectural slot") end
         assert(scale>=.02 and scale<=100,"invalid scale")
         clone:ScaleTo(clone:GetScale()*scale)
         local bounds,scaled=clone:GetBoundingBox()
