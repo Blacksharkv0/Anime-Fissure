@@ -19,3 +19,14 @@ Atualizar após cada lote de trabalho. Este é o ponto de passagem entre ChatGPT
 - Testes executados e resultados (PC/mobile, logs, evidência; não executado se pendente):
 - Commit e build correspondente:
 - Limites, regressões, rollback e próxima ação:
+
+### 27/11/2026 — Carne Village restaurada e diagnóstico do lobby
+- Codex, main. Base da sincronização `27af31e4c1e1412db884d9b92b29660c371cd95c`. Leitura integral de AGENTS, manual mestre e diário. Arquivo local AnimeFissure-Reborn-Overlord.rbxlx.
+- Falha original em Play: `Unable to assign property Color. Color3 expected, got nil`, em BetaMap, durante a montagem da primeira casa. A cor ausente interrompia a arena antes da criação de BaseCore.
+- Alteração única em `src/server/BetaMap.server.luau`: definir Gold com RGB(177, 146, 106). Aplicada e salva no Studio e sincronizada no [commit 32e0955](https://github.com/Blacksharkv0/Anime-Fissure/commit/32e095502b62a658a8ba711b2596c8021104efe6). Conteúdo da main relido. Build desse SHA ainda sem confirmação.
+- Play após a correção: oito casas, oito waypoints, quatro spawns, 655 detalhes e BaseCore presente. Entrada OVL_01 Classic pelo remote do cliente aceita pelo servidor, onda 1 iniciada e HUD da arena ativo.
+- Sessão de diagnóstico complementar: painel LobbyStudioAudit aberto no cliente por MCP. O próprio painel reportou 13/13, incluindo 11 portais, cinco vitrines, mentores, remotes e diretório/FX. Mede presença. Teste encerrado e modo Edit confirmado.
+- Referência visual anterior: placas/pilares disputam a vista para Story no spawn e o botão de diagnóstico cobre parte da mensagem inferior esquerda no PC. Amostra anterior de 3.986 BaseParts e 16 MeshParts no Workspace do cliente, ainda com a arena incompleta. Refazer a medição com a arena corrigida antes do piloto visual.
+- Arte: nenhuma importação neste lote. Bibliotecas de arte vazias na inspeção em Edit. Testes internos anteriores passaram para 24 variantes Overlord, 24 estágios de movimento e 42 acertos simulados. Sem aprovação artística ou medição de FPS.
+- Rollback: backup local pré-correção AnimeFissure-antes-CarneVillage-20261127-225915.rbxlx validado por SHA-256 contra o original; no Git, reverter o commit da cor. Nenhuma publicação da experiência.
+- Pendências: conferir CI do commit, fim e retorno de partida, Hard, interações e desempenho em mobile/multiplayer. Para arte, importar um único modelo de cenário de procedência verificada em cópia local, comparar visual e desempenho e obter aprovação antes de expandir.
