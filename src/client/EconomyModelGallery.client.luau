@@ -487,6 +487,11 @@ local function setOpen(open: boolean)
         liveModel = nil
     end
 end
+launch.Visible = player:GetAttribute("StudioLabsVisible") == true
+player:GetAttributeChangedSignal("StudioLabsVisible"):Connect(function()
+    launch.Visible = player:GetAttribute("StudioLabsVisible") == true
+    if not launch.Visible then setOpen(false) end
+end)
 launch.Activated:Connect(function() setOpen(not shade.Visible) end)
 close.Activated:Connect(function() setOpen(false) end)
 player:GetAttributeChangedSignal("InArena"):Connect(function()
