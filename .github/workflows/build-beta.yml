@@ -56,6 +56,8 @@ jobs:
       - name: Validar arquivos
         run: |
           test -f default.project.json
+          test -f src/first/FissureLoading.client.luau
+          test -f src/server/GroundedWorld.server.luau
           test -f src/server/Main.server.luau
           test -f src/server/BetaBridge.server.luau
           test -f src/server/BetaLobby.server.luau
@@ -419,6 +421,8 @@ jobs:
       - name: Verificar resultado
         run: |
           test -s build/AnimeFissure-Beta.rbxlx
+          grep -q 'FissureLoading' build/AnimeFissure-Beta.rbxlx
+          grep -q 'GroundedWorld' build/AnimeFissure-Beta.rbxlx
           grep -q 'LobbyNavigator' build/AnimeFissure-Beta.rbxlx
           grep -q 'DemoReleaseSmokeTest' build/AnimeFissure-Beta.rbxlx
           grep -q 'TowerHUD' build/AnimeFissure-Beta.rbxlx
