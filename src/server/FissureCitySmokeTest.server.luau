@@ -133,4 +133,19 @@ for _,spec in ipairs({{"Evolution",-1},{"Traits",-1},{"Index",1},{"Raids",1}}) d
     assert(prompt:FindFirstChild("LobbyServicePrompt"))
 end
 print("[Anime Fissure] WORLD POLISH SMOKE OK: safe edges, bridge channel and forward prompts")
+-- CONGRUENCE: readable signage, no giant fixed-pixel labels.
+assert(city:GetAttribute("CongruenceVersion")=="1.0.0")
+local labels=0
+for _,obj in ipairs(lobby:GetDescendants()) do
+    if obj:IsA("BillboardGui") and obj:GetAttribute("CityLocalSign")==true then
+        labels+=1
+        assert(obj.Size.X.Offset==0 and obj.Size.Y.Offset==0 and obj.Size.X.Scale<=6)
+        assert(obj.MaxDistance<=28 and not obj.AlwaysOnTop)
+    end
+end
+assert(labels>=5,"Expected compact station labels")
+local storyRoute=paving:FindFirstChild("StoryBoulevard")
+local routeEdge=if storyRoute then storyRoute:FindFirstChild("RouteEdge_1") else nil
+assert(routeEdge and routeEdge:IsA("BasePart") and routeEdge.Material==Enum.Material.Metal)
+print("[Anime Fissure] CONGRUENCE SMOKE OK: compact world labels and restrained street inlays")
 print("[Anime Fissure] FISSURE CITY SMOKE OK: "..count.." decorative parts, 9 routes, existing spawn/portal safe")
