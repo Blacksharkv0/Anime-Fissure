@@ -25,7 +25,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.3")
+    root:SetAttribute("Version","0.3.4")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -104,8 +104,8 @@ local function build(): Model
             p(m,"RouteEdge_"..side,Vector3.new(.12,.035,delta.Magnitude),
                 frame*CFrame.new(side*(width*.5-.18),.075,0),col,Enum.Material.Neon)
         end
-        for i=1,math.floor(delta.Magnitude/6) do
-            local z=-delta.Magnitude*.5+i*6
+        for i=1,math.floor(delta.Magnitude/10) do
+            local z=-delta.Magnitude*.5+i*10
             p(m,"Inset_"..i,Vector3.new(1.25,.026,.16),frame*CFrame.new(0,.06,z),col,Enum.Material.Neon)
         end
     end
@@ -131,18 +131,59 @@ local function build(): Model
         line(plaza,"CompassInlay"..i,Vector3.new(0,.26,1)+v*8.2,
             Vector3.new(0,.26,1)+v*9.5,.26,C.Gold,Enum.Material.Metal,.035)
     end
+    -- SOUL OF THE LOBBY: the convergence reactor. Solid architecture
+    -- frames a suspended, three-dimensional fissure; the walk axis stays free.
     local emblem=group(plaza,"FissureMonument")
-    ring(emblem,"HaloOuter",Vector3.new(0,15.5,0),4.1,24,.14,C.Blue,true)
-    ring(emblem,"HaloInner",Vector3.new(0,15.5,.16),3.3,20,.09,C.Cyan,true)
-    -- Angular stylized F logo formed by three separate strokes.
-    for i,v in ipairs({{Vector3.new(-1.5,13.2,-.28),Vector3.new(-.5,17.9,-.28)},
-        {Vector3.new(-.55,17.9,-.28),Vector3.new(2.0,17.9,-.28)},
-        {Vector3.new(-.95,15.9,-.28),Vector3.new(.95,15.9,-.28)}}) do
-        line(emblem,"CrestStroke"..i,v[1],v[2],.54,C.White,Enum.Material.Neon)
+    local center=Vector3.new(0,16.5,0)
+    local function orbit(name: string,r: number,segments: number,tilt: CFrame,col: Color3,w: number)
+        for i=0,segments-1 do
+            local function point(t: number): Vector3
+                return center+tilt:VectorToWorldSpace(Vector3.new(math.cos(t)*r,math.sin(t)*r,0))
+            end
+            line(emblem,name..i,point(i*2*math.pi/segments),point((i+1)*2*math.pi/segments),w,col,Enum.Material.Neon)
+        end
     end
-    local core=p(emblem,"FissureCore",Vector3.new(.72,1.30,.72),
-        at(2.2,14.1,0)*CFrame.Angles(0,0,math.rad(35)),C.Purple,Enum.Material.Neon)
-    lamp(core,C.Blue,20,.7)
+    orbit("HaloOuter",5.5,24,CFrame.Angles(0,.22,.10),C.Blue,.13)
+    orbit("HaloInner",4.75,18,CFrame.Angles(.68,-.68,.12),C.Cyan,.075)
+    -- Dark fractured plates around a brilliant asymmetric rift.
+    local nodes={Vector3.new(-.45,20.7,0),Vector3.new(.65,19.1,.06),
+        Vector3.new(-.28,17.4,-.04),Vector3.new(.83,15.8,.08),
+        Vector3.new(-.36,14.2,-.06),Vector3.new(.25,12.6,0)}
+    for i=1,#nodes-1 do
+        local a,b=nodes[i],nodes[i+1]
+        local mid=(a+b)*.5
+        local cf=CFrame.lookAt(O+mid,O+b)
+        local segment=p(emblem,"RiftEnergy_"..i,Vector3.new(.25,.25,(b-a).Magnitude+.07),cf,C.Cyan,Enum.Material.Neon)
+        segment:SetAttribute("SoulPulse",true)
+        local aura=p(emblem,"RiftAura_"..i,Vector3.new(.70,.70,(b-a).Magnitude+.12),cf,C.Blue,Enum.Material.Neon,nil,.62)
+        aura:SetAttribute("SoulPulse",true)
+        -- Angled obsidian plates give the central cut real depth.
+        for side=-1,1,2 do
+            local h=(b-a).Magnitude+.22
+            p(emblem,"FracturedPlate_"..i.."_"..side,Vector3.new(1.45,.69,h),
+                cf*CFrame.new(side*(.95+(i%2)*.13),0,0)*CFrame.Angles(0,0,side*.30),
+                C.Ink,Enum.Material.Slate)
+        end
+    end
+    local core=p(emblem,"FissureCore",Vector3.new(.87,.87,.87),at(.17,16.6,0)*CFrame.Angles(.5,.8,.4),C.White,Enum.Material.Neon)
+    core:SetAttribute("SoulPulse",true)
+    lamp(core,C.Blue,18,.55)
+    -- A pair of offset pylons supports the silhouette without occupying
+    -- the central walking corridor. Decorative surfaces, not climbable.
+    for side=-1,1,2 do
+        p(plaza,"ConvergenceFoot",Vector3.new(2.8,.42,2.8),at(side*8.3,.32,0),C.Ink,Enum.Material.Marble)
+        p(plaza,"ConvergencePylon",Vector3.new(.98,7.4,1.1),at(side*8.3,4.0,0)*CFrame.Angles(0,0,side*.13),C.Stone,Enum.Material.Metal)
+        line(plaza,"PylonArc",Vector3.new(side*7.82,7.6,0),Vector3.new(side*4.5,12.2,0),.62,C.Metal,Enum.Material.Metal)
+        line(plaza,"PylonLight",Vector3.new(side*7.82,7.6,.38),Vector3.new(side*4.5,12.2,.38),.11,C.Blue,Enum.Material.Neon)
+    end
+    -- Three emblem strokes engraved into the plaza rather than obscuring
+    -- the rift. Two inches of visual height above the old medallion.
+    for i,v in ipairs({{Vector3.new(-1.9,.30,3.5),Vector3.new(-.65,.30,-1.4)},
+        {Vector3.new(-.65,.30,-1.4),Vector3.new(2.5,.30,-1.4)},
+        {Vector3.new(-1.12,.30,.65),Vector3.new(1.5,.30,.65)}}) do
+        line(plaza,"CrestStroke"..i,v[1],v[2],.42,C.White,Enum.Material.Neon,.045)
+    end
+    emblem:SetAttribute("SoulVersion","1.0.0")
 
     -- Spawn frontage: immediately visible from the initial camera facing
     -- the mission portal. Gateway and sign stay above avatar head height.
@@ -295,7 +336,7 @@ local function build(): Model
             local a=i*2*math.pi/3
             local tx,tz=x+math.cos(a)*2.25,z+math.sin(a)*2.25
             p(gardens,"TreeTrunk",Vector3.new(.32,3.15,.32),at(tx,2.40,tz),Color3.fromRGB(93,80,71),Enum.Material.Wood)
-            for j=1,3 do
+            for j=1,2 do
                 p(gardens,"LeafLayer",Vector3.new(2.05-j*.19,1.4,2.15-j*.17),
                     at(tx,3.5+j*.47,tz)*CFrame.Angles(0,j*.47,.22),if j%2==0 then C.Green else C.Soil,Enum.Material.SmoothPlastic,"Ball")
             end
@@ -365,7 +406,7 @@ local function build(): Model
             f("RecessedWing",Vector3.new(2.35,d.H-3,.50),x,(d.H-3)*.5+.4,.90,C.Ink,Enum.Material.Slate)
             f("WingMetalTrim",Vector3.new(.16,d.H-3.25,.14),x+side*.98,(d.H-3)*.5+.4,.55,C.Metal,Enum.Material.Metal)
             f("WingAccent",Vector3.new(.12,3.2,.12),x-side*.96,d.H-4.3,.52,d.Color,Enum.Material.Neon)
-            for j=1,3 do
+            for j=1,1 do
                 f("WingPanelSeam",Vector3.new(1.86,.075,.10),x,1.3+j*1.35,.59,C.Metal,Enum.Material.Metal)
             end
             f("UpperBrace",Vector3.new(.55,2.8,.68),side*(d.W*.5-1),d.H-1.0,-.38,C.Metal,Enum.Material.Metal,side*.45)
@@ -416,6 +457,43 @@ local function build(): Model
     immersion:SetAttribute("Ready",true)
     root:SetAttribute("ImmersionVersion","1.0.0")
     root:SetAttribute("WorldPolishVersion","1.0.0")
+
+    -- The sectors are branches of the same world, not unrelated shops.
+    -- Inlaid energy traces start at the plaza rim and follow the main
+    -- avenues. They stop before any NPC pedestal.
+    local soul=group(root,"CitySoul")
+    local conduits=group(soul,"ConvergenceTraces")
+    for i,entry in ipairs({
+        {Vector3.new(-9,.30,1),Vector3.new(-22,.30,1),C.Blue},
+        {Vector3.new(9,.30,1),Vector3.new(24,.30,1),C.Gold},
+        {Vector3.new(-6,.30,-6),Vector3.new(-12,.30,-8),C.Red},
+        {Vector3.new(6,.30,-6),Vector3.new(18,.30,-22),C.Purple},
+        {Vector3.new(-6,.30,8),Vector3.new(-22,.30,23),C.Green},
+        {Vector3.new(6,.30,8),Vector3.new(22,.30,23),C.Cyan},
+    }) do
+        local a,b,col=entry[1] :: Vector3,entry[2] :: Vector3,entry[3] :: Color3
+        local m=group(conduits,"Conduit_"..i)
+        line(m,"EnergyInlay",a,b,.075,col,Enum.Material.Neon,.035)
+        local mid=(a+b)*.5
+        p(m,"ConvergenceNode",Vector3.new(.50,.045,.50),at(mid.X,.33,mid.Z)*CFrame.Angles(0,math.pi/4,0),col,Enum.Material.Neon)
+    end
+    -- Two unobstructed photo pockets, contained within the city floor.
+    -- No camera takeover, UI popup, interaction or fake reward.
+    local vistas=group(soul,"VistaPoints")
+    for i,loc in ipairs({{-39,24},{36,43}}) do
+        local x,z=loc[1],loc[2]
+        local m=group(vistas,"Vista_"..i)
+        disc(m,"VistaMedallion",x,.14,z,4.2,.05,C.Ink,Enum.Material.Marble)
+        for side=-1,1,2 do
+            local a=Vector3.new(x+side*1.7,.19,z-1.7)
+            local b=Vector3.new(x+side*1.7,.19,z+1.7)
+            line(m,"VistaInlay",a,b,.08,C.Gold,Enum.Material.Neon,.03)
+        end
+        sign(m,"VistaPlaque",at(x,2.0,z+2.15)*CFrame.Angles(0,0,0),3.9,.75,
+            if i==1 then "CONVERGÊNCIA" else "JARDIM AETHER",
+            "FISSURE CITY",C.Gold)
+    end
+    soul:SetAttribute("Ready",true)
 
     local count=0
     for _,obj in ipairs(root:GetDescendants()) do if obj:IsA("BasePart") then count+=1 end end
