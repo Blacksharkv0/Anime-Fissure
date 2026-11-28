@@ -2,6 +2,7 @@
 -- FISSURE CITY | grounded landscape, no external asset dependencies.
 -- Independent scenery beneath and around city/annex; does not touch arena.
 local Workspace=game:GetService("Workspace")
+local Assets=require(script.Parent:WaitForChild("LobbyAssetLibrary"))
 local lobby=Workspace:WaitForChild("FissureLobby",60)
 if not lobby or not lobby:IsA("Model") then return end
 local floor=lobby:WaitForChild("LobbyFloor",20)
@@ -60,6 +61,7 @@ local grove=group("SakuraGrove")
 local rng=Random.new(2711)
 local function tree(x: number,z: number,y: number,k: number)
     local h=rng:NextNumber(5.7,8.2)
+    if Assets.Place("SakuraTree",grove,at(x,y,z)*CFrame.Angles(0,k*.73,0),h+2,7.5) then return end
     p(grove,"SakuraTrunk_"..k,Vector3.new(.66,h,.70),at(x,y+h*.5,z)*CFrame.Angles(0,0,.06),C.Wood,Enum.Material.Wood)
     for i=1,3 do
         local a=i*math.pi*2/3+rng:NextNumber(-.2,.2)
