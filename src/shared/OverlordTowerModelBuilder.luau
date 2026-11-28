@@ -206,23 +206,36 @@ local function characterClimb(r: any)
     r.RA.Color = midnight
     r.LL.Color = midnight
     r.RL.Color = midnight
-    boots(r, pearl)
-    for _, arm in ipairs({r.LA, r.RA}) do
-        mount(r.Base, arm, "ShoulderLining", Vector3.new(1.08, 0.58, 1.13),
-            CFrame.new(0, 0.70, 0), royal, Enum.Material.Fabric, "Ball")
-        mount(r.Base, arm, "ShoulderArmor", Vector3.new(1.17, 0.68, 1.22),
-            CFrame.new(0, 0.88, 0), pearl, Enum.Material.SmoothPlastic, "Ball")
+    -- Keep the six animation joints and give each limb a shaped outer contour.
+    for _, limb in ipairs({r.Torso, r.Head, r.LA, r.RA, r.LL, r.RL}) do
+        limb.Shape = Enum.PartType.Ball
     end
-    mount(r.Base, r.Torso, "BrightSilverBreastplate", Vector3.new(2.08, 1.66, 0.67),
-        CFrame.new(0, 0.16, -0.36), pearl, Enum.Material.SmoothPlastic, "Ball")
+    for _, leg in ipairs({r.LL, r.RL}) do
+        mount(r.Base, leg, "HighBoot", Vector3.new(0.71, 0.46, 1.12),
+            CFrame.new(0, -0.79, -0.17), pearl, Enum.Material.SmoothPlastic, "Ball")
+        mount(r.Base, leg, "KneeCop", Vector3.new(0.73, 0.49, 0.49),
+            CFrame.new(0, 0.08, -0.32), C.Silver, Enum.Material.Metal, "Ball")
+    end
+    for _, arm in ipairs({r.LA, r.RA}) do
+        local side = if arm == r.LA then -1 else 1
+        local slope = CFrame.Angles(0, 0, -side*0.23)
+        mount(r.Base, arm, "ShoulderLining", Vector3.new(0.98, 0.61, 1.05),
+            CFrame.new(-side*0.07, 0.66, 0)*slope, royal, Enum.Material.Fabric, "Ball")
+        mount(r.Base, arm, "ShoulderArmor", Vector3.new(1.16, 0.60, 1.12),
+            CFrame.new(-side*0.12, 0.82, 0)*slope, pearl, Enum.Material.SmoothPlastic, "Ball")
+        mount(r.Base, arm, "GuardGlove", Vector3.new(0.49, 0.55, 0.56),
+            CFrame.new(0, -0.76, -0.05), midnight, Enum.Material.Leather, "Ball")
+    end
+    mount(r.Base, r.Torso, "BrightSilverBreastplate", Vector3.new(2.05, 1.59, 1.12),
+        CFrame.new(0, 0.22, -0.10), pearl, Enum.Material.SmoothPlastic, "Ball")
     mount(r.Base, r.Torso, "GuardTabard", Vector3.new(0.86, 1.18, 0.14),
         CFrame.new(0, -1.12, -0.57), royal, Enum.Material.Fabric)
     mount(r.Base, r.Torso, "TabardBraid", Vector3.new(0.06, 0.82, 0.04),
         CFrame.new(-0.31, -1.27, -0.655), brass, Enum.Material.Metal)
-    mount(r.Base, r.Torso, "PurpleRoyalBelt", Vector3.new(2.04, 0.24, 1.34),
-        CFrame.new(0, -0.76, 0), midnight, Enum.Material.Leather)
+    mount(r.Base, r.Torso, "PurpleRoyalBelt", Vector3.new(1.58, 0.32, 1.19),
+        CFrame.new(0, -0.62, -0.03), midnight, Enum.Material.Leather, "Ball")
     mount(r.Base, r.Torso, "BeltClasp", Vector3.new(0.31, 0.21, 0.085),
-        CFrame.new(0, -0.76, -0.69), brass, Enum.Material.Metal)
+        CFrame.new(0, -0.62, -0.64), brass, Enum.Material.Metal)
     local flax = Color3.fromRGB(229, 194, 123)
     mount(r.Base, r.Head, "BlondeHair", Vector3.new(1.61, 0.95, 1.60),
         CFrame.new(0, 0.47, 0.04), flax, Enum.Material.SmoothPlastic, "Ball")
@@ -236,7 +249,18 @@ local function characterClimb(r: any)
     mesh.TextureId = "rbxassetid://377071700"
     mesh.Scale = Vector3.new(1.18, 1.15, 1.12)
     mesh.Parent = hair
-    for _, x in ipairs({-0.30, 0.30}) do eye(r.Base, r.Head, x, 0.07, C.White, C.EyeBlue) end
+    for _, x in ipairs({-0.30, 0.30}) do
+        local turn = CFrame.Angles(0, -x*0.95, 0)
+        mount(r.Base, r.Head, "Sclera", Vector3.new(0.32,0.19,0.07),
+            CFrame.new(x,0.07,-0.60)*turn, C.White, Enum.Material.SmoothPlastic, "Ball")
+        mount(r.Base, r.Head, "Pupil", Vector3.new(0.15,0.17,0.055),
+            CFrame.new(x,0.07,-0.64)*turn, C.EyeBlue, Enum.Material.SmoothPlastic, "Ball")
+        mount(r.Base, r.Head, "Eyebrow", Vector3.new(0.30,0.055,0.07),
+            CFrame.new(x,0.24,-0.565)*turn*CFrame.Angles(0,0,x*0.45), C.Brown,
+            Enum.Material.SmoothPlastic, "Ball")
+    end
+    mount(r.Base, r.Head, "NoseBridge", Vector3.new(0.13,0.19,0.16),
+        CFrame.new(0,-0.075,-0.67), C.Skin, Enum.Material.SmoothPlastic, "Ball")
     sword(r, "GuardSword", C.Silver, 2.3, 0.33, C.Brown)
 end
 
