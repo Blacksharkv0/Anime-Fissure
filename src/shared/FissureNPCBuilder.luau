@@ -127,10 +127,11 @@ end
 local function nameplate(head: BasePart, name: string, role: string, accent: Color3)
     local gui = Instance.new("BillboardGui")
     gui.Name = "NPCNameplate"
-    gui.Size = UDim2.fromOffset(185, 45)
+    gui.Size = UDim2.new(4.8,0,1.05,0)
     gui.StudsOffset = Vector3.new(0, 2.15, 0)
     gui.MaxDistance = 28
-    gui.AlwaysOnTop = true
+    gui.AlwaysOnTop = false
+    gui:SetAttribute("CityLocalSign",true)
     gui.Parent = head
     local panel = Instance.new("Frame")
     panel.Size = UDim2.fromScale(1, 1)
