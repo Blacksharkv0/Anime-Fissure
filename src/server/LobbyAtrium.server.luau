@@ -16,7 +16,7 @@ local O=Vector3.new(260,0,0)
 local C={
     Ink=Color3.fromRGB(15,22,39),Stone=Color3.fromRGB(33,44,63),
     Tile=Color3.fromRGB(40,53,74),TileAlt=Color3.fromRGB(45,58,80),
-    Path=Color3.fromRGB(70,88,111),Metal=Color3.fromRGB(114,142,172),
+    Path=Color3.fromRGB(49,62,80),Metal=Color3.fromRGB(114,142,172),
     White=Color3.fromRGB(229,241,252),Blue=Color3.fromRGB(56,123,255),
     Cyan=Color3.fromRGB(109,221,255),Gold=Color3.fromRGB(239,190,96),
     Purple=Color3.fromRGB(155,99,246),Green=Color3.fromRGB(137,207,160),
@@ -25,7 +25,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.4")
+    root:SetAttribute("Version","0.3.5")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -102,11 +102,11 @@ local function build(): Model
         p(m,"Walkway",Vector3.new(width,.10,delta.Magnitude),frame,C.Path,Enum.Material.Slate)
         for side=-1,1,2 do
             p(m,"RouteEdge_"..side,Vector3.new(.12,.035,delta.Magnitude),
-                frame*CFrame.new(side*(width*.5-.18),.075,0),col,Enum.Material.Neon)
+                frame*CFrame.new(side*(width*.5-.18),.075,0),col:Lerp(C.Metal,.48),Enum.Material.Metal)
         end
         for i=1,math.floor(delta.Magnitude/10) do
             local z=-delta.Magnitude*.5+i*10
-            p(m,"Inset_"..i,Vector3.new(1.25,.026,.16),frame*CFrame.new(0,.06,z),col,Enum.Material.Neon)
+            p(m,"Inset_"..i,Vector3.new(1.25,.026,.16),frame*CFrame.new(0,.06,z),col:Lerp(C.Metal,.55),Enum.Material.Metal)
         end
     end
     route("StoryBoulevard",Vector3.new(0,.14,25),Vector3.new(0,.14,-33),10,C.Cyan)
@@ -349,11 +349,11 @@ local function build(): Model
         for _,z in ipairs({-45,-30,-15,0,15,30,45}) do
             if side==1 and z>=0 and z<=30 then continue end
             p(edges,"EdgeButtress",Vector3.new(2.1,5.3,2.1),at(side*53,2.65,z),C.Ink,Enum.Material.Metal)
-            p(edges,"EdgeCap",Vector3.new(2.3,.24,2.3),at(side*53,5.38,z),C.Blue,Enum.Material.Neon)
+            p(edges,"EdgeCap",Vector3.new(2.3,.24,2.3),at(side*53,5.38,z),C.Metal,Enum.Material.Metal)
         end
         for _,x in ipairs({-45,-30,-15,0,15,30,45}) do
             p(edges,"EdgeButtress",Vector3.new(2.1,5.3,2.1),at(x,2.65,side*53),C.Ink,Enum.Material.Metal)
-            p(edges,"EdgeCap",Vector3.new(2.3,.24,2.3),at(x,5.38,side*53),C.Blue,Enum.Material.Neon)
+            p(edges,"EdgeCap",Vector3.new(2.3,.24,2.3),at(x,5.38,side*53),C.Metal,Enum.Material.Metal)
         end
     end
     local skyline=group(root,"Skyline")
@@ -473,7 +473,7 @@ local function build(): Model
     }) do
         local a,b,col=entry[1] :: Vector3,entry[2] :: Vector3,entry[3] :: Color3
         local m=group(conduits,"Conduit_"..i)
-        line(m,"EnergyInlay",a,b,.075,col,Enum.Material.Neon,.035)
+        line(m,"EnergyInlay",a,b,.075,col:Lerp(C.Metal,.25),Enum.Material.SmoothPlastic,.035)
         local mid=(a+b)*.5
         p(m,"ConvergenceNode",Vector3.new(.50,.045,.50),at(mid.X,.33,mid.Z)*CFrame.Angles(0,math.pi/4,0),col,Enum.Material.Neon)
     end
@@ -498,6 +498,7 @@ local function build(): Model
     local count=0
     for _,obj in ipairs(root:GetDescendants()) do if obj:IsA("BasePart") then count+=1 end end
     root:SetAttribute("DecorativePartCount",count)
+    root:SetAttribute("CongruenceVersion","1.0.0")
     root:SetAttribute("Ready",true)
     return root
 end
