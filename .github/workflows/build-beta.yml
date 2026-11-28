@@ -281,7 +281,7 @@ jobs:
           grep -q 'UniversalRelicCatalog' src/client/RelicRingGallery.client.luau
           grep -q 'OrbsAlchemyOnly' src/server/AlchemyWorkshop.server.luau
           grep -q 'ORBES  -  ALQUIMIA' src/server/AlchemyWorkshop.server.luau
-          grep -q 'ORBES  /  TRANSMUTACAO' src/server/LobbyVisualPolish.server.luau
+          grep -q 'billboard(signAnchor, "EDWARD", "ALQUIMIA"' src/server/LobbyVisualPolish.server.luau
           grep -q 'EDWARD ALCHEMY v0.2' src/client/AlchemyHUD.client.luau
           if grep -q 'RelicIndexConfig' src/client/AlchemyHUD.client.luau; then
             echo "ERRO: Edward ainda referencia o catalogo de reliquias"
