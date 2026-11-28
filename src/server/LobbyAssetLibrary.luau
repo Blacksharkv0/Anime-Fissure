@@ -2,6 +2,13 @@
 -- Fissure City Reborn: optional, reviewed static asset templates.
 -- No InsertService, asset-id require, remote downloads or third-party scripts.
 local ServerStorage=game:GetService("ServerStorage")
+local RunService=game:GetService("RunService")
+local officialPreviewSources={
+    ["https://create.roblox.com/store/asset/6933438443"]=true,
+    ["https://create.roblox.com/store/asset/6933556508"]=true,
+    ["https://create.roblox.com/store/asset/6934021345"]=true,
+    ["https://create.roblox.com/store/asset/6370681139"]=true,
+}
 local Library={}
 local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5,NPC_Vergil=24,NPC_Edward=24,NPC_Dante=24,NPC_Whis=24,NPC_Urahara=24,NPC_Jinwoo=24,NPC_Gilgamesh=24,NPC_Escanor=24}
 local allowed={
@@ -10,7 +17,13 @@ local allowed={
 }
 function Library.Validate(template: Instance): (boolean,string)
     if not template:IsA("Model") then return false,"expected Model" end
-    if template:GetAttribute("Reviewed")~=true then return false,"not reviewed" end
+    local preview=template:GetAttribute("StudioPreviewOnly")==true
+    if preview then
+        local source=template:GetAttribute("SourceURL")
+        if not RunService:IsStudio() or typeof(source)~="string" or not officialPreviewSources[source] or string.sub(template.Name,1,4)=="NPC_" then
+            return false,"unapproved preview outside official Studio scenery"
+        end
+    elseif template:GetAttribute("Reviewed")~=true then return false,"not reviewed" end
     for _,key in ipairs({"SourceURL","Creator","License"}) do
         local value=template:GetAttribute(key)
         if typeof(value)~="string" or value=="" then return false,"missing "..key end
