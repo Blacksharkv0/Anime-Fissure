@@ -77,16 +77,17 @@ local function billboard(anchor: BasePart, titleText: string, subtitleText: stri
     accent: Color3, w: number): BillboardGui
     local gui = Instance.new("BillboardGui")
     gui.Name = "FissureStationSign"
-    gui.Size = UDim2.fromOffset(w, 66)
+    gui.Size = UDim2.new(5.0, 0, 1.1, 0)
     gui.StudsOffset = Vector3.new(0, 0.6, 0)
-    gui.MaxDistance = 75
-    gui.AlwaysOnTop = true
+    gui.MaxDistance = 28
+    gui.AlwaysOnTop = false
+    gui:SetAttribute("CityLocalSign", true)
     gui.Parent = anchor
 
     local background = Instance.new("Frame")
     background.Size = UDim2.fromScale(1, 1)
     background.BackgroundColor3 = C.Ink
-    background.BackgroundTransparency = 0.1
+    background.BackgroundTransparency = 0.48
     background.BorderSizePixel = 0
     background.Parent = gui
     local corners = Instance.new("UICorner")
@@ -94,26 +95,26 @@ local function billboard(anchor: BasePart, titleText: string, subtitleText: stri
     corners.Parent = background
     local border = Instance.new("UIStroke")
     border.Color = accent
-    border.Thickness = 1.5
-    border.Transparency = 0.25
+    border.Thickness = 0.8
+    border.Transparency = 0.6
     border.Parent = background
 
     local upper = Instance.new("TextLabel")
     upper.BackgroundTransparency = 1
-    upper.Size = UDim2.new(1, -14, 0, 34)
-    upper.Position = UDim2.fromOffset(7, 5)
+    upper.Size = UDim2.fromScale(.96,.56)
+    upper.Position = UDim2.fromScale(.02,.04)
     upper.Font = Enum.Font.GothamBlack
-    upper.TextSize = 22
+    upper.TextScaled = true
     upper.TextColor3 = C.White
     upper.Text = titleText
     upper.Parent = background
 
     local lower = Instance.new("TextLabel")
     lower.BackgroundTransparency = 1
-    lower.Size = UDim2.new(1, -14, 0, 19)
-    lower.Position = UDim2.fromOffset(7, 40)
+    lower.Size = UDim2.fromScale(.96,.35)
+    lower.Position = UDim2.fromScale(.02,.61)
     lower.Font = Enum.Font.GothamBold
-    lower.TextSize = 12
+    lower.TextScaled = true
     lower.TextColor3 = accent
     lower.Text = subtitleText
     lower.Parent = background
@@ -150,9 +151,9 @@ if not bloom or not bloom:IsA("BloomEffect") then
     bloom.Parent = Lighting
 end
 local glow = bloom :: BloomEffect
-glow.Intensity = 0.22
+glow.Intensity = 0.09
 glow.Size = 18
-glow.Threshold = 1.4
+glow.Threshold = 2.0
 
 local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
 if not atmosphere then
@@ -219,11 +220,11 @@ if virgil and virgil:IsA("Model") then
     local signAnchor = part("VirgilTitleAnchor", Vector3.new(228, 11.3, -5.5),
         Vector3.new(0.5, 0.5, 0.5), C.Ink, Enum.Material.SmoothPlastic, false)
     signAnchor.Transparency = 1
-    billboard(signAnchor, "VIRGIL", "SUMMON DE UNIDADES", C.Purple, 205)
+    billboard(signAnchor, "VERGIL", "SUMMON", C.Blue, 205)
     for _, x in ipairs({-6.0, 6.0}) do
         local p = part("VirgilLight", Vector3.new(228 + x, 7.1, -6.2),
             Vector3.new(0.35, 0.75, 0.35), C.Purple, Enum.Material.Neon, false)
-        lamp(p, C.Purple, 1.2, 16)
+        lamp(p, C.Blue, .42, 10)
     end
 end
 
@@ -237,11 +238,11 @@ if workshop and workshop:IsA("Model") then
     local signAnchor = part("AlchemyTitleAnchor", Vector3.new(293, 14.9, 4.6),
         Vector3.new(0.5, 0.5, 0.5), C.Ink, Enum.Material.SmoothPlastic, false)
     signAnchor.Transparency = 1
-    billboard(signAnchor, "ALQUIMIA", "ORBES  /  TRANSMUTACAO", C.Gold, 220)
+    billboard(signAnchor, "EDWARD", "ALQUIMIA", C.Gold, 220)
     for _, x in ipairs({-13, 13}) do
         local p = part("AlchemistLight", Vector3.new(293 + x, 7.8, 5.0),
             Vector3.new(0.4, 0.75, 0.4), C.Gold, Enum.Material.Neon, false)
-        lamp(p, C.Gold, 1.1, 15)
+        lamp(p, C.Gold, .40, 10)
     end
 end
 
