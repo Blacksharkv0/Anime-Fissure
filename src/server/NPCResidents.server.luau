@@ -9,6 +9,7 @@ local RS = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Builder = require(RS:WaitForChild("Shared"):WaitForChild("FissureNPCBuilder"))
+local Appearance=require(script.Parent:WaitForChild("LobbyNPCAppearance"))
 
 -- Remotes separados dos sistemas reais para o cliente nao poder abrir
 -- interfaces sem ter iniciado uma interacao valida com o NPC.
@@ -192,7 +193,9 @@ local function install(kind: string, stationName: string, npcName: string)
         destination=destination-Vector3.new(0,3*(1-npc:GetScale()),0)
     end
     npc:PivotTo(destination)
-    if freshlyBuilt then animateIdle(npc) end
+    local ground=destination*CFrame.new(0,-3*npc:GetScale(),0)
+    local imported=Appearance.Apply(npc,if kind=="Virgil" then "Vergil" else "Edward",ground)
+    if freshlyBuilt and not imported then animateIdle(npc) end
 
     local remote = waitForRemote(kind)
     if not remote then
