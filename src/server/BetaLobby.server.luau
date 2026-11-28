@@ -263,6 +263,27 @@ for _, player in ipairs(Players:GetPlayers()) do
     setupPlayer(player)
 end
 
+-- Keep the scenery non-playable and rescue accidental falls below the
+-- actual walking surface, before the default void destroys the character.
+-- Do not touch arena players, combat state, currencies or health.
+task.spawn(function()
+    while lobby.Parent do
+        task.wait(.5)
+        for _,player in ipairs(Players:GetPlayers()) do
+            if player:GetAttribute("InArena")==true then continue end
+            local character=player.Character
+            local root=if character then character:FindFirstChild("HumanoidRootPart") else nil
+            local humanoid=if character then character:FindFirstChildOfClass("Humanoid") else nil
+            if character and root and root:IsA("BasePart") and humanoid and humanoid.Health>0
+                and root.Position.Y < -8 then
+                character:PivotTo(CFrame.new(CENTER+Vector3.new(0,5,25)))
+                root.AssemblyLinearVelocity=Vector3.zero
+                root.AssemblyAngularVelocity=Vector3.zero
+            end
+        end
+    end
+end)
+
 -- A beta atual possui uma partida por servidor; nao e matchmaking cooperativo.
 local entryLocked = false
 local lastRequests: {[number]: number} = {}
