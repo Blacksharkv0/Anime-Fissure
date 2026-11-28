@@ -25,7 +25,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.1")
+    root:SetAttribute("Version","0.3.2")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -316,16 +316,45 @@ local function build(): Model
         end
     end
     local skyline=group(root,"Skyline")
-    -- Distant scenery built below the platform; does not become a playable
-    -- island or a second spawn. Keep east annex sightline unobstructed.
+    -- WORLD POLISH: three layers of distinct silhouettes, below the
+    -- walking plane. Keep east sightlines and the royal annex clear.
+    -- Architectural masses are deliberately low-part-count and static.
     for i=1,9 do
         local x=-51+(i-1)*12.5
-        local h=15+(i*13)%22
-        p(skyline,"Tower_"..i,Vector3.new(6,h,7),at(x,h*.5-11,-66-(i%2)*5),C.Stone,Enum.Material.Metal)
-        p(skyline,"TowerSpire_"..i,Vector3.new(2.8,4.0,2.8),at(x,h-9,-66-(i%2)*5),C.Ink,Enum.Material.Metal)
-        for j=1,3 do
-            p(skyline,"TowerWindow",Vector3.new(3.7,.30,.12),at(x,h-12-j*2.4,-62.4-(i%2)*5),C.Blue,Enum.Material.Neon)
+        local h=18+(i*13)%24
+        local z=-70-(i%2)*6
+        local w=if i%3==0 then 9 else 6.6
+        p(skyline,"Tower_"..i,Vector3.new(w,h,8),at(x,h*.5-14,z),C.Stone,Enum.Material.Metal)
+        p(skyline,"TowerCrown_"..i,Vector3.new(w*.72,2.5,6.2),at(x,h-12.8,z),C.Ink,Enum.Material.Metal)
+        if i%3==0 then
+            p(skyline,"TowerSpire_"..i,Vector3.new(1.4,6.2,1.4),at(x,h-8.6,z),C.Metal,Enum.Material.Metal)
+        else
+            p(skyline,"TowerSpire_"..i,Vector3.new(2.1,3.3,2.1),at(x,h-10,z),C.Ink,Enum.Material.Metal)
         end
+        for j=1,2 do
+            p(skyline,"TowerWindow",Vector3.new(w*.72,.32,.13),at(x,h-15-j*3,z+4.07),
+                if i%3==0 then C.Gold else C.Blue,Enum.Material.Neon)
+        end
+    end
+    -- Four wider distant towers on the west/rear, staggered in depth.
+    for i=1,4 do
+        local z=-45+(i-1)*29
+        local h=20+(i*11)%23
+        local x=-70-(i%2)*8
+        p(skyline,"WestTower_"..i,Vector3.new(8,h,8),at(x,h*.5-14,z),C.Stone,Enum.Material.Slate)
+        p(skyline,"WestTowerCap_"..i,Vector3.new(6.8,2.1,6.8),at(x,h-12.9,z),C.Ink,Enum.Material.Metal)
+        p(skyline,"WestTowerLight_"..i,Vector3.new(.15,.28,5.6),at(x+4.08,h-18,z),C.Blue,Enum.Material.Neon)
+    end
+    -- A pair of dark floating islands behind the horizon, never playable.
+    for i=1,2 do
+        local x=if i==1 then -35 else 38
+        local z=if i==1 then -100 else -110
+        local island=p(skyline,"FarIsland_"..i,Vector3.new(30,8,21),
+            at(x,-8,z)*CFrame.Angles(0,i*.45,.08),C.Ink,Enum.Material.Slate,"Ball")
+        island.CastShadow=false
+        local crest=p(skyline,"FarIslandSpire_"..i,Vector3.new(3.2,12,3.2),
+            at(x,-1,z)*CFrame.Angles(0,i*.35,.15),C.Stone,Enum.Material.Slate)
+        crest.CastShadow=false
     end
     -- IMMERSION: architectural depth, restrained accent panels, rest
     -- pockets and lighting. Keep all visual objects outside prompt paths.
@@ -396,6 +425,7 @@ local function build(): Model
         "STORY","MUNDO 01  ·  OVERLORD",C.Cyan)
     immersion:SetAttribute("Ready",true)
     root:SetAttribute("ImmersionVersion","1.0.0")
+    root:SetAttribute("WorldPolishVersion","1.0.0")
 
     local count=0
     for _,obj in ipairs(root:GetDescendants()) do if obj:IsA("BasePart") then count+=1 end end
