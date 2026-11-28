@@ -29,3 +29,10 @@ Alternativas externas: https://quaternius.com/packs/modularscifimegakit (CC0); h
 Fontes de segurança: https://create.roblox.com/docs/production/creator-store ; https://github.com/Roblox/creator-docs/blob/main/content/en-us/scripting/security/third-party-vulnerabilities.md
 ## Ordem proposta
 A: natureza Synty; B: arquitetura Synty City/Dungeon; C: identidade sci-fi (somente se compatível); D: testar um distrito inteiro (Vergil + Dante); E: expandir após aprovação visual. Preservar versão 0.3.5 como base. Não incluir candidatos sem aprovação de licença e revisão.
+
+## Fissure City Reborn 0.3.6 — primeiro estágio implementado
+- Biblioteca ServerStorage/LobbyAssetLibrary mapeada via Rojo em assets/lobby. Ainda vazia, sem modelos externos efetivamente importados.
+- Slots GardenTree (12 cópias, até 3 BaseParts cada) e SakuraTree (16 cópias, até 8 BaseParts cada), pelo menos uma malha. Escala e pivô normalizados e colisão desativada. Na falta de modelo aprovado, continua o cenário procedural.
+- Para importar: abrir Baseplate separado em modo Edit; Toolbox > Creator Store > Synty Nature Pack (6933438443); selecionar individualmente uma árvore com as permissões adequadas. Executar tools/StudioAssetIntake.luau na Command Bar depois de preencher SLOT, SOURCE, CREATOR, LICENSE e confirmar direitos. Conferir visual e malhas/texturas no Studio; exportar a seleção preparada como GardenTree.rbxmx ou SakuraTree.rbxmx e entregar para integração em assets/lobby. Não executar Play com pacote bruto.
+- Não confundir validação estrutural com garantia de segurança, licença ou desempenho; testar aparência e permissões em experiência de teste. Exportar apenas se a licença permite armazenar/compartilhar no repositório; caso contrário manter importação na experiência autorizada. Não publicar modelos de personagens sem direitos.
+- Próxima fase: piloto arquitetônico Vergil + Dante após receber modelos revisados. Não substituir fachadas por assets ainda não escolhidos ou disponíveis.
