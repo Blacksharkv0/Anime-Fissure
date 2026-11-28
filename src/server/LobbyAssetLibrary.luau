@@ -3,7 +3,7 @@
 -- No InsertService, asset-id require, remote downloads or third-party scripts.
 local ServerStorage=game:GetService("ServerStorage")
 local Library={}
-local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5}
+local budgets={GardenTree=3,SakuraTree=8,SummonFacade=24,IndexFacade=24,AlchemyFacade=24,EvolutionFacade=24,TraitsFacade=24,RaidsFacade=24,CityBench=4,GardenFountain=12,SkylineTower=5,NPC_Vergil=24,NPC_Edward=24,NPC_Dante=24,NPC_Whis=24,NPC_Urahara=24,NPC_Jinwoo=24,NPC_Gilgamesh=24,NPC_Escanor=24}
 local allowed={
     Model=true,Folder=true,Part=true,MeshPart=true,WedgePart=true,CornerWedgePart=true,
     SpecialMesh=true,BlockMesh=true,CylinderMesh=true,Decal=true,Texture=true,SurfaceAppearance=true,
