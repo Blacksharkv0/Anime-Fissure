@@ -101,6 +101,10 @@ local index=0
 local imported=0
 for _,pack in ipairs(packs) do
     local asset=loadPack(pack.Id)
+    if asset and not (asset:IsA("Model") or asset:IsA("Folder")) then
+        asset:Destroy();asset=nil
+        warn("[FISSURE] Unexpected pack root; rejected "..pack.Name)
+    end
     if asset then
         -- Strip unsupported classes BEFORE parenting anything into the game.
         local removed=sanitize(asset)
