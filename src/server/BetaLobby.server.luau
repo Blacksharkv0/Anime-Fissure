@@ -51,10 +51,10 @@ createPart(
 
 -- Split the east border around the Babylon bridge (z=14..26).
 -- Keep a generous clear passage for walking and touch controls.
-createPart("BlueBorder",Vector3.new(1,1,108),CENTER+Vector3.new(-54,.5,0),BLUE,Enum.Material.Neon)
+createPart("BlueBorder",Vector3.new(1,1,108),CENTER+Vector3.new(-54,.5,0),Color3.fromRGB(59,83,120),Enum.Material.Metal)
 for _,span in ipairs({{-54,13},{27,54}}) do
     createPart("BlueBorder",Vector3.new(1,1,span[2]-span[1]),
-        CENTER+Vector3.new(54,.5,(span[1]+span[2])*.5),BLUE,Enum.Material.Neon)
+        CENTER+Vector3.new(54,.5,(span[1]+span[2])*.5),Color3.fromRGB(59,83,120),Enum.Material.Metal)
 end
 
 for _, z in ipairs({-54, 54}) do
@@ -62,8 +62,8 @@ for _, z in ipairs({-54, 54}) do
         "BlueBorder",
         Vector3.new(108, 1, 1),
         CENTER + Vector3.new(0, 0.5, z),
-        BLUE,
-        Enum.Material.Neon
+        Color3.fromRGB(59,83,120),
+        Enum.Material.Metal
     )
 end
 
@@ -81,7 +81,7 @@ local function guard(name: string,size: Vector3,position: Vector3)
     local trim=Instance.new("Part")
     trim.Name="RailTrim";trim.Size=Vector3.new(size.X,.12,size.Z)
     trim.Position=position+Vector3.new(0,size.Y*.5+.06,0)
-    trim.Color=BLUE;trim.Material=Enum.Material.Neon
+    trim.Color=Color3.fromRGB(59,83,120);trim.Material=Enum.Material.Metal
     trim.Anchored=true;trim.CanCollide=false;trim.CanTouch=false;trim.CanQuery=false
     trim.CastShadow=false;trim.Parent=safety
 end
@@ -112,8 +112,8 @@ portal.Transparency = 0.35
 
 local light = Instance.new("PointLight")
 light.Color = CYAN
-light.Range = 35
-light.Brightness = 3
+light.Range = 19
+light.Brightness = 0.85
 light.Parent = portal
 
 local sign = Instance.new("BillboardGui")
