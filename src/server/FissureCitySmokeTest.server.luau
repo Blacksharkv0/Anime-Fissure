@@ -50,6 +50,27 @@ for _,obj in ipairs(immersion:GetDescendants()) do
 end
 assert(lights==8 and floats==6,"Immersion anchors mismatch")
 assert(immersion:FindFirstChild("Wayfinding") and immersion:FindFirstChild("StreetFurniture"))
+-- City Soul: actual sculpted rift, six links, two scenic points.
+local monument=plaza:FindFirstChild("FissureMonument")
+assert(monument and monument:GetAttribute("SoulVersion")=="1.0.0")
+assert(monument:FindFirstChild("FracturedPlate_5_1") and monument:FindFirstChild("FissureCore"))
+local pulses=0
+for _,obj in ipairs(monument:GetDescendants()) do
+    if obj:IsA("BasePart") and obj:GetAttribute("SoulPulse")==true then
+        pulses+=1
+        assert(obj.Position.Y>=12,"Rift effect obstructs walking height")
+    end
+end
+assert(pulses==11,"Unexpected rift pulse geometry")
+local soul=city:FindFirstChild("CitySoul")
+assert(soul and soul:GetAttribute("Ready")==true)
+local traces=soul:FindFirstChild("ConvergenceTraces")
+local vistas=soul:FindFirstChild("VistaPoints")
+assert(traces and #traces:GetChildren()==6 and vistas and #vistas:GetChildren()==2)
+for _,vista in ipairs(vistas:GetChildren()) do
+    local plate=vista:FindFirstChild("VistaMedallion")
+    assert(plate and plate:IsA("BasePart") and math.abs(plate.Position.X-260)<54 and math.abs(plate.Position.Z)<54)
+end
 local count=0
 for _,obj in ipairs(city:GetDescendants()) do
     if obj:IsA("BasePart") then
