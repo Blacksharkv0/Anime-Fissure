@@ -26,6 +26,13 @@
     "ReplicatedFirst": {
       "$className": "ReplicatedFirst",
       "$path": "src/first"
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "LobbyAssetLibrary": {
+        "$className": "Folder",
+        "$path": "assets/lobby"
+      }
     }
   }
 }
