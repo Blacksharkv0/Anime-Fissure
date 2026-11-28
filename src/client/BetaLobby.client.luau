@@ -6,7 +6,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -117,20 +116,6 @@ local function gradient(parent: Instance, a: Color3, b: Color3)
     g.Rotation = 90
     g.Parent = parent
 end
-
--- Loading com progresso apenas VISUAL: nao confundir com percentual real de assets.
-local loading = box(gui, "Loading", C.Ink, UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), 0)
-loading.ZIndex = 30
-local loadingBrand = text(loading, "LoadingBrand", "ANIME FISSURE",
-    UDim2.fromScale(0.08, 0.31), UDim2.fromScale(0.84, 0.13), 36, C.White, true)
-loadingBrand.TextXAlignment = Enum.TextXAlignment.Center
-local loadingDetail = text(loading, "LoadingSubtitle", "SINCRONIZANDO O LOBBY...",
-    UDim2.fromScale(0.10, 0.48), UDim2.fromScale(0.80, 0.07), 14, C.Cyan, true)
-loadingDetail.TextXAlignment = Enum.TextXAlignment.Center
-local loadingBack = box(loading, "LoadingTrack", C.Inner,
-    UDim2.fromScale(0.19, 0.61), UDim2.fromScale(0.62, 0.021), 9)
-local loadingFill = box(loadingBack, "LoadingFill", C.Electric,
-    UDim2.fromScale(0, 0), UDim2.fromScale(0, 1), 9)
 
 -- Brand discreta no topo; nao cobre o centro da praca.
 local brand = box(gui, "TopBrand", C.Base,
@@ -519,14 +504,5 @@ bindCamera()
 
 syncSelection()
 syncVisibility()
-
-if not game:IsLoaded() then game.Loaded:Wait() end
-local tween = TweenService:Create(loadingFill, TweenInfo.new(1.1, Enum.EasingStyle.Quart),
-    {Size = UDim2.fromScale(1, 1)})
-tween:Play()
-tween.Completed:Wait()
-loadingDetail.Text = "LOBBY PRONTO"
-task.wait(0.15)
-loading.Visible = false
 
 print("[Anime Fissure] Lobby v1.0 pronto: catalogo Overlord + modos Classic/Hard")
