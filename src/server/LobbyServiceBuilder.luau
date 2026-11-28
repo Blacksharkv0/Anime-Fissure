@@ -6,6 +6,7 @@ local ReplicatedStorage=game:GetService("ReplicatedStorage")
 local RunService=game:GetService("RunService")
 local Config=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyServiceConfig"))
 local Art=require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("LobbyNPCArtFinish"))
+local Appearance=require(script.Parent:WaitForChild("LobbyNPCAppearance"))
 local Builder={}
 Builder.Version="1.2.0"
 
@@ -216,6 +217,8 @@ local function stationaryCharacter(parent: Model,station: any,kind: string)
     end
     npc.PrimaryPart=head
     Art.ApplyService(npc,kind,frame,station)
+    local visualId=if kind=="Index" then "Dante" elseif kind=="Evolution" then "Whis" elseif kind=="Traits" then "Urahara" elseif kind=="Raids" then "Jinwoo" elseif kind=="EventHub" and RunService:IsStudio() and station.NPC=="Escanor" then "Escanor" else nil
+    if visualId then Appearance.Apply(npc,visualId,frame*CFrame.new(0,.12,0)) end
     return npc
 end
 local function station(root: Model,info: any,kind: string)
