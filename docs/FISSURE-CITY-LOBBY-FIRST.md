@@ -50,3 +50,14 @@ Abrir o build 0.3.2, usar Play, verificar Output (FISSURE CITY e WORLD POLISH SM
 2. Caminhar livremente da chegada até a praça, NPCs e Babilônia; conferir leitura dos seis caminhos e placas.
 3. Fotografar os dois pontos e ajustar composição, material e escala; avaliar monitor, tela mobile e FX leve.
 4. Confirmar FISSURE CITY SMOKE OK, ausência de erros no Output e desempenho medido no Studio. Não confundir compilação Luau/Rojo com teste de execução.
+
+## Congruence 0.3.5 — primeiro retorno visual do Studio
+Evidência: captura da vista geral mostrou placas sobrepostas, neon concorrente, controles de laboratório em primeiro plano e Dante com acabamento procedural visivelmente simples. O loading e o acesso ao NPC já foram observados, mas não há validação de todas as interações.
+
+- Sinalização de NPCs em escala física, alcance de 24–28 studs, fundos discretos, sem AlwaysOnTop; uma identificação flutuante automática por vez dentro de 17 studs horizontais do jogador (histerese 19). Letreiros físicos e waypoint escolhido permanecem.
+- Removida placa redundante Irmãos Caçadores, mantido emblema. Eventos: identificação curta, prévia Studio sem evento ativo.
+- Caminhos com bordas metálicas, energia secundária contida, intensidade de bloom e luzes reduzida. Monumento mantém seu destaque.
+- Galerias de modelos e economia ocultas por padrão; botão LABS no diagnóstico Studio restaura acesso.
+- Revisão de NPCs e da integração natural do terreno permanece pendente de nova comparação visual, sem afirmar que modelos atuais são finais.
+
+Aceitação: abrir a nova compilação, capturar a mesma vista geral, aproximar-se de cada NPC, conferir sinal único, prompts E/toque, waypoint e LABS. Testar FX leve e padrão. Só então ajustar modelos, centro e terreno. Compilação não equivale a Play.
