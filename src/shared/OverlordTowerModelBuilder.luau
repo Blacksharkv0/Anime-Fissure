@@ -198,25 +198,44 @@ end
 local function characterClimb(r: any)
     r.Torso.Color = C.PaleSteel
     r.Head.Color = C.Skin
-    r.LA.Color = C.PaleSteel
-    r.RA.Color = C.PaleSteel
-    r.LL.Color = C.Silver
-    r.RL.Color = C.Silver
+    local midnight = Color3.fromRGB(45, 58, 80)
+    local royal = Color3.fromRGB(53, 83, 141)
+    local pearl = Color3.fromRGB(224, 231, 234)
+    local brass = Color3.fromRGB(205, 171, 103)
+    r.LA.Color = midnight
+    r.RA.Color = midnight
+    r.LL.Color = midnight
+    r.RL.Color = midnight
     boots(r, C.Steel)
-    pauldrons(r, C.PaleSteel, C.Blue, 1.06)
-    mount(r.Base, r.Torso, "BrightSilverBreastplate", Vector3.new(1.90, 1.49, 0.29),
-        CFrame.new(0, 0.10, -0.51), C.White, Enum.Material.Metal)
-    mount(r.Base, r.Torso, "ChestCrest", Vector3.new(0.43, 0.59, 0.14),
-        CFrame.new(0, 0.25, -0.72), C.Blue, Enum.Material.Metal)
-    mount(r.Base, r.Torso, "PurpleRoyalBelt", Vector3.new(2.03, 0.25, 1.13),
-        CFrame.new(0, -0.85, 0), C.Purple, Enum.Material.Fabric)
-    mount(r.Base, r.Head, "BlondeHair", Vector3.new(1.37, 0.42, 1.37),
-        CFrame.new(0, 0.58, -0.01), C.Blonde, Enum.Material.SmoothPlastic, "Ball")
-    for _, x in ipairs({-0.35, 0, 0.34}) do
-        mount(r.Base, r.Head, "BlondeFringe", Vector3.new(0.36, 0.49, 0.36),
-            CFrame.new(x, 0.40, -0.48)
-                * CFrame.Angles(math.rad(18), 0, math.rad(x * 13)),
-            C.Yellow, Enum.Material.SmoothPlastic, "Wedge")
+    for _, arm in ipairs({r.LA, r.RA}) do
+        mount(r.Base, arm, "ShoulderLining", Vector3.new(1.08, 0.58, 1.13),
+            CFrame.new(0, 0.70, 0), royal, Enum.Material.Fabric, "Ball")
+        mount(r.Base, arm, "ShoulderArmor", Vector3.new(1.17, 0.68, 1.22),
+            CFrame.new(0, 0.88, 0), pearl, Enum.Material.SmoothPlastic, "Ball")
+    end
+    mount(r.Base, r.Torso, "BrightSilverBreastplate", Vector3.new(2.08, 1.66, 0.67),
+        CFrame.new(0, 0.16, -0.36), pearl, Enum.Material.SmoothPlastic, "Ball")
+    mount(r.Base, r.Torso, "GuardTabard", Vector3.new(0.86, 1.18, 0.14),
+        CFrame.new(0, -1.12, -0.57), royal, Enum.Material.Fabric)
+    mount(r.Base, r.Torso, "TabardBraid", Vector3.new(0.06, 0.82, 0.04),
+        CFrame.new(-0.31, -1.27, -0.655), brass, Enum.Material.Metal)
+    mount(r.Base, r.Torso, "PurpleRoyalBelt", Vector3.new(2.04, 0.24, 1.34),
+        CFrame.new(0, -0.76, 0), midnight, Enum.Material.Leather)
+    mount(r.Base, r.Torso, "BeltClasp", Vector3.new(0.31, 0.21, 0.085),
+        CFrame.new(0, -0.76, -0.69), brass, Enum.Material.Metal)
+    local flax = Color3.fromRGB(229, 194, 123)
+    mount(r.Base, r.Head, "BlondeHair", Vector3.new(1.61, 0.95, 1.60),
+        CFrame.new(0, 0.47, 0.04), flax, Enum.Material.SmoothPlastic, "Ball")
+    for i, x in ipairs({-0.45, -0.11, 0.26, 0.51}) do
+        local length = if i == 1 then 0.65 else 0.44
+        mount(r.Base, r.Head, "BlondeFringe", Vector3.new(0.39, length, 0.33),
+            CFrame.new(x, 0.53, -0.68) * CFrame.Angles(math.rad(12), 0, math.rad(-21)),
+            if i == 2 then C.Blonde else flax, Enum.Material.SmoothPlastic, "Wedge")
+    end
+    for side = -1, 1, 2 do
+        mount(r.Base, r.Head, "TempleLock", Vector3.new(0.22, 0.65, 0.57),
+            CFrame.new(side*0.67, 0.31, -0.37) * CFrame.Angles(math.rad(8), 0, side*0.08),
+            flax, Enum.Material.SmoothPlastic, "Wedge")
     end
     for _, x in ipairs({-0.30, 0.30}) do eye(r.Base, r.Head, x, 0.07, C.White, C.EyeBlue) end
     sword(r, "GuardSword", C.Silver, 2.3, 0.33, C.Brown)
