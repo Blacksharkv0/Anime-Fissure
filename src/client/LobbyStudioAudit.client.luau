@@ -178,6 +178,21 @@ local function resize()
     local view=camera.ViewportSize
     scale.Scale=math.clamp(math.min((view.X-24)/345,(view.Y-90)/498,1),.47,1)
 end
+-- Developer galleries are opt-in; normal Play starts with a clean HUD.
+player:SetAttribute("StudioLabsVisible",false)
+local labs=node(panel,"TextButton","StudioLabsToggle") :: TextButton
+labs.Position=UDim2.fromOffset(245,6);labs.Size=UDim2.fromOffset(82,30)
+labs.BackgroundColor3=Color3.fromRGB(34,57,100);labs.BorderSizePixel=0
+labs.TextColor3=Color3.fromRGB(236,244,255);labs.TextSize=11
+labs.Font=Enum.Font.GothamBold;labs.Text="LABS: OFF"
+node(labs,"UICorner","Round").CornerRadius=UDim.new(0,6)
+title.Size=UDim2.fromOffset(230,27)
+title.TextScaled=true
+labs.Activated:Connect(function()
+    local on=player:GetAttribute("StudioLabsVisible")~=true
+    player:SetAttribute("StudioLabsVisible",on)
+    labs.Text=if on then "LABS: ON" else "LABS: OFF"
+end)
 toggle.Activated:Connect(function()
     if player:GetAttribute("InArena")==true then return end
     panel.Visible=not panel.Visible
@@ -189,7 +204,9 @@ if Workspace.CurrentCamera then
 end
 player:GetAttributeChangedSignal("InArena"):Connect(function()
     gui.Enabled=player:GetAttribute("InArena")~=true
-    if not gui.Enabled then panel.Visible=false end
+    if not gui.Enabled then
+        panel.Visible=false;player:SetAttribute("StudioLabsVisible",false);labs.Text="LABS: OFF"
+    end
 end)
 gui.Enabled=player:GetAttribute("InArena")~=true
 task.spawn(function()
