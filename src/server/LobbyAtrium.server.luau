@@ -345,10 +345,22 @@ local function build(): Model
         p(gardens,"Planter",Vector3.new(9,.65,9),at(x,.33,z),C.Ink,Enum.Material.Marble)
         p(gardens,"PlanterRim",Vector3.new(8.5,.13,8.5),at(x,.71,z),C.Metal,Enum.Material.Metal)
         p(gardens,"Soil",Vector3.new(7.8,.12,7.8),at(x,.80,z),C.Soil,Enum.Material.Grass)
-        for i=1,3 do
-            local a=i*2*math.pi/3
-            local tx,tz=x+math.cos(a)*2.25,z+math.sin(a)*2.25
-            if not Assets.Place("GardenTree",gardens,at(tx,.86,tz)*CFrame.Angles(0,a,0),4.6,3.6) then
+        local shaded = x < 0
+        local treeCount = if shaded then 2 else 3
+        local radius = if shaded then 2.9 else 2.25
+        for i=1,treeCount do
+            local a=i*2*math.pi/treeCount + (if shaded then math.pi/4 else 0)
+            local tx,tz=x+math.cos(a)*radius,z+math.sin(a)*radius
+            local height = if shaded and i==1 then 5.4 else 4.6
+            local tree = Assets.Place("GardenTree",gardens,at(tx,.86,tz)*CFrame.Angles(0,a,0),height,3.6)
+            if tree and shaded then
+                for _,part in tree:GetDescendants() do
+                    if part:IsA("MeshPart") then
+                        part.Color = Color3.fromRGB(139,172,157)
+                    end
+                end
+            end
+            if not tree then
             p(gardens,"TreeTrunk",Vector3.new(.32,3.15,.32),at(tx,2.40,tz),Color3.fromRGB(93,80,71),Enum.Material.Wood)
             for j=1,2 do
                 p(gardens,"LeafLayer",Vector3.new(2.05-j*.19,1.4,2.15-j*.17),
