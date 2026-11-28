@@ -67,4 +67,36 @@ for _,obj in ipairs(lobby:GetChildren()) do
             "East border intersects Babylon bridge")
     end
 end
+-- WORLD POLISH: preserve physical edges, passage, and front-facing prompts.
+assert(city:GetAttribute("WorldPolishVersion")=="1.0.0")
+local skyline=city:FindFirstChild("Skyline")
+assert(skyline and skyline:FindFirstChild("WestTower_4") and skyline:FindFirstChild("FarIsland_2"))
+local safety=lobby:WaitForChild("CitySafety",20)
+assert(safety and safety:GetAttribute("Ready")==true)
+local guards=0
+for _,obj in ipairs(safety:GetChildren()) do
+    if obj:IsA("BasePart") and obj.Name~="RailTrim" then
+        guards+=1
+        assert(obj.Anchored and obj.CanCollide and obj.Size.Y>=4)
+        if obj.Name=="EastGuard" then
+            assert(obj.Position.Z+obj.Size.Z/2<=13.01 or obj.Position.Z-obj.Size.Z/2>=26.99)
+        elseif obj.Name=="BridgeGuard" then
+            assert(math.abs(obj.Position.Z-20)>5.4)
+        end
+    end
+end
+assert(guards==7,"Unexpected physical guard count")
+local services=lobby:WaitForChild("LobbyServiceStations",60)
+assert(services)
+for _,spec in ipairs({{"Evolution",-1},{"Traits",-1},{"Index",1},{"Raids",1}}) do
+    local station=services:WaitForChild(spec[1].."Station",15)
+    assert(station)
+    local footprint=station:WaitForChild("Footprint",15)
+    local prompt=station:WaitForChild("InteractionPoint",15)
+    assert(footprint and footprint:IsA("BasePart") and prompt and prompt:IsA("BasePart"))
+    assert(math.abs(prompt.Position.Z-footprint.Position.Z-4.25*spec[2])<.1,
+        "Interaction is not facing the public approach: "..spec[1])
+    assert(prompt:FindFirstChild("LobbyServicePrompt"))
+end
+print("[Anime Fissure] WORLD POLISH SMOKE OK: safe edges, bridge channel and forward prompts")
 print("[Anime Fissure] FISSURE CITY SMOKE OK: "..count.." decorative parts, 9 routes, existing spawn/portal safe")
