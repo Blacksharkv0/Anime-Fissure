@@ -25,7 +25,7 @@ local C={
 local function build(): Model
     local root=Instance.new("Model")
     root.Name="FissureCity"
-    root:SetAttribute("Version","0.3.0")
+    root:SetAttribute("Version","0.3.1")
     local function group(parent: Instance,name: string): Model
         local m=Instance.new("Model");m.Name=name;m.Parent=parent;return m
     end
@@ -327,6 +327,76 @@ local function build(): Model
             p(skyline,"TowerWindow",Vector3.new(3.7,.30,.12),at(x,h-12-j*2.4,-62.4-(i%2)*5),C.Blue,Enum.Material.Neon)
         end
     end
+    -- IMMERSION: architectural depth, restrained accent panels, rest
+    -- pockets and lighting. Keep all visual objects outside prompt paths.
+    local immersion=group(root,"Immersion")
+    local facades=group(immersion,"FacadeDetails")
+    for _,d in ipairs(districts) do
+        local m=group(facades,d.Name)
+        local back=d.Z+(if d.Name=="Evolution" or d.Name=="Traits" then 8 else -8)
+        local front=if back>d.Z then -1 else 1
+        local cf=CFrame.new(O+Vector3.new(d.X,0,back))*CFrame.Angles(0,if front==1 then math.pi else 0,0)
+        -- Local -Z faces the central walkway. Two wings form a recessed
+        -- alcove without covering the central icon or existing NPC.
+        local function f(n: string,s: Vector3,x: number,y: number,z: number,col: Color3,mat: Enum.Material?,angle: number?)
+            return p(m,n,s,cf*CFrame.new(x,y,z)*CFrame.Angles(0,0,angle or 0),col,mat)
+        end
+        for side=-1,1,2 do
+            local x=side*(d.W*.5-1.8)
+            f("RecessedWing",Vector3.new(2.35,d.H-3,.50),x,(d.H-3)*.5+.4,.90,C.Ink,Enum.Material.Slate)
+            f("WingMetalTrim",Vector3.new(.16,d.H-3.25,.14),x+side*.98,(d.H-3)*.5+.4,.55,C.Metal,Enum.Material.Metal)
+            f("WingAccent",Vector3.new(.12,3.2,.12),x-side*.96,d.H-4.3,.52,d.Color,Enum.Material.Neon)
+            for j=1,3 do
+                f("WingPanelSeam",Vector3.new(1.86,.075,.10),x,1.3+j*1.35,.59,C.Metal,Enum.Material.Metal)
+            end
+            f("UpperBrace",Vector3.new(.55,2.8,.68),side*(d.W*.5-1),d.H-1.0,-.38,C.Metal,Enum.Material.Metal,side*.45)
+            f("CanopyRib",Vector3.new(.40,.35,3.6),side*(d.W*.5-1.2),d.H+.10,-1.45,C.Stone,Enum.Material.Metal)
+        end
+        f("FloatingCanopy",Vector3.new(d.W-.4,.32,3.25),0,d.H+.10,-1.60,C.Ink,Enum.Material.Metal)
+        f("CanopyTrim",Vector3.new(d.W-.8,.10,.12),0,d.H+.32,-3.28,d.Color,Enum.Material.Neon)
+    end
+
+    local streets=group(immersion,"StreetFurniture")
+    -- Eight low lanterns at the edge of thoroughfares, never on the
+    -- central Story axis or the east bridge. Tagged for local quality LOD.
+    for i,loc in ipairs({{-7,26},{7,26},{-7,-22},{7,-22},{-19,18},{20,12},{-44,4},{43,31}}) do
+        local x,z=loc[1],loc[2]
+        p(streets,"LanternBase_"..i,Vector3.new(1.30,.33,1.30),at(x,.165,z),C.Ink,Enum.Material.Marble)
+        p(streets,"LanternPost_"..i,Vector3.new(.34,3.6,.34),at(x,1.95,z),C.Stone,Enum.Material.Metal)
+        p(streets,"LanternHood_"..i,Vector3.new(.98,.22,.98),at(x,3.99,z),C.Metal,Enum.Material.Metal)
+        local l=p(streets,"LanternGlow_"..i,Vector3.new(.64,.55,.64),at(x,3.60,z),C.Cyan,Enum.Material.Neon)
+        l:SetAttribute("CityLocalLight",true)
+    end
+    -- Real-looking benches placed in garden pockets; no interaction or
+    -- collision is fabricated in this art pass.
+    for i,loc in ipairs({{-43,-36},{43,-36},{-43,37},{43,37}}) do
+        local x,z=loc[1],loc[2]
+        local cf=at(x,0,z)*CFrame.Angles(0,if z>0 then math.pi else 0,0)
+        for side=-1,1,2 do
+            p(streets,"BenchLeg_"..i,Vector3.new(.45,.76,.9),cf*CFrame.new(side*1.72,.38,0),C.Metal,Enum.Material.Metal)
+        end
+        p(streets,"BenchSeat_"..i,Vector3.new(4.1,.22,1.18),cf*CFrame.new(0,.81,0),C.Stone,Enum.Material.Wood)
+        p(streets,"BenchBack_"..i,Vector3.new(4.1,.75,.17),cf*CFrame.new(0,1.32,.49),C.Stone,Enum.Material.Wood)
+    end
+    -- Central floating fragments are decorative anchors animated locally.
+    local fragments=group(immersion,"AetherFragments")
+    for i=1,6 do
+        local a=i*math.pi/3
+        local piece=p(fragments,"AetherShard_"..i,Vector3.new(.35,.94,.35),
+            at(math.sin(a)*4.85,15.3+math.sin(a*2)*1.25,math.cos(a)*.65)
+                *CFrame.Angles(.15,a,.35),if i%2==0 then C.Cyan else C.Purple,Enum.Material.Neon)
+        piece:SetAttribute("CityFloat",true)
+    end
+    local guide=group(immersion,"Wayfinding")
+    sign(guide,"WestDirectory",at(-9,3.3,22)*CFrame.Angles(0,math.pi,0),5.9,1.50,
+        "SUMMON  /  INDEX","TRAITS  ·  OESTE",C.Blue)
+    sign(guide,"EastDirectory",at(9,3.3,22)*CFrame.Angles(0,math.pi,0),5.9,1.50,
+        "ALQUIMIA  /  RELÍQUIAS","EVOLUÇÃO  ·  LESTE",C.Gold)
+    sign(guide,"StoryDirectory",at(0,10.9,-24)*CFrame.Angles(0,math.pi,0),7.8,1.20,
+        "STORY","MUNDO 01  ·  OVERLORD",C.Cyan)
+    immersion:SetAttribute("Ready",true)
+    root:SetAttribute("ImmersionVersion","1.0.0")
+
     root:SetAttribute("Ready",true)
     return root
 end
