@@ -62,21 +62,22 @@ local function billboard(parent: Instance,content: string,subtitle: string,
         CFrame.new(pos),color,nil,false,1)
     local gui=Instance.new("BillboardGui")
     gui.Name="StationName";gui.Adornee=anchor
-    gui.Size=UDim2.fromOffset(252,69)
-    gui.MaxDistance=80;gui.AlwaysOnTop=false;gui.Parent=anchor
+    gui.Size=UDim2.new(4.8,0,1.05,0)
+    gui.MaxDistance=28;gui.AlwaysOnTop=false;gui.Parent=anchor
+    gui:SetAttribute("CityLocalSign",true)
     local bg=Instance.new("Frame")
-    bg.BackgroundColor3=P.Ink;bg.BackgroundTransparency=.1
+    bg.BackgroundColor3=P.Ink;bg.BackgroundTransparency=.48
     bg.BorderSizePixel=0;bg.Size=UDim2.fromScale(1,1)
     bg.Parent=gui
     local corner=Instance.new("UICorner")
     corner.CornerRadius=UDim.new(0,8);corner.Parent=bg
     local stroke=Instance.new("UIStroke")
-    stroke.Color=color;stroke.Thickness=1.5;stroke.Parent=bg
+    stroke.Color=color;stroke.Thickness=.8;stroke.Transparency=.6;stroke.Parent=bg
     for i,line in ipairs({content,subtitle}) do
         local txt=Instance.new("TextLabel")
         txt.Name=if i==1 then "StationTitle" else "StationSubtitle"
-        txt.Size=UDim2.new(1,-12,0,if i==1 then 39 else 25)
-        txt.Position=UDim2.fromOffset(6,if i==1 then 3 else 41)
+        txt.Size=UDim2.fromScale(.96,if i==1 then .56 else .35)
+        txt.Position=UDim2.fromScale(.02,if i==1 then .04 else .61)
         txt.BackgroundTransparency=1;txt.Text=line
         txt.Font=Enum.Font.GothamBold
         txt.TextColor3=if i==1 then color else P.Pearl
@@ -242,8 +243,8 @@ local function station(root: Model,info: any,kind: string)
             info.Accent,Enum.Material.Glass,.1)
     end
     stationaryCharacter(m,info,kind)
-    billboard(m,info.Name,info.Title,pos+Vector3.new(0,12.5,0),
-        info.Accent)
+    billboard(m,info.NPC,if kind=="Evolution" then "EVOLUÇÃO" elseif kind=="Traits" then "TRAITS" elseif kind=="Raids" then "DESAFIOS / RAIDS" else "INDEX",
+        pos+Vector3.new(0,11.5,0),info.Accent)
     local prompt=validatePrompt(m,info)
     prompt:SetAttribute("ServiceId",kind)
     if kind=="Index" then
@@ -296,9 +297,7 @@ local function twinHunterEmblem(root: Model)
             center+Vector3.new(-side*.05,-1.59,-.21),
             .17,P.Gold,Enum.Material.Metal)
     end
-    billboard(emblem,"IRMÃOS CAÇADORES",
-        "SUMMON  •  INDEX",center+Vector3.new(0,4.0,0),
-        Color3.fromRGB(222,212,248))
+    -- The twin emblem is a landmark; district signs already identify its services.
     return emblem
 end
 local function eventHub(root: Model)
@@ -336,10 +335,9 @@ local function eventHub(root: Model)
             P.Blue,Enum.Material.Glass,.53)
         m:SetAttribute("DisplayState","AwaitingEvent")
     end
-    billboard(m,"PRAÇA DOS EVENTOS",
-        if preview and not active then "EXEMPLO • NANATSU • NÃO ATIVO"
-        else "PERSONAGEM SAZONAL • EM BREVE",
-        pos+Vector3.new(0,12.8,0),P.Gold)
+    billboard(m,"EVENTOS",
+        if preview and not active then "PRÉVIA STUDIO" else "EM BREVE",
+        pos+Vector3.new(0,11.8,0),P.Gold)
     local prompt=validatePrompt(m,info)
     prompt:SetAttribute("ServiceId","EventHub")
     return m
