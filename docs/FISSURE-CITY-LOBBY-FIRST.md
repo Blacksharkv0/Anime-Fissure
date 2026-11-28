@@ -25,3 +25,14 @@ Marco 0.3, primeira passagem de arquitetura. O lobby tem prioridade sobre novo r
 - [ ] FC-06 — Aprovação visual do criador, testes das interações e registro de build.
 
 A primeira passagem é procedural, não uma cidade final importada de Blender. Compilação Luau/Rojo não substitui Play. Sem alteração dos remotes, recompensas, moedas ou evento. 
+
+## World Polish 0.3.2 — implementação
+- Fachadas e Immersion publicados; validação Luau/Rojo da versão 0.3.1 concluída.
+- Horizonte em camadas, torres de alturas variadas e ilhas distantes sem colisão.
+- Sete guarda-corpos sólidos na borda e ponte; canal central preservado. Não são proteção absoluta contra saltos deliberados.
+- Whis e Dante orientados para a avenida; pontos de interação e props de fundo seguem o yaw de cada NPC.
+- Testes Studio de geometria, posição de prompts, perímetro e orçamento de partes adicionados; execução real ainda pendente.
+- Trilha e ambiência sonora aguardam asset original/licenciado com autorização Roblox; nenhum ID de áudio fictício foi incluído.
+
+## Próximo teste de aceitação
+Abrir o build 0.3.2, usar Play, verificar Output (FISSURE CITY e WORLD POLISH SMOKE OK), caminhar pela entrada, praça, oito NPCs e ponte. Testar FX padrão/leve e Story, capturar screenshots reais do spawn e das estações. Não publicar como jogo final antes de corrigir defeitos observados.
