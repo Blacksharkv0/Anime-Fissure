@@ -98,6 +98,16 @@ local function check()
     end
     return n,#checks,pending
 end
+local studio=game:GetService("RunService"):IsStudio()
+local debugContinue=false
+local debugButton=Instance.new("TextButton")
+debugButton.Name="StudioDiagnosticContinue";debugButton.Text="Entrar para diagnóstico (Studio)"
+debugButton.Font=Enum.Font.GothamBold;debugButton.TextScaled=true
+debugButton.TextColor3=white;debugButton.BackgroundColor3=Color3.fromRGB(30,52,83)
+debugButton.Size=UDim2.fromScale(.50,.065);debugButton.Position=UDim2.fromScale(.25,.79)
+debugButton.ZIndex=25;debugButton.Visible=false;debugButton.Parent=gui
+debugButton.Activated:Connect(function() if studio and debugButton.Visible then debugContinue=true end end)
+local debugPrinted=false
 local begun=os.clock()
 local last=-1
 local currentTween: Tween?=nil
@@ -118,17 +128,25 @@ while gui.Parent do
     if n==total then
         stage.Text="FISSURA ESTABILIZADA";break
     end
-    if os.clock()-begun>40 then
+    local mentorError=Workspace:GetAttribute("FoundationMentors")=="Error"
+    local babylonError=Workspace:GetAttribute("FoundationBabylon")=="Error"
+    local lobby=Workspace:FindFirstChild("FissureLobby")
+    local cityError=lobby~=nil and lobby:GetAttribute("CityReady")==false
+    if mentorError or babylonError or cityError then
+        local key=if mentorError then "FoundationMentors" elseif babylonError then "FoundationBabylon" else "CityReady"
+        local detail=tostring(Workspace:GetAttribute(key.."Detail") or key)
+        stage.Text="Falha: "..key.." — consulte o Output"
+        if not debugPrinted then warn("[FissureLoading] "..key..": "..detail);debugPrinted=true end
+        debugButton.Visible=studio
+    elseif os.clock()-begun>40 then
         stage.Text="Aguardando: "..pending.."  •  Ainda não pronto"
-        if Workspace:GetAttribute("FoundationMentors")=="Error" or Workspace:GetAttribute("FoundationBabylon")=="Error"
-            or (Workspace:FindFirstChild("FissureLobby") and Workspace.FissureLobby:GetAttribute("CityReady")==false) then
-            stage.Text="Falha ao preparar a cidade. Reconecte ou verifique o Output no Studio."
-        end
+        debugButton.Visible=studio
     end
+    if debugContinue then break end
     task.wait(.18)
 end
 -- No forced 100% or timer bypass. Fade the screen only when checks pass.
-if gui.Parent then
+if gui.Parent and not debugContinue then
     if currentTween and currentTween.PlaybackState==Enum.PlaybackState.Playing then currentTween.Completed:Wait() end
     local flash=frame(gui,"RiftReveal",UDim2.fromScale(0,.5),UDim2.fromScale(1,0),cyan)
     flash.AnchorPoint=Vector2.new(0,.5);flash.ZIndex=50
@@ -141,4 +159,8 @@ end
 CAS:UnbindAction("FissureLoadingMovement")
 player:SetAttribute("FissureLoading",false)
 gui:Destroy()
-print("[Anime Fissure] RASGANDO A REALIDADE | readiness checks complete")
+if debugContinue then
+    warn("[Anime Fissure] Studio diagnostic entry: loading incomplete")
+else
+    print("[Anime Fissure] RASGANDO A REALIDADE | readiness checks complete")
+end
