@@ -36,3 +36,17 @@ A primeira passagem é procedural, não uma cidade final importada de Blender. C
 
 ## Próximo teste de aceitação
 Abrir o build 0.3.2, usar Play, verificar Output (FISSURE CITY e WORLD POLISH SMOKE OK), caminhar pela entrada, praça, oito NPCs e ponte. Testar FX padrão/leve e Story, capturar screenshots reais do spawn e das estações. Não publicar como jogo final antes de corrigir defeitos observados.
+
+## City Soul 0.3.4 — Coração da Convergência
+- O monumento central passa a ser uma fenda tridimensional de obsidiana, energia azul, aros inclinados e dois pilares laterais. O emblema F é transferido para o piso da praça.
+- Seis caminhos de energia conectam visualmente Summon, Alquimia, Index, Raids, Traits e Evolução; não são portais nem sistemas adicionais.
+- Dois pontos de contemplação (Convergência e Jardim Aether) dentro da área caminhável. Sem câmera forçada ou recompensas falsas.
+- Pulsação lenta local em 11 partes, somente perto do monumento em FX padrão, restaurada ao sair da cidade ou reduzir efeitos.
+- Menos detalhes repetitivos em fachadas, jardins e trilhas para manter o orçamento existente de menos de 900 peças decorativas da cidade (verificação Studio pendente).
+- World Awakening 0.3.3 compilado com sucesso; City Soul exige nova compilação e Play real. Paisagem externa continua cenográfica, áudio próprio/licenciado ainda pendente.
+
+### Critérios de aprovação visual
+1. Ao terminar Rasgando a Realidade, enxergar a identidade do jogo e o monumento sem esconder a entrada Story.
+2. Caminhar livremente da chegada até a praça, NPCs e Babilônia; conferir leitura dos seis caminhos e placas.
+3. Fotografar os dois pontos e ajustar composição, material e escala; avaliar monitor, tela mobile e FX leve.
+4. Confirmar FISSURE CITY SMOKE OK, ausência de erros no Output e desempenho medido no Studio. Não confundir compilação Luau/Rojo com teste de execução.
