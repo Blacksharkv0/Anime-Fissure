@@ -30,6 +30,7 @@ local C = {
     RoofAlt = Color3.fromRGB(91, 63, 57),
     Straw = Color3.fromRGB(207, 178, 104),
     Iron = Color3.fromRGB(69, 69, 70),
+    Gold = Color3.fromRGB(177, 146, 106),
     Portal = Color3.fromRGB(146, 92, 206),
     PortalGlow = Color3.fromRGB(214, 166, 240),
     Core = Color3.fromRGB(108, 192, 219),
