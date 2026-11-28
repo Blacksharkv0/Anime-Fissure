@@ -39,7 +39,13 @@ assert(city:GetAttribute("ImmersionVersion")=="1.0.0")
 local facades=immersion:FindFirstChild("FacadeDetails")
 assert(facades and #facades:GetChildren()==6)
 for _,d in ipairs(facades:GetChildren()) do
-    assert(d:FindFirstChild("RecessedWing") and d:FindFirstChild("FloatingCanopy"))
+    if d:GetAttribute("ImportedFacade")==true then
+        local sectorFolder=city:FindFirstChild("DistrictArchitecture")
+        local district=if sectorFolder then sectorFolder:FindFirstChild(d.Name) else nil
+        assert(district and district:GetAttribute("ImportedFacade")==true and district:FindFirstChild(d.Name.."Facade_Imported"))
+    else
+        assert(d:FindFirstChild("RecessedWing") and d:FindFirstChild("FloatingCanopy"))
+    end
 end
 local lights,floats=0,0
 for _,obj in ipairs(immersion:GetDescendants()) do
