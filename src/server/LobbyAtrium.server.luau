@@ -123,8 +123,8 @@ local function build(): Model
     -- spawn-to-Story walking corridor below 12 studs.
     local plaza=group(root,"CentralPlaza")
     disc(plaza,"OnyxMedallion",0,.19,1,20,.06,C.Ink,Enum.Material.Marble)
-    ring(plaza,"PlazaOuter",Vector3.new(0,.24,1),10,32,.12,C.Blue)
-    ring(plaza,"PlazaInner",Vector3.new(0,.25,1),7.9,28,.08,C.Cyan)
+    ring(plaza,"PlazaOuter",Vector3.new(0,.24,1),10,24,.12,C.Blue)
+    ring(plaza,"PlazaInner",Vector3.new(0,.25,1),7.9,20,.08,C.Cyan)
     for i=0,7 do
         local a=i*math.pi/4
         local v=Vector3.new(math.sin(a),0,math.cos(a))
@@ -132,8 +132,8 @@ local function build(): Model
             Vector3.new(0,.26,1)+v*9.5,.26,C.Gold,Enum.Material.Metal,.035)
     end
     local emblem=group(plaza,"FissureMonument")
-    ring(emblem,"HaloOuter",Vector3.new(0,15.5,0),4.1,28,.14,C.Blue,true)
-    ring(emblem,"HaloInner",Vector3.new(0,15.5,.16),3.3,24,.09,C.Cyan,true)
+    ring(emblem,"HaloOuter",Vector3.new(0,15.5,0),4.1,24,.14,C.Blue,true)
+    ring(emblem,"HaloInner",Vector3.new(0,15.5,.16),3.3,20,.09,C.Cyan,true)
     -- Angular stylized F logo formed by three separate strokes.
     for i,v in ipairs({{Vector3.new(-1.5,13.2,-.28),Vector3.new(-.5,17.9,-.28)},
         {Vector3.new(-.55,17.9,-.28),Vector3.new(2.0,17.9,-.28)},
@@ -158,7 +158,7 @@ local function build(): Model
     sign(arrival,"WelcomeSign",at(0,14.65,18.55)*CFrame.Angles(0,math.pi,0),19,2.0,
         "ANIME FISSURE","ASCENSION  /  MULTIVERSE CITY",C.Cyan)
     -- Spawn medallion lies visually on the existing platform.
-    ring(arrival,"SpawnRing",Vector3.new(0,1.04,25),4.3,24,.09,C.Blue)
+    ring(arrival,"SpawnRing",Vector3.new(0,1.04,25),4.3,16,.09,C.Blue)
 
     -- Taller architectural portal frame complements the actual Story portal
     -- while leaving its prompt and original location untouched.
@@ -206,8 +206,8 @@ local function build(): Model
     -- Individual visual language for each district, behind or beside its
     -- existing functional stand. These are display-only, not fake systems.
     local summon=sectors:FindFirstChild("Summon") :: Model
-    ring(summon,"SummonArch",Vector3.new(-32,7.8,-13.1),4.6,24,.14,C.Blue,true)
-    ring(summon,"SummonInner",Vector3.new(-32,7.8,-13.0),3.6,20,.07,C.Cyan,true)
+    ring(summon,"SummonArch",Vector3.new(-32,7.8,-13.1),4.6,20,.14,C.Blue,true)
+    ring(summon,"SummonInner",Vector3.new(-32,7.8,-13.0),3.6,16,.07,C.Cyan,true)
     for side=-1,1,2 do
         local x=-32+side*5.6
         p(summon,"CapsuleBase",Vector3.new(2.6,.38,2.6),at(x,.35,-11.9),C.Ink,Enum.Material.Metal)
@@ -235,8 +235,8 @@ local function build(): Model
         end
     end
     local evolution=sectors:FindFirstChild("Evolution") :: Model
-    ring(evolution,"CelestialOrbit",Vector3.new(30,8,40.1),4.5,24,.10,C.Cyan,true)
-    ring(evolution,"CelestialInnerOrbit",Vector3.new(30,8,40.0),3.8,20,.075,C.Purple,true)
+    ring(evolution,"CelestialOrbit",Vector3.new(30,8,40.1),4.5,20,.10,C.Cyan,true)
+    ring(evolution,"CelestialInnerOrbit",Vector3.new(30,8,40.0),3.8,16,.075,C.Purple,true)
     for side=-1,1,2 do
         p(evolution,"AscensionCrystal",Vector3.new(.95,2.25,.95),
             at(30+side*4.8,5.5,39.5)*CFrame.Angles(0,0,side*.25),C.Cyan,Enum.Material.Glass,nil,.16)
@@ -251,7 +251,7 @@ local function build(): Model
         end
     end
     local raids=sectors:FindFirstChild("Raids") :: Model
-    ring(raids,"ShadowRiftArch",Vector3.new(21,7,-37.0),4.6,24,.19,C.Purple,true)
+    ring(raids,"ShadowRiftArch",Vector3.new(21,7,-37.0),4.6,20,.19,C.Purple,true)
     for side=-1,1,2 do
         for i=1,3 do
             p(raids,"ShadowShard",Vector3.new(.58,1.8+i*.5,.61),
@@ -262,7 +262,7 @@ local function build(): Model
     -- Rotating seasonal plaza. Its actual event host remains in its own
     -- model at (270.6,0,8), and no active event is created here.
     local season=group(root,"SeasonalCourt")
-    ring(season,"SeasonOutline",Vector3.new(10.6,.18,8),6.2,24,.11,C.Gold)
+    ring(season,"SeasonOutline",Vector3.new(10.6,.18,8),6.2,20,.11,C.Gold)
     for side=-1,1,2 do
         local x=10.6+side*6
         p(season,"BannerBase",Vector3.new(1.4,.40,1.4),at(x,.2,12.7),C.Ink,Enum.Material.Metal)
@@ -296,7 +296,7 @@ local function build(): Model
             local tx,tz=x+math.cos(a)*2.25,z+math.sin(a)*2.25
             p(gardens,"TreeTrunk",Vector3.new(.32,3.15,.32),at(tx,2.40,tz),Color3.fromRGB(93,80,71),Enum.Material.Wood)
             for j=1,3 do
-                local leaf=p(gardens,"LeafLayer",Vector3.new(2.05-j*.19,1.4,2.15-j*.17),
+                p(gardens,"LeafLayer",Vector3.new(2.05-j*.19,1.4,2.15-j*.17),
                     at(tx,3.5+j*.47,tz)*CFrame.Angles(0,j*.47,.22),if j%2==0 then C.Green else C.Soil,Enum.Material.SmoothPlastic,"Ball")
             end
         end
@@ -397,6 +397,9 @@ local function build(): Model
     immersion:SetAttribute("Ready",true)
     root:SetAttribute("ImmersionVersion","1.0.0")
 
+    local count=0
+    for _,obj in ipairs(root:GetDescendants()) do if obj:IsA("BasePart") then count+=1 end end
+    root:SetAttribute("DecorativePartCount",count)
     root:SetAttribute("Ready",true)
     return root
 end
